@@ -1,5 +1,6 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
     :root {
@@ -197,13 +198,6 @@
                 <span id="ppdb-badge" class="badge-notif" style="display: none;">0</span>
             </a>
         </li>
-        <li class="{{ Request::is('konfirmasi-pelanggaran*') ? 'active' : '' }}">
-            <a href="{{ route('admin.pelanggaran.index') }}" class="d-flex align-items-center w-100">
-                <i class="bi bi-exclamation-octagon"></i> 
-                <span>Konfirmasi Pelanggaran</span>
-                <span id="notif-count" class="badge-notif">0</span>
-            </a>
-        </li>
         <li class="{{ Request::is('kelas*') ? 'active' : '' }}">
             <a href="{{ route('kelas.index') }}">
                 <i class="bi bi-door-open"></i> Kelola Kelas
@@ -290,13 +284,14 @@
     <div class="logout-section">
         <form action="{{ route('logout') }}" method="POST" id="logout-form">
             @csrf
-            <button type="submit" class="btn-logout">
+            <button type="button" class="btn-logout" onclick="confirmLogout()">
                 <i class="bi bi-box-arrow-right me-3"></i>
                 <span>Log Out</span>
             </button>
         </form>
     </div>
 </nav>
+@include('loading')
 <script>
     /**
      * Fungsi Terpusat untuk Memperbarui Semua Badge Notifikasi
@@ -360,4 +355,22 @@
             });
         }
     });
+    
+    function confirmLogout() {
+        Swal.fire({
+            title: 'Yakin ingin log out?',
+            text: "Anda harus login kembali untuk masuk ke sistem.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#198754', 
+            cancelButtonColor: '#d33',     
+            confirmButtonText: 'Ya, Log Out!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true 
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('logout-form').submit();
+            }
+        });
+    }
 </script>

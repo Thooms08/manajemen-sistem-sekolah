@@ -51,7 +51,7 @@
             color: white !important;
         }
 
-        /* HERO SLIDER - PROPORSI TINGGI SEDANG */
+        /* HERO SLIDER */
         .carousel-item {
             height: 50vh; 
             min-height: 350px;
@@ -77,7 +77,7 @@
             text-shadow: 0 4px 12px rgba(0,0,0,0.5);
         }
 
-        /* SEKSI PPDB (AREA PUTIH) */
+        /* SEKSI PPDB */
         .section-cta {
             background-color: #ffffff;
             padding: 50px 0;
@@ -123,6 +123,10 @@
         }
         .program-box:hover { background: var(--primary-green); color: white; }
 
+        /* TABEL INFORMASI CUSTOM */
+        .info-table th { background-color: var(--soft-green); color: var(--dark-green); border-bottom: 2px solid #e5e7eb;}
+        .info-table td { border-bottom: 1px solid #e5e7eb; vertical-align: middle; }
+
         /* FOOTER */
         footer {
             background-color: #0f172a;
@@ -153,13 +157,30 @@
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item"><a class="nav-link" href="#">Beranda</a></li>
                     <li class="nav-item"><a class="nav-link" href="#profil">Tentang</a></li>
+                    @if($infoSekolah)
+                    <li class="nav-item"><a class="nav-link" href="#informasi">Informasi</a></li>
+                    @endif
                     <li class="nav-item"><a class="nav-link" href="#prestasi">Prestasi</a></li>
                     <li class="nav-item"><a class="nav-link" href="#program">Program</a></li>
                     <li class="nav-item"><a class="nav-link" href="#artikel">Berita</a></li>
+                    
                     <li class="nav-item ms-lg-3">
-                        <a class="btn btn-login shadow-sm" href="{{ route('login') }}">
-                            <i class="bi bi-person-circle me-1"></i> Log In
-                        </a>
+                        @auth
+                            @php
+                                $dashboardUrl = match(auth()->user()->role) {
+                                    'admin' => url('dashboard_admin'),
+                                    'guru'  => url('dashboard_guru'),
+                                    default => url('/'),
+                                };
+                            @endphp
+                            <a class="btn btn-success shadow-sm fw-bold" style="border-radius: 12px; padding: 8px 20px;" href="{{ $dashboardUrl }}">
+                                <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                            </a>
+                        @else
+                            <a class="btn btn-login shadow-sm" href="{{ route('login') }}">
+                                <i class="bi bi-person-circle me-1"></i> Log In
+                            </a>
+                        @endauth
                     </li>
                 </ul>
             </div>
@@ -223,7 +244,64 @@
         </div>
     </section>
 
-    <section id="prestasi" class="py-5 bg-light rounded-5 mx-2 mx-md-4">
+    {{-- SECTION INFORMASI SEKOLAH (Hanya Muncul Jika $infoSekolah Memiliki Data) --}}
+    @if($infoSekolah)
+    <section id="informasi" class="py-5 bg-light rounded-5 mx-2 mx-md-4">
+        <div class="container py-5">
+            <div class="text-center mb-5">
+                <h2 class="section-title">Informasi Sekolah</h2>
+                <p class="text-muted">Fasilitas dan statistik tenaga kependidikan di {{ $sekolah->nama_sekolah }}</p>
+            </div>
+            
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                        <div class="table-responsive">
+                            <table class="table info-table mb-0 fs-5">
+                                <tbody>
+                                    <tr>
+                                        <th class="ps-4 py-4 w-25"><i class="bi bi-door-open-fill me-2"></i> Jumlah Kelas</th>
+                                        <td class="fw-bold py-4 text-dark">{{ $jumlah_kelas > 0 ? $jumlah_kelas : '-' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="ps-4 py-4"><i class="bi bi-person-badge-fill me-2"></i> Jumlah Guru</th>
+                                        @php
+                                            // Prioritaskan input admin dari InfoSekolah, jika kosong ambil hitungan aktual dari db
+                                            $guruDisplay = $infoSekolah->jumlah_guru ?? $jumlah_guru_db ?? 0;
+                                        @endphp
+                                        <td class="fw-bold py-4 text-dark">{{ $guruDisplay > 0 ? $guruDisplay : '-' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="ps-4 py-4"><i class="bi bi-people-fill me-2"></i> Jumlah Murid</th>
+                                        <td class="fw-bold py-4 text-dark">{{ $jumlah_murid > 0 ? $jumlah_murid : '-' }}</td>
+                                    </tr>
+                                    @if($infoSekolah->fasilitas)
+                                    <tr>
+                                        <th class="ps-4 py-4 align-middle"><i class="bi bi-building-fill-check me-2"></i> Fasilitas</th>
+                                        <td class="py-4">
+                                            <div class="d-flex flex-wrap gap-2">
+                                                @foreach(explode(',', $infoSekolah->fasilitas) as $fasilitas)
+                                                    @if(trim($fasilitas) != '')
+                                                        <span class="badge bg-white text-success border border-success px-3 py-2 rounded-pill shadow-sm">
+                                                            <i class="bi bi-check-circle-fill me-1"></i> {{ trim($fasilitas) }}
+                                                        </span>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    @endif
+
+    <section id="prestasi" class="py-5">
         <div class="container py-5">
             <div class="text-center mb-5">
                 <h2 class="section-title">Prestasi Siswa Kami</h2>
@@ -232,9 +310,9 @@
             <div class="row g-4">
                 @foreach($prestasi->take(3) as $pres)
                 <div class="col-md-4">
-                    <div class="card h-100 shadow-sm">
-                        @if($pres->fotos->count() > 0)
-                            <img src="{{ asset($pres->fotos->first()->foto) }}" class="card-img-top img-card-custom" alt="Prestasi">
+                    <div class="card h-100 shadow-sm border">
+                        @if($pres->foto_prestasi && $pres->foto_prestasi !== '-')
+                            <img src="{{ asset($pres->foto_prestasi) }}" class="card-img-top img-card-custom" alt="Prestasi">
                         @endif
                         <div class="card-body p-4">
                             <h5 class="fw-bold">{{ $pres->judul_prestasi }}</h5>
@@ -247,7 +325,7 @@
         </div>
     </section>
 
-    <section id="program" class="py-5">
+    <section id="program" class="py-5 bg-light rounded-5 mx-2 mx-md-4">
         <div class="container py-5">
             <h2 class="section-title text-center mb-5">Program Unggulan</h2>
             <div class="row g-4">
@@ -264,24 +342,24 @@
         </div>
     </section>
 
-    <section id="artikel" class="py-5 bg-light rounded-5 mx-2 mx-md-4">
+    <section id="artikel" class="py-5">
         <div class="container py-5">
             <div class="d-flex justify-content-between align-items-center mb-5">
-                <h2 class="section-title mb-0">Warta Sekolah</h2>
+                <h2 class="section-title mb-0">Artikel Sekolah</h2>
                 <a href="/artikel" class="btn btn-outline-success rounded-pill px-4 fw-bold">Lihat Semua</a>
             </div>
             <div class="row g-4">
                 @foreach($artikels->take(3) as $art)
                 <div class="col-md-4">
-                    <div class="card h-100 shadow-sm">
-                        @if($art->fotos->count() > 0)
-                            <img src="{{ asset($art->fotos->first()->foto_artikel) }}" class="card-img-top img-card-custom" alt="Berita">
+                    <div class="card h-100 shadow-sm border">
+                        @if($art->foto_artikel)
+                            <img src="{{ asset($art->foto_artikel) }}" class="card-img-top img-card-custom" alt="Berita">
                         @endif
                         <div class="card-body p-4">
                             <small class="text-success fw-bold d-block mb-2">{{ $art->created_at->format('d M Y') }}</small>
                             <h5 class="fw-bold mb-3">{{ $art->judul }}</h5>
                             <p class="text-muted small mb-4">{{ Str::limit($art->teaser, 110) }}</p>
-                            <a href="/artikel/{{ $art->id }}" class="text-success fw-bold text-decoration-none">Selengkapnya <i class="bi bi-arrow-right"></i></a>
+                            <a href="{{ route('artikel.show', $art->slug) }}" class="text-success fw-bold text-decoration-none">Selengkapnya <i class="bi bi-arrow-right"></i></a>
                         </div>
                     </div>
                 </div>

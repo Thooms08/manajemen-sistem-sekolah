@@ -12,10 +12,4 @@ class Prestasi extends Model
     protected $table = 'prestasi';
     protected $guarded = ['id'];
 
-    // TAMBAHKAN FUNGSI INI
-    public function fotos()
-    {
-        // Parameter kedua adalah foreign key di tabel foto_prestasi
-        return $this->hasMany(FotoPrestasi::class, 'id_prestasi');
-    }
 }

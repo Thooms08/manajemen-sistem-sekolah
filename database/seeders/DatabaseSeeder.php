@@ -17,21 +17,18 @@ class DatabaseSeeder extends Seeder
         User::create([
             'username' => 'admin_sekolah',
             'password' => 'password123', // Otomatis dihash oleh Model User
-            'rules'    => 'admin',
+            'role'    => 'admin',
         ]);
         
         // Data Guru
         User::create([
             'username' => 'guru_budi',
             'password' => 'password123',
-            'rules'    => 'guru',
+            'role'    => 'guru',
         ]);
 
-        // Data Wali Murid
-        User::create([
-            'username' => 'ortu_siswa',
-            'password' => 'password123',
-            'rules'    => 'wali_murid',
+        $this->call([
+            ProfileSekolahSeeder::class,
         ]);
     }
 }

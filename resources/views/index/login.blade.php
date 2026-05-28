@@ -25,6 +25,8 @@
 </head>
 <body class="bg-gradient-to-br from-emerald-50 via-white to-green-100 min-h-screen flex items-center justify-center p-4">
 
+    @include('loading')
+
     <div class="w-full max-w-md relative">
         <div class="mb-6">
             <a href="{{ route('home') }}" class="inline-flex items-center text-sm font-semibold text-emerald-700 hover:text-emerald-800 transition-colors group">
@@ -47,7 +49,7 @@
             
             @if ($errors->any())
                 <div class="mb-6 flex items-center p-4 text-sm text-red-800 border border-red-200 rounded-xl bg-red-50" role="alert">
-                    <i data-lucide="alert-circle" class="w-4 h-4 mr-2"></i>
+                    <i data-lucide="alert-circle" class="w-4 h-4 mr-2 min-w-max"></i>
                     <div>
                         {{ $errors->first() }}
                     </div>
@@ -87,6 +89,23 @@
                             <i data-lucide="eye" class="w-5 h-5" id="eyeIcon"></i>
                             <i data-lucide="eye-off" class="w-5 h-5 hidden" id="eyeOffIcon"></i>
                         </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="captcha" class="block mb-2 text-sm font-semibold text-gray-700">Verifikasi Keamanan</label>
+                    <div class="flex items-center space-x-3">
+                        <div class="flex items-center justify-center bg-emerald-100 text-emerald-800 font-bold text-lg rounded-xl px-4 py-2 border border-emerald-200 select-none min-w-[100px]">
+                            {{ $angka1 }} + {{ $angka2 }} =
+                        </div>
+                        <div class="relative flex-1">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                <i data-lucide="calculator" class="w-5 h-5"></i>
+                            </div>
+                            <input type="number" name="captcha" id="captcha" 
+                                class="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-center font-bold" 
+                                placeholder="?" required autocomplete="off">
+                        </div>
                     </div>
                 </div>
 

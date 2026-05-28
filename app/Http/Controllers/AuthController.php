@@ -10,33 +10,55 @@ class AuthController extends Controller
 {
     public function index()
     {
-        return view('index.login');
+        // Generate dua angka acak antara 1 sampai 10
+        $angka1 = rand(1, 10);
+        $angka2 = rand(1, 10);
+        
+        // Simpan hasil pertambahannya ke dalam session
+        session(['captcha_answer' => $angka1 + $angka2]);
+
+        // Kirim angka tersebut ke view login
+        return view('index.login', compact('angka1', 'angka2'));
     }
 
     public function login(Request $request): RedirectResponse
     {
-        // Validasi input
-        $credentials = $request->validate([
+        // Validasi input termasuk input captcha
+        $request->validate([
             'username' => ['required', 'string'],
             'password' => ['required'],
+            'captcha'  => ['required', 'numeric'],
         ]);
 
-        // Proses autentikasi (Auth::attempt otomatis mengecek Hash::check)
+        // Cek apakah jawaban captcha dari user sesuai dengan di session
+        if ((int) $request->captcha !== session('captcha_answer')) {
+            return back()->withErrors([
+                'captcha' => 'Jawaban hitungan matematika salah. Silakan coba lagi.',
+            ])->onlyInput('username');
+        }
+
+        // Hapus session captcha setelah tervalidasi agar tidak disalahgunakan ulang
+        $request->session()->forget('captcha_answer');
+
+        // Ambil data untuk autentikasi
+        $credentials = $request->only('username', 'password');
+
+        // Proses autentikasi
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
             $user = Auth::user();
 
-            // Logika Redirection berdasarkan Rules
-            return match ($user->rules) {
+            // Logika Redirection berdasarkan Role
+            return match ($user->role) {
                 'admin'      => redirect()->intended('dashboard_admin'),
                 'guru'       => redirect()->intended('dashboard_guru'),
-                'wali_murid' => redirect()->intended('dashboard_wali'),
+                //'wali_murid' => redirect()->intended('dashboard_wali'),
                 default      => redirect('/login'),
             };
         }
 
-        // Jika login gagal
+        // Jika login gagal (username/password salah)
         return back()->withErrors([
             'username' => 'Username atau password salah.',
         ])->onlyInput('username');

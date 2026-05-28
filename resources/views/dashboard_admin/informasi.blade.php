@@ -9,7 +9,7 @@
     @else
     <link rel="icon" type="image/png" href="{{ asset('assets/img/default-favicon.png') }}">
     @endif
-    
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -20,244 +20,408 @@
             --dark-green: #146c43;
             --light-bg: #f4f7f6;
         }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--light-bg);
-            overflow-x: hidden;
-        }
-
-        .wrapper {
-            display: flex;
-            width: 100%;
-            align-items: stretch;
-        }
-
-        #content {
-            width: 100%;
-            padding: 20px 30px;
-            transition: all 0.3s;
-            min-height: 100vh;
-        }
-
-        /* Hamburger Button Styling */
+        body { font-family: 'Inter', sans-serif; background-color: var(--light-bg); overflow-x: hidden; }
+        .wrapper { display: flex; width: 100%; align-items: stretch; }
+        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; min-height: 100vh; }
         #sidebarCollapse {
-            width: 45px;
-            height: 45px;
-            background: var(--primary-green);
-            border: none;
-            color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(25, 135, 84, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.3s;
+            width: 45px; height: 45px; background: var(--primary-green); border: none;
+            color: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(25,135,84,0.2);
+            display: flex; align-items: center; justify-content: center; transition: 0.3s;
         }
-
-        #sidebarCollapse:hover {
-            background: var(--dark-green);
-            transform: scale(1.05);
-        }
-
-        /* Tab & Card Styling */
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            background: #fff;
-        }
-
-        .nav-pills .nav-link {
-            color: #555;
-            font-weight: 600;
-            padding: 12px 20px;
-            border-radius: 10px;
-            transition: 0.3s;
-        }
-
-        .nav-pills .nav-link.active {
-            background-color: var(--primary-green);
-            box-shadow: 0 4px 10px rgba(25, 135, 84, 0.3);
-        }
-
-        .table thead {
-            background-color: #f8f9fa;
-        }
-        /* Menghilangkan kedipan saat perpindahan tab otomatis di awal load */
-        .tab-pane.fade:not(.show) {
-            display: none;
-        }
-
-        .img-thumbnail-custom {
-            width: 80px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-
-        /* Overlay for Mobile */
-        #overlay {
-            display: none;
-            position: fixed;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1040;
-            top: 0;
-            left: 0;
-        }
-
-        #overlay.active {
-            display: block;
-        }
-
-        @media (max-width: 768px) {
-            #content {
-                padding: 15px;
-            }
-        }
+        #sidebarCollapse:hover { background: var(--dark-green); transform: scale(1.05); }
+        .card { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); background: #fff; }
+        .nav-pills .nav-link { color: #555; font-weight: 600; padding: 10px 16px; border-radius: 10px; transition: 0.3s; font-size: 0.85rem; }
+        .nav-pills .nav-link.active { background-color: var(--primary-green); box-shadow: 0 4px 10px rgba(25,135,84,0.3); }
+        .table thead { background-color: #f8f9fa; }
+        .tab-pane.fade:not(.show) { display: none; }
+        .img-thumbnail-custom { width: 80px; height: 60px; object-fit: cover; border-radius: 8px; }
+        #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; top: 0; left: 0; }
+        #overlay.active { display: block; }
+        input:focus, textarea:focus, select:focus { border-color: #198754 !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;}
+        .foto-kepala-preview { width: 120px; height: 120px; object-fit: cover; border-radius: 12px; border: 3px solid #dee2e6; }
+        @media (max-width: 768px) { #content { padding: 15px; } }
     </style>
 </head>
 <body>
 
-    <div id="overlay"></div>
+<div id="overlay"></div>
+<div class="wrapper">
+    @include('dashboard_admin.sidebar_admin')
 
-    <div class="wrapper">
-        @include('dashboard_admin.sidebar_admin')
+    <div id="content">
+        <div class="container-fluid">
 
-        <div id="content">
-            <div class="container-fluid">
-                
-                <div class="d-flex align-items-center justify-content-between mb-4 mt-2">
-                    <div class="d-flex align-items-center">
-                        <button type="button" id="sidebarCollapse" class="btn">
-                            <i class="bi bi-list fs-4"></i>
-                        </button>
-                        <div class="ms-3">
-                            <h4 class="mb-0 fw-bold text-success">Kelola Informasi</h4>
-                            <p class="text-muted small mb-0">Update konten informasi sekolah Anda</p>
-                        </div>
+            <div class="d-flex align-items-center justify-content-between mb-4 mt-2">
+                <div class="d-flex align-items-center">
+                    <button type="button" id="sidebarCollapse" class="btn">
+                        <i class="bi bi-list fs-4"></i>
+                    </button>
+                    <div class="ms-3">
+                        <h4 class="mb-0 fw-bold text-success">Kelola Informasi</h4>
+                        <p class="text-muted small mb-0">Update konten informasi sekolah Anda</p>
                     </div>
                 </div>
+            </div>
 
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert">
-                        <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
-
-                <div class="card p-3 mb-4">
-                    <ul class="nav nav-pills nav-fill" id="pills-tab" role="tablist">
-                        <li class="nav-item">
-                            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#tab-kegiatan">
-                                <i class="bi bi-camera me-2"></i> Kegiatan
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-program">
-                                <i class="bi bi-mortarboard me-2"></i> Program
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-prestasi">
-                                <i class="bi bi-trophy me-2"></i> Prestasi
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#tab-artikel">
-                                <i class="bi bi-newspaper me-2"></i> Artikel
-                            </button>
-                        </li>
-                    </ul>
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
+            @endif
 
-                <div class="tab-content" id="pills-tabContent">
-                    
-                    <div class="tab-pane fade show active" id="tab-kegiatan">
-                        <div class="card p-4">
-                            <h5 class="fw-bold mb-3">Tambah Dokumentasi Kegiatan</h5>
-                            <form action="{{ route('kegiatan.store') }}" method="POST" enctype="multipart/form-data" class="row g-3 mb-4">
-                                @csrf
-                                <div class="col-md-4">
-                                    <label class="form-label">Label Foto</label>
-                                    <input type="text" name="label_foto" class="form-control" required placeholder="Nama kegiatan">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Foto Kegiatan</label>
-                                    <input type="file" name="foto_kegiatan" class="form-control" required>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Deskripsi (Opsional)</label>
-                                    <input type="text" name="deskripsi_foto" class="form-control" placeholder="Keterangan singkat">
-                                </div>
-                                <div class="col-12 text-end">
-                                    <button type="submit" class="btn btn-success px-4">Simpan Kegiatan</button>
-                                </div>
-                            </form>
-                            <hr>
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle">
-                                    <thead>
-                                        <tr>
-                                            <th>Foto</th>
-                                            <th>Label</th>
-                                            <th>Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($kegiatan as $k)
-                                        <tr>
-                                            <td><img src="{{ asset($k->foto_kegiatan) }}" class="img-thumbnail-custom shadow-sm"></td>
-                                            <td>{{ $k->label_foto }}</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-outline-success" onclick="editKegiatan('{{ $k->id }}', '{{ $k->label_foto }}', '{{ $k->deskripsi_foto }}')">
-                                                        <i class="bi bi-pencil-square"></i>
-                                                    </button>
-                                                <form action="{{ route('kegiatan.destroy', $k->id) }}" method="POST" class="d-inline">
-                                                    @csrf @method('DELETE')
-                                                    <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Hapus data ini?')"><i class="bi bi-trash"></i></button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+            {{-- DROPDOWN NAVIGATION --}}
+<div class="card p-2 mb-4 shadow-sm border-0 z-3 position-relative"> <div class="dropdown">
+        <button class="btn btn-outline-success dropdown-toggle w-100 fw-bold py-2 d-flex justify-content-between align-items-center" type="button" id="dropdownTabButton" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
+            <span id="dropdownTabContent"><i class="bi bi-camera me-2"></i> Kegiatan Akademik & Ekstrakurikuler</span>
+        </button>
+        <ul class="dropdown-menu w-100 shadow border-0 mt-1" id="custom-dropdown-tabs">
+            <li>
+                <button class="dropdown-item active py-2" type="button" data-tab-target="#tab-kegiatan" onclick="switchTab(this, '#tab-kegiatan', 'Kegiatan', 'bi-camera')">
+                    <i class="bi bi-camera me-2 text-success"></i> Kegiatan Akademik & Ekstrakurikuler
+                </button>
+            </li>
+            <li>
+                <button class="dropdown-item py-2" type="button" data-tab-target="#tab-program" onclick="switchTab(this, '#tab-program', 'Program', 'bi-mortarboard')">
+                    <i class="bi bi-mortarboard me-2 text-success"></i> Program Sekolah
+                </button>
+            </li>
+            <li>
+                <button class="dropdown-item py-2" type="button" data-tab-target="#tab-studi" onclick="switchTab(this, '#tab-studi', 'Program Studi', 'bi-building')">
+                    <i class="bi bi-building me-2 text-success"></i> Program Studi
+                </button>
+            </li>
+            <li>
+                <button class="dropdown-item py-2" type="button" data-tab-target="#tab-prestasi" onclick="switchTab(this, '#tab-prestasi', 'Prestasi', 'bi-trophy')">
+                    <i class="bi bi-trophy me-2 text-success"></i> Prestasi Akademik & Non-Akademik
+                </button>
+            </li>
+            <li>
+                <button class="dropdown-item py-2" type="button" data-tab-target="#tab-artikel" onclick="switchTab(this, '#tab-artikel', 'Artikel', 'bi-newspaper')">
+                    <i class="bi bi-newspaper me-2 text-success"></i> Artikel
+                </button>
+            </li>
+            <li>
+                <button class="dropdown-item py-2" type="button" data-tab-target="#tab-info" onclick="switchTab(this, '#tab-info', 'Informasi Lainnya', 'bi-info-circle')">
+                    <i class="bi bi-info-circle me-2 text-success"></i> Informasi Lainnya
+                </button>
+            </li>
+        </ul>
+    </div>
+</div>
+
+            <div class="tab-content" id="pills-tabContent">
+
+                {{-- TAB KEGIATAN --}}
+                <div class="tab-pane fade show active" id="tab-kegiatan">
+                    <div class="card p-4">
+                        <h5 class="fw-bold mb-3">Tambah Dokumentasi Kegiatan</h5>
+                        <form action="{{ route('kegiatan.store') }}" method="POST" enctype="multipart/form-data" class="row g-3 mb-4">
+                            @csrf
+                            <div class="col-md-4">
+                                <label class="form-label">Label Foto</label>
+                                <input type="text" name="label_foto" class="form-control" required placeholder="Nama kegiatan">
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="tab-pane fade" id="tab-program">
-                        <div class="card p-4">
-                            <h5 class="fw-bold mb-3">Tambah Program Sekolah</h5>
-                            <form action="{{ route('program.store') }}" method="POST" class="row g-3 mb-4">
-                                @csrf
-                                <div class="col-md-6">
-                                    <label class="form-label">Nama Program</label>
-                                    <input type="text" name="nama_program" class="form-control" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Deskripsi Singkat (Max 150 Karakter)</label>
-                                    <input type="text" name="deskripsi_program" class="form-control" maxlength="150">
-                                </div>
-                                <div class="col-12 text-end">
-                                    <button type="submit" class="btn btn-success px-4">Simpan Program</button>
-                                </div>
-                            </form>
-                            <hr>
-                            <table class="table">
-                                <thead><tr><th>Nama Program</th><th>Deskripsi</th><th>Aksi</th></tr></thead>
+                            <div class="col-md-4">
+                                <label class="form-label">Foto Kegiatan</label>
+                                <input type="file" name="foto_kegiatan" class="form-control" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Deskripsi (Opsional)</label>
+                                <input type="text" name="deskripsi_foto" class="form-control" placeholder="Keterangan singkat">
+                            </div>
+                            <div class="col-12 text-end">
+                                <button type="submit" class="btn btn-success px-4">Simpan Kegiatan</button>
+                            </div>
+                        </form>
+                        <hr>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr><th>Foto</th><th>Label</th><th>Aksi</th></tr>
+                                </thead>
                                 <tbody>
-                                    @foreach($programs as $p)
+                                    @foreach($kegiatan as $k)
                                     <tr>
-                                        <td class="fw-bold">{{ $p->nama_program }}</td>
-                                        <td>{{ $p->deskripsi_program }}</td>
+                                        <td><img src="{{ asset($k->foto_kegiatan) }}" class="img-thumbnail-custom shadow-sm"></td>
+                                        <td>{{ $k->label_foto }}</td>
                                         <td>
-                                             <button class="btn btn-sm btn-outline-success mb-1" onclick="editProgram('{{ $p->id }}', '{{ $p->nama_program }}', '{{ $p->deskripsi_program }}')">
+                                            <button class="btn btn-sm btn-outline-success me-1"
+                                                onclick="editKegiatan('{{ $k->id }}', '{{ $k->label_foto }}', '{{ $k->deskripsi_foto }}', '{{ $k->foto_kegiatan }}')">
                                                 <i class="bi bi-pencil-square"></i>
                                             </button>
-                                            <form action="{{ route('program.destroy', $p->id) }}" method="POST">
+                                            <form action="{{ route('kegiatan.destroy', $k->id) }}" method="POST" class="d-inline">
+                                                @csrf @method('DELETE')
+                                                <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Hapus data ini?')">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- TAB PROGRAM --}}
+                <div class="tab-pane fade" id="tab-program">
+                    <div class="card p-4">
+                        <h5 class="fw-bold mb-3">Tambah Program Sekolah</h5>
+                        <form action="{{ route('program.store') }}" method="POST" class="row g-3 mb-4">
+                            @csrf
+                            <div class="col-md-6">
+                                <label class="form-label">Nama Program</label>
+                                <input type="text" name="nama_program" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Deskripsi Singkat (Max 150 Karakter)</label>
+                                <input type="text" name="deskripsi_program" class="form-control" maxlength="150">
+                            </div>
+                            <div class="col-12 text-end">
+                                <button type="submit" class="btn btn-success px-4">Simpan Program</button>
+                            </div>
+                        </form>
+                        <hr>
+                        <table class="table">
+                            <thead><tr><th>Nama Program</th><th>Deskripsi</th><th>Aksi</th></tr></thead>
+                            <tbody>
+                                @foreach($programs as $p)
+                                <tr>
+                                    <td class="fw-bold">{{ $p->nama_program }}</td>
+                                    <td>{{ $p->deskripsi_program }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-success mb-1"
+                                            onclick="editProgram('{{ $p->id }}', '{{ $p->nama_program }}', '{{ $p->deskripsi_program }}')">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        <form action="{{ route('program.destroy', $p->id) }}" method="POST">
+                                            @csrf @method('DELETE')
+                                            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- TAB PRESTASI --}}
+                <div class="tab-pane fade" id="tab-prestasi">
+                    <div class="card p-4">
+                        <h5 class="fw-bold mb-3">Tambah Prestasi Siswa</h5>
+                        <form action="{{ route('prestasi.store') }}" method="POST" enctype="multipart/form-data" class="row g-3 mb-4">
+                            @csrf
+                            <div class="col-md-6">
+                                <label class="form-label">Judul Prestasi</label>
+                                <input type="text" name="judul_prestasi" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Foto-foto Prestasi</label>
+                                <input type="file" name="foto_prestasi" class="form-control" accept="image/*"  multiple required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Deskripsi Prestasi</label>
+                                <textarea name="deskripsi_prestasi" class="form-control" rows="2"></textarea>
+                            </div>
+                            <div class="col-12 text-end">
+                                <button type="submit" class="btn btn-success px-4">Simpan Prestasi</button>
+                            </div>
+                        </form>
+                        
+                        <hr>
+                        
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Foto</th>
+                                        <th>Judul Prestasi</th>
+                                        <th>Deskripsi</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($prestasi as $pres)
+                                    <tr>
+                                        <td>
+                                            @if($pres->foto_prestasi && $pres->foto_prestasi !== '-')
+                                                <img src="{{ asset($pres->foto_prestasi) }}" 
+                                                    width="80" height="60" 
+                                                    class="rounded object-fit-cover shadow-sm" alt="Foto Prestasi">
+                                            @else
+                                                <span class="text-muted small">Tidak ada foto</span>
+                                            @endif
+                                        </td>
+                                        <td class="fw-bold">{{ $pres->judul_prestasi }}</td>
+                                        <td>{{ Str::limit($pres->deskripsi_prestasi, 50) }}</td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <button class="btn btn-sm btn-outline-success"
+                                                        data-id="{{ $pres->id }}"
+                                                        data-judul="{{ $pres->judul_prestasi }}"
+                                                        data-desc="{{ $pres->deskripsi_prestasi }}"
+                                                        data-foto="{{ $pres->foto_prestasi }}"
+                                                        onclick="editPrestasi(this)"
+                                                        title="Edit Prestasi">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </button>
+                                                <form action="{{ route('prestasi.destroy', $pres->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus prestasi ini?')">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Prestasi">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {{-- TAB ARTIKEL --}}
+               <div class="tab-pane fade" id="tab-artikel">
+                    <div class="card p-4">
+                        <h5 class="fw-bold mb-3">Tulis Artikel Baru</h5>
+                        <form action="{{ route('artikel.store') }}" method="POST" enctype="multipart/form-data" class="row g-3">
+                            @csrf
+                            <div class="col-md-8">
+                                <label class="form-label">Judul Artikel</label>
+                                <input type="text" name="judul_artikel" class="form-control" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Teaser</label>
+                                <input type="text" name="teaser" class="form-control">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Isi Artikel</label>
+                                <textarea name="deskripsi" class="form-control" rows="5" required></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Foto Artikel</label>
+                                <input type="file" name="foto_artikel" class="form-control" accept="image/jpg,image/jpeg,image/png">
+                                <small class="text-muted">Format: JPG, JPEG, PNG. Maks 2MB.</small>
+                            </div>
+                            <div class="col-12 text-center pt-3">
+                                <button type="submit" class="btn btn-success btn-lg px-5 shadow">Publikasikan</button>
+                            </div>
+                        </form>
+                        <hr class="my-5">
+                        <h5 class="fw-bold mb-3">Daftar Artikel Terpublikasi</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="150">Thumbnail</th>
+                                        <th>Judul & Ringkasan</th>
+                                        <th width="150">Tanggal</th>
+                                        <th width="100" class="text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($artikels as $art)
+                                    <tr>
+                                       <td>
+                                            @if($art->foto_artikel)
+                                                <img src="{{ asset($art->foto_artikel) }}" 
+                                                    class="img-thumbnail-custom shadow-sm" 
+                                                    style="width: 120px; height: 80px; object-fit: cover;">
+                                            @else
+                                                <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded" 
+                                                    style="width: 120px; height: 80px; font-size: 0.7rem;">Tanpa Foto</div>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold text-dark">{{ $art->judul }}</div>
+                                            <small class="text-muted d-block">{{ Str::limit($art->teaser, 70) }}</small>
+                                           <span class="badge bg-light text-success border mt-1">{{ $art->foto_artikel ? '1' : '0' }} Foto</span>
+                                        </td>
+                                        <td><small class="text-muted"><i class="bi bi-calendar3 me-1"></i> {{ $art->created_at->format('d M Y') }}</small></td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-success mb-1"
+                                                    data-id="{{ $art->id }}"
+                                                    data-judul="{{ $art->judul }}"
+                                                    data-teaser="{{ $art->teaser }}"
+                                                    data-desc="{{ $art->deskripsi }}"
+                                                    data-foto="{{ $art->foto_artikel }}"
+                                                    onclick="editArtikel(this)">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
+                                            <form action="{{ route('artikel.destroy', $art->id) }}" method="POST" onsubmit="return confirm('Hapus artikel ini?')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center py-5 text-muted">
+                                            <i class="bi bi-journal-x display-4 d-block mb-2"></i>
+                                            Belum ada artikel yang diterbitkan.
+                                        </td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- TAB PROGRAM STUDI (BARU) --}}
+                <div class="tab-pane fade" id="tab-studi">
+                    <div class="card p-4">
+                        <h5 class="fw-bold mb-3">Tambah Program Studi</h5>
+                        <form action="{{ route('studi.store') }}" method="POST" class="row g-3 mb-4">
+                            @csrf
+                            <div class="col-md-5">
+                                <label class="form-label">Nama Program Studi <span class="text-danger">*</span></label>
+                                <input type="text" name="nama_studi" class="form-control" required placeholder="Contoh: Teknik Komputer dan Jaringan">
+                            </div>
+                            <div class="col-md-7">
+                                <label class="form-label">Deskripsi Singkat Program Studi</label>
+                                <input type="text" name="deskripsi_studi" class="form-control" placeholder="Deskripsi singkat program studi...">
+                            </div>
+                            <div class="col-12 text-end">
+                                <button type="submit" class="btn btn-success px-4">
+                                    <i class="bi bi-plus-circle me-1"></i> Simpan Program Studi
+                                </button>
+                            </div>
+                        </form>
+                        <hr>
+                        <h6 class="fw-bold mb-3 text-muted">Daftar Program Studi</h6>
+                        @if($studiList->isEmpty())
+                            <div class="text-center py-4 text-muted">
+                                <i class="bi bi-book display-5 d-block mb-2"></i>
+                                Belum ada program studi yang ditambahkan.
+                            </div>
+                        @else
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="40">#</th>
+                                        <th>Nama Program Studi</th>
+                                        <th>Deskripsi</th>
+                                        <th width="120" class="text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($studiList as $i => $s)
+                                    <tr>
+                                        <td class="text-muted">{{ $i + 1 }}</td>
+                                        <td class="fw-bold">{{ $s->nama_studi }}</td>
+                                        <td class="text-muted">{{ $s->deskripsi_studi ?? '-' }}</td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-success me-1"
+                                                onclick="editStudi('{{ $s->id }}', '{{ addslashes($s->nama_studi) }}', '{{ addslashes($s->deskripsi_studi) }}')">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
+                                            <form action="{{ route('studi.destroy', $s->id) }}" method="POST" class="d-inline"
+                                                onsubmit="return confirm('Hapus program studi ini?')">
                                                 @csrf @method('DELETE')
                                                 <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                                             </form>
@@ -267,167 +431,98 @@
                                 </tbody>
                             </table>
                         </div>
+                        @endif
                     </div>
+                </div>
 
-                    <div class="tab-pane fade" id="tab-prestasi">
-                        <div class="card p-4">
-                            <h5 class="fw-bold mb-3">Tambah Prestasi Siswa</h5>
-                            <form action="{{ route('prestasi.store') }}" method="POST" enctype="multipart/form-data" class="row g-3 mb-4">
-                                @csrf
-                                <div class="col-md-6">
-                                    <label class="form-label">Judul Prestasi</label>
-                                    <input type="text" name="judul_prestasi" class="form-control" required>
+                {{-- TAB INFORMASI LAINNYA (BARU) --}}
+                <div class="tab-pane fade" id="tab-info">
+                    <div class="card p-4">
+                        <h5 class="fw-bold mb-1">Informasi Lainnya</h5>
+                        <p class="text-muted small mb-4">Data ini akan tampil di halaman profil sekolah. Jika sudah ada data sebelumnya, form ini akan memperbaruinya.</p>
+
+                        <form action="{{ route('info.sekolah.save') }}" method="POST" enctype="multipart/form-data" class="row g-4">
+                            @csrf
+
+                            {{-- Jumlah Guru --}}
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Jumlah Guru <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="number" name="jumlah_guru" class="form-control" required min="0"
+                                        value="{{ $infoSekolah->jumlah_guru ?? '' }}" placeholder="Contoh: 45">
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Foto-foto Prestasi (Bisa banyak)</label>
-                                    <input type="file" name="foto_prestasi[]" class="form-control" multiple required>
+                            </div>
+
+                            {{-- Jumlah Staff --}}
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Jumlah Staff <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="number" name="jumlah_staff" class="form-control" required min="0"
+                                        value="{{ $infoSekolah->jumlah_staff ?? '' }}" placeholder="Contoh: 12">
                                 </div>
-                                <div class="col-12">
-                                    <label class="form-label">Deskripsi Prestasi</label>
-                                    <textarea name="deskripsi_prestasi" class="form-control" rows="2"></textarea>
+                            </div>
+
+                            {{-- Nama Kepala Sekolah --}}
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Nama Kepala Sekolah <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input type="text" name="nama_kepala_sekolah" class="form-control" required
+                                        value="{{ $infoSekolah->nama_kepala_sekolah ?? '' }}" placeholder="Nama lengkap kepala sekolah">
                                 </div>
-                                <div class="col-12 text-end">
-                                    <button type="submit" class="btn btn-success px-4">Simpan Prestasi</button>
-                                </div>
-                            </form>
-                            <div class="row">
-                                @foreach($prestasi as $pres)
-                                <div class="col-md-4 mb-3">
-                                    <div class="card border p-3">
-                                        <h6 class="fw-bold">{{ $pres->judul_prestasi }}</h6>
-                                        <div class="d-flex flex-wrap gap-1 mb-2">
-                                            @foreach($pres->fotos as $f)
-                                                <img src="{{ asset($f->foto) }}" width="50" height="50" class="rounded object-fit-cover shadow-sm">
-                                            @endforeach
-                                        </div>
-                                        <button class="btn btn-sm btn-outline-success mb-1 p-0" 
-                                            onclick="editPrestasi('{{ $pres->id }}', '{{ $pres->judul_prestasi }}', `{{ $pres->deskripsi_prestasi }}`, {{ $pres->fotos->toJson() }})">
-                                            <i class="bi bi-pencil-square fs-5"></i>Edit
-                                        </button>
-                                        <form action="{{ route('prestasi.destroy', $pres->id) }}" method="POST">
-                                            @csrf @method('DELETE')
-                                            <button class="btn btn-sm btn-outline-danger w-100">Hapus</button>
-                                        </form>
+                            </div>
+
+                            {{-- Foto Kepala Sekolah --}}
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Foto Kepala Sekolah <span class="text-muted fw-normal">(Opsional)</span></label>
+                                <input type="file" name="foto_kepala_sekolah" class="form-control" accept="image/jpg,image/jpeg,image/png"
+                                    onchange="previewFotoKepala(event)">
+                                <small class="text-muted">Format: JPG, JPEG, PNG. Maks 2MB.</small>
+                            </div>
+
+                            {{-- Preview Foto Kepala Sekolah --}}
+                            <div class="col-12">
+                                @if($infoSekolah && $infoSekolah->foto_kepala_sekolah)
+                                <div class="d-flex align-items-center gap-3 p-3 border rounded bg-light">
+                                    <img id="preview-kepala" src="{{ asset($infoSekolah->foto_kepala_sekolah) }}"
+                                        class="foto-kepala-preview shadow-sm" alt="Foto Kepala Sekolah" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%;">
+                                    <div>
+                                        <p class="mb-1 fw-semibold">Foto saat ini</p>
+                                        <small class="text-muted">Upload foto baru untuk mengganti.</small>
                                     </div>
                                 </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-
-<div class="tab-pane fade" id="tab-artikel">
-   <div class="card p-4">
-    <h5 class="fw-bold mb-3" id="form-artikel-title">Tulis Artikel Baru</h5>
-    
-    <form id="form-artikel" action="{{ route('artikel.store') }}" method="POST" enctype="multipart/form-data" class="row g-3">
-        @csrf
-        <input type="hidden" name="_method" id="artikel-method" value="POST">
-
-        <div class="col-md-8">
-            <label class="form-label">Judul Artikel</label>
-            <input type="text" name="judul_artikel" id="art_judul" class="form-control" required>
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">Teaser</label>
-            <input type="text" name="teaser" id="art_teaser" class="form-control">
-        </div>
-        <div class="col-12">
-            <label class="form-label">Isi Artikel</label>
-            <textarea name="deskripsi" id="art_desc" class="form-control" rows="5" required></textarea>
-        </div>
-
-        <div id="container-foto-lama" class="col-12 d-none">
-            <label class="form-label fw-bold text-success">Foto Saat Ini (Klik × untuk menghapus)</label>
-            <div id="preview-foto-artikel" class="d-flex flex-wrap gap-3 p-3 border rounded bg-light">
-                </div>
-        </div>
-        
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6 class="fw-bold mb-0">Foto & Sumber Baru</h6>
-                <button type="button" class="btn btn-sm btn-outline-success" onclick="addPhotoRow()">
-                    <i class="bi bi-plus"></i> Tambah Baris
-                </button>
-            </div>
-            <div id="artikel-photo-wrapper">
-                <div class="row g-2 mb-2">
-                    <div class="col-md-5"><input type="file" name="foto_artikel[]" class="form-control"></div>
-                    <div class="col-md-5"><input type="text" name="sumber_foto[]" class="form-control" placeholder="Sumber Foto"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 text-center pt-3">
-            <button type="button" id="btn-cancel-artikel" class="btn btn-outline-secondary btn-lg px-4 d-none" onclick="cancelEditArtikel()">Batal</button>
-            <button type="submit" id="btn-submit-artikel" class="btn btn-success btn-lg px-5 shadow">Publikasikan</button>
-        </div>
-    </form>
-    <hr class="my-5">
-</div>
-
-        <h5 class="fw-bold mb-3">Daftar Artikel Terpublikasi</h5>
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th width="150">Thumbnail</th>
-                        <th>Judul & Ringkasan</th>
-                        <th width="150">Tanggal</th>
-                        <th width="100" class="text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($artikels as $art)
-                    <tr>
-                        <td>
-                            @if($art->fotos->count() > 0)
-                                <img src="{{ asset($art->fotos->first()->foto_artikel) }}" class="img-thumbnail-custom shadow-sm" style="width: 120px; height: 80px;">
-                            @else
-                                <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded" style="width: 120px; height: 80px; font-size: 0.7rem;">
-                                    Tanpa Foto
+                                @else
+                                <div id="preview-kepala-wrapper" class="d-none">
+                                    <div class="d-flex align-items-center gap-3 p-3 border rounded bg-light">
+                                        <img id="preview-kepala" src="" class="foto-kepala-preview shadow-sm" alt="Preview" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%;">
+                                        <div><p class="mb-0 text-muted small">Preview foto baru</p></div>
+                                    </div>
                                 </div>
-                            @endif
-                        </td>
-                        <td>
-                            <div class="fw-bold text-dark">{{ $art->judul }}</div>
-                            <small class="text-muted d-block">{{ Str::limit($art->teaser, 70) }}</small>
-                            <span class="badge bg-light text-success border mt-1">{{ $art->fotos->count() }} Foto</span>
-                        </td>
-                        <td>
-                            <small class="text-muted"><i class="bi bi-calendar3 me-1"></i> {{ $art->created_at->format('d M Y') }}</small>
-                        </td>
-                        <td class="text-center">
-                           <button class="btn btn-sm btn-outline-success mb-1" 
-                                onclick="editArtikel('{{ $art->id }}', '{{ $art->judul }}', '{{ $art->teaser }}', `{{ $art->deskripsi }}`, {{ $art->fotos->toJson() }})">
-                                <i class="bi bi-pencil-square"></i>
-                            </button>
-                            <form action="{{ route('artikel.destroy', $art->id) }}" method="POST" onsubmit="return confirm('Hapus artikel ini?')">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                    <i class="bi bi-trash"></i>
+                                @endif
+                            </div>
+
+                            {{-- Fasilitas Sekolah (BARU) --}}
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Fasilitas Sekolah <span class="text-muted fw-normal">(Opsional)</span></label>
+                                <textarea name="fasilitas" class="form-control" rows="3" placeholder="Contoh: Kantin, Perpustakaan, Lab Komputer, Lapangan Basket">{{ $infoSekolah->fasilitas ?? '' }}</textarea>
+                                <small class="text-muted">Pisahkan setiap fasilitas dengan tanda koma (,)</small>
+                            </div>
+
+                            <div class="col-12 text-end">
+                                <button type="submit" class="btn btn-success px-5 py-2 shadow-sm">
+                                    <i class="bi bi-save me-2"></i> Simpan Informasi
                                 </button>
-                            </form>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="4" class="text-center py-5 text-muted">
-                            <i class="bi bi-journal-x display-4 d-block mb-2"></i>
-                            Belum ada artikel yang diterbitkan.
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>{{-- end tab-content --}}
         </div>
     </div>
 </div>
 
-                </div> </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="modalEditKegiatan" tabindex="-1">
+{{-- MODAL EDIT KEGIATAN --}}
+<div class="modal fade" id="modalEditKegiatan" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <form id="formEditKegiatan" method="POST" enctype="multipart/form-data" class="modal-content border-0 shadow">
             @csrf @method('PUT')
@@ -440,10 +535,20 @@
                     <label class="form-label fw-bold">Label Foto</label>
                     <input type="text" name="label_foto" id="edit_kegiatan_label" class="form-control" required>
                 </div>
+                
+                {{-- Container untuk Preview Foto Lama --}}
+                <div class="col-12 d-none" id="container-preview-kegiatan">
+                    <label class="form-label fw-bold">Foto Saat Ini</label>
+                    <div>
+                        <img id="preview-foto-kegiatan" src="" alt="Preview Kegiatan" class="rounded border shadow-sm" style="width: 150px; height: 100px; object-fit: cover;">
+                    </div>
+                </div>
+
                 <div class="col-12">
-                    <label class="form-label fw-bold">Ganti Foto (Kosongkan jika tidak ingin ganti)</label>
+                    <label class="form-label fw-bold">Ganti Foto/Biarkan jika tidak ingin ganti</label>
                     <input type="file" name="foto_kegiatan" class="form-control">
                 </div>
+                
                 <div class="col-12">
                     <label class="form-label fw-bold">Deskripsi</label>
                     <input type="text" name="deskripsi_foto" id="edit_kegiatan_desc" class="form-control">
@@ -456,6 +561,7 @@
     </div>
 </div>
 
+{{-- MODAL EDIT PROGRAM --}}
 <div class="modal fade" id="modalEditProgram" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <form id="formEditProgram" method="POST" class="modal-content border-0 shadow">
@@ -480,6 +586,8 @@
         </form>
     </div>
 </div>
+
+{{-- MODAL EDIT PRESTASI --}}
 <div class="modal fade" id="modalEditPrestasi" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <form id="formEditPrestasi" method="POST" enctype="multipart/form-data" class="modal-content border-0 shadow">
@@ -494,17 +602,19 @@
                     <input type="text" name="judul_prestasi" id="edit_prestasi_judul" class="form-control" required>
                 </div>
                 
-                <div class="col-12">
-                    <label class="form-label fw-bold">Foto Saat Ini (Klik sampah untuk hapus)</label>
-                    <div id="preview-foto-lama" class="d-flex flex-wrap gap-2 p-2 border rounded bg-light">
-                        </div>
+                {{-- Container untuk Preview Foto Lama --}}
+                <div class="col-12 d-none" id="container-preview-prestasi">
+                    <label class="form-label fw-bold">Foto Saat Ini</label>
+                    <div>
+                        <img id="preview-foto-prestasi" src="" alt="Preview Prestasi" class="rounded border shadow-sm" style="width: 150px; height: 100px; object-fit: cover;">
+                    </div>
                 </div>
 
                 <div class="col-12">
-                    <label class="form-label fw-bold">Tambah Foto Baru</label>
-                    <input type="file" name="foto_prestasi[]" class="form-control" multiple>
+                    <label class="form-label fw-bold">Ganti Foto/Biarkan jika tidak ingin ganti)</label>
+                    <input type="file" name="foto_prestasi" class="form-control">
                 </div>
-
+                
                 <div class="col-12">
                     <label class="form-label fw-bold">Deskripsi</label>
                     <textarea name="deskripsi_prestasi" id="edit_prestasi_desc" class="form-control" rows="3"></textarea>
@@ -516,181 +626,291 @@
         </form>
     </div>
 </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const tabTriggerList = [].slice.call(document.querySelectorAll('#pills-tab button'));
-    const activeTabTarget = localStorage.getItem('activeTab');
 
-    if (activeTabTarget) {
-        const tabToActivate = document.querySelector(`button[data-bs-target="${activeTabTarget}"]`);
-        
-        if (tabToActivate) {
-            const tab = new bootstrap.Tab(tabToActivate);
-            tab.show();
+{{-- MODAL EDIT PROGRAM STUDI (BARU) --}}
+<div class="modal fade" id="modalEditStudi" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <form id="formEditStudi" method="POST" class="modal-content border-0 shadow">
+            @csrf @method('PUT')
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-book me-2"></i>Edit Program Studi</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 row g-3">
+                <div class="col-12">
+                    <label class="form-label fw-bold">Nama Program Studi</label>
+                    <input type="text" name="nama_studi" id="edit_studi_nama" class="form-control" required>
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-bold">Deskripsi Singkat</label>
+                    <textarea name="deskripsi_studi" id="edit_studi_desc" class="form-control" rows="3"
+                        placeholder="Deskripsi singkat program studi..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="submit" class="btn btn-success w-100">Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- MODAL EDIT ARTIKEL --}}
+<div class="modal fade" id="modalEditArtikel" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <form id="formEditArtikel" method="POST" enctype="multipart/form-data" class="modal-content border-0 shadow">
+            @csrf @method('PUT')
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold">Edit Artikel</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 row g-3">
+                <div class="col-md-8">
+                    <label class="form-label fw-bold">Judul Artikel</label>
+                    <input type="text" name="judul_artikel" id="edit_artikel_judul" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Teaser</label>
+                    <input type="text" name="teaser" id="edit_artikel_teaser" class="form-control">
+                </div>
+                
+                {{-- Container untuk Preview Foto Lama --}}
+                <div class="col-12 d-none" id="container-preview-artikel">
+                    <label class="form-label fw-bold">Foto Saat Ini</label>
+                    <div>
+                        <img id="preview-foto-artikel" src="" alt="Preview Artikel" class="rounded border shadow-sm" style="width: 150px; height: 100px; object-fit: cover;">
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label fw-bold">Ganti Foto/Biarkan jika tidak ingin ganti</label>
+                    <input type="file" name="foto_artikel" class="form-control" accept="image/jpg,image/jpeg,image/png">
+                    <small class="text-muted">Format: JPG, JPEG, PNG. Maks 2MB.</small>
+                </div>
+                
+                <div class="col-12">
+                    <label class="form-label fw-bold">Isi Artikel</label>
+                    <textarea name="deskripsi" id="edit_artikel_desc" class="form-control" rows="5" required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="submit" class="btn btn-success w-100 py-2 shadow-sm">Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // 1. Set Tab Aktif dari LocalStorage
+    const activeTabTarget = localStorage.getItem('activeTab') || '#tab-kegiatan';
+    const matchingItem = document.querySelector(`button[data-tab-target="${activeTabTarget}"]`);
+    if (matchingItem) {
+        matchingItem.click(); // Memicu fungsi switchTab() secara otomatis
+    }
+
+    // 2. Logika Sidebar Toggle
+    const sidebar = document.getElementById('sidebar');
+    const collapseBtn = document.getElementById('sidebarCollapse');
+    const closeBtn = document.getElementById('close-sidebar'); // Berada di file include
+    const overlay = document.getElementById('overlay');
+
+    function toggleSidebar() {
+        if (window.innerWidth <= 768) {
+            // Tambahkan pengecekan if (sidebar) untuk mencegah error jika elemen belum dimuat
+            if (sidebar) sidebar.classList.toggle('show-mobile');
+            if (overlay) overlay.classList.toggle('active');
+        } else {
+            if (sidebar) sidebar.classList.toggle('inactive');
         }
     }
-    tabTriggerList.forEach(function(tabEl) {
-        tabEl.addEventListener('shown.bs.tab', function(event) {
-            const target = event.target.getAttribute('data-bs-target');
-            localStorage.setItem('activeTab', target);
-        });
-    });
-            const sidebar = document.getElementById('sidebar');
-            const collapseBtn = document.getElementById('sidebarCollapse');
-            const closeBtn = document.getElementById('close-sidebar');
-            const overlay = document.getElementById('overlay');
 
-            // Sidebar Toggle Logic
-            function toggleSidebar() {
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.toggle('show-mobile');
-                    overlay.classList.toggle('active');
-                } else {
-                    sidebar.classList.toggle('inactive');
-                }
-            }
+    if (collapseBtn) collapseBtn.addEventListener('click', toggleSidebar);
+    if (closeBtn) closeBtn.addEventListener('click', toggleSidebar);
+    if (overlay) overlay.addEventListener('click', toggleSidebar);
+});
 
-            if(collapseBtn) collapseBtn.addEventListener('click', toggleSidebar);
-            if(closeBtn) closeBtn.addEventListener('click', toggleSidebar);
-            if(overlay) overlay.addEventListener('click', toggleSidebar);
-        });
+// ===== ARTIKEL =====
+function addPhotoRow() {
+    const wrapper = document.getElementById('artikel-photo-wrapper');
+    const div = document.createElement('div');
+    div.className = 'row g-2 mb-2 align-items-center';
+    div.innerHTML = `
+        <div class="col-md-5"><input type="file" name="foto_artikel[]" class="form-control"></div>
+        <div class="col-md-5"><input type="text" name="sumber_foto[]" class="form-control" placeholder="Sumber Foto"></div>
+        <div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-danger w-100" onclick="this.closest('.row').remove()"><i class="bi bi-trash"></i></button></div>
+    `;
+    wrapper.appendChild(div);
+}
 
-        // Add Multi Photo Row for Artikel
-        function addPhotoRow() {
-            const wrapper = document.getElementById('artikel-photo-wrapper');
-            const div = document.createElement('div');
-            div.className = 'row g-2 mb-2 align-items-center';
-            div.innerHTML = `
-                <div class="col-md-5"><input type="file" name="foto_artikel[]" class="form-control"></div>
-                <div class="col-md-5"><input type="text" name="sumber_foto[]" class="form-control" placeholder="Sumber Foto"></div>
-                <div class="col-md-2"><button type="button" class="btn btn-sm btn-outline-danger w-100" onclick="this.parentElement.parentElement.remove()"><i class="bi bi-trash"></i></button></div>
-            `;
-            wrapper.appendChild(div);
-        }
-        function editKegiatan(id, label, desc) {
-        document.getElementById('formEditKegiatan').action = `/informasi/kegiatan/${id}`;
-        document.getElementById('edit_kegiatan_label').value = label;
-        document.getElementById('edit_kegiatan_desc').value = desc;
-        new bootstrap.Modal(document.getElementById('modalEditKegiatan')).show();
+// ===== ARTIKEL =====
+function editArtikel(btn) {
+    // 1. Ambil data dari atribut tombol
+    const id = btn.getAttribute('data-id');
+    const judul = btn.getAttribute('data-judul');
+    const teaser = btn.getAttribute('data-teaser');
+    const desc = btn.getAttribute('data-desc');
+    const foto = btn.getAttribute('data-foto');
+
+    // 2. Isi ke dalam form modal
+    document.getElementById('formEditArtikel').action = `/informasi/artikel/${id}`;
+    document.getElementById('edit_artikel_judul').value = judul;
+    document.getElementById('edit_artikel_teaser').value = teaser;
+    document.getElementById('edit_artikel_desc').value = desc;
+
+    // 3. Logika Preview Foto Lama
+    const containerPreview = document.getElementById('container-preview-artikel');
+    const imgPreview = document.getElementById('preview-foto-artikel');
+
+    if (foto) {
+        containerPreview.classList.remove('d-none');
+        // Sesuaikan path jika perlu (misal: imgPreview.src = `/assets/${foto}`)
+        imgPreview.src = `/${foto}`; 
+    } else {
+        containerPreview.classList.add('d-none');
+        imgPreview.src = '';
     }
 
-    function editProgram(id, nama, desc) {
-        document.getElementById('formEditProgram').action = `/informasi/program/${id}`;
-        document.getElementById('edit_program_nama').value = nama;
-        document.getElementById('edit_program_desc').value = desc;
-        new bootstrap.Modal(document.getElementById('modalEditProgram')).show();
-    }
-
-    function editArtikel(id, judul, teaser, desc, fotos) {
-    // 1. Ubah Status Form ke Mode Edit
-    document.getElementById('form-artikel-title').innerText = "Edit Artikel: " + judul;
-    document.getElementById('btn-submit-artikel').innerText = "Simpan Perubahan";
-    document.getElementById('btn-submit-artikel').className = "btn btn-success btn-lg px-5 shadow";
-    document.getElementById('btn-cancel-artikel').classList.remove('d-none');
-
-    // 2. Set URL Action & Method PUT
-    const form = document.getElementById('form-artikel');
-    form.action = `/informasi/artikel/${id}`;
-    document.getElementById('artikel-method').value = "PUT";
-
-    // 3. Isi Data Text
-    document.getElementById('art_judul').value = judul;
-    document.getElementById('art_teaser').value = teaser;
-    document.getElementById('art_desc').value = desc;
-
-    // 4. Tampilkan Preview Foto Lama
-    const containerLama = document.getElementById('container-foto-lama');
-    const previewBox = document.getElementById('preview-foto-artikel');
-    
-    containerLama.classList.remove('d-none');
-    previewBox.innerHTML = ''; 
-
-    fotos.forEach(foto => {
-        const div = document.createElement('div');
-        div.className = 'position-relative';
-        div.id = `wrapper-foto-art-${foto.id}`;
-        div.innerHTML = `
-            <img src="/${foto.foto_artikel}" class="rounded border shadow-sm" style="width: 110px; height: 80px; object-fit: cover;">
-            <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 p-0 shadow" 
-                style="width: 24px; height: 24px; border-radius: 50%; margin-top:-8px; margin-right:-8px;"
-                onclick="ajaxHapusFotoArtikel('${foto.id}')">×</button>
-            <small class="d-block text-center text-muted mt-1" style="font-size: 10px;">${foto.sumber_foto}</small>
-        `;
-        previewBox.appendChild(div);
-    });
-
-    window.scrollTo({ top: form.offsetTop - 100, behavior: 'smooth' });
+    // 4. Tampilkan Modal
+    new bootstrap.Modal(document.getElementById('modalEditArtikel')).show();
 }
 
 function ajaxHapusFotoArtikel(fotoId) {
-    if(confirm('Hapus foto ini dari server?')) {
+    if (confirm('Hapus foto ini dari server?')) {
         fetch(`/informasi/artikel/foto/${fotoId}`, {
             method: 'DELETE',
             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-        }).then(res => res.json()).then(data => {
-            document.getElementById(`wrapper-foto-art-${fotoId}`).remove();
+        }).then(r => r.json()).then(() => {
+            const wrapper = document.getElementById(`wrapper-foto-art-${fotoId}`);
+            if (wrapper) wrapper.remove();
         });
     }
 }
 
-function cancelEditArtikel() {
-    location.reload(); // Cara paling aman untuk mereset seluruh state form
+function cancelEditArtikel() { location.reload(); }
+
+// ===== KEGIATAN =====
+function editKegiatan(id, label, desc, foto) {
+    document.getElementById('formEditKegiatan').action = `/informasi/kegiatan/${id}`;
+    document.getElementById('edit_kegiatan_label').value = label;
+    document.getElementById('edit_kegiatan_desc').value = desc;
+
+    // Logika Preview Foto Lama
+    const containerPreview = document.getElementById('container-preview-kegiatan');
+    const imgPreview = document.getElementById('preview-foto-kegiatan');
+
+    if (foto) {
+        containerPreview.classList.remove('d-none');
+        imgPreview.src = `/${foto}`;
+    } else {
+        containerPreview.classList.add('d-none');
+        imgPreview.src = '';
+    }
+
+    new bootstrap.Modal(document.getElementById('modalEditKegiatan')).show();
 }
-    function editPrestasi(id, judul, desc, fotos) {
-    // 1. Set URL Action Form
+
+// ===== PROGRAM =====
+function editProgram(id, nama, desc) {
+    document.getElementById('formEditProgram').action = `/informasi/program/${id}`;
+    document.getElementById('edit_program_nama').value = nama;
+    document.getElementById('edit_program_desc').value = desc;
+    new bootstrap.Modal(document.getElementById('modalEditProgram')).show();
+}
+
+// ===== PRESTASI =====
+function editPrestasi(btn) {
+    // 1. Ambil data dari atribut tombol
+    const id = btn.getAttribute('data-id');
+    const judul = btn.getAttribute('data-judul');
+    const desc = btn.getAttribute('data-desc');
+    const foto = btn.getAttribute('data-foto'); // Langsung berupa string nama file / path
+
+    // 2. Isi ke dalam form modal
     document.getElementById('formEditPrestasi').action = `/informasi/prestasi/${id}`;
-    
-    // 2. Isi Input Teks
     document.getElementById('edit_prestasi_judul').value = judul;
     document.getElementById('edit_prestasi_desc').value = desc;
 
-    // 3. Render Foto Lama
-    const container = document.getElementById('preview-foto-lama');
-    container.innerHTML = ''; // Bersihkan kontainer
+    // 3. Logika Preview Foto Lama
+    const containerPreview = document.getElementById('container-preview-prestasi');
+    const imgPreview = document.getElementById('preview-foto-prestasi');
 
-    if (fotos.length === 0) {
-        container.innerHTML = '<small class="text-muted">Tidak ada foto.</small>';
+    if (foto) {
+        containerPreview.classList.remove('d-none');
+        imgPreview.src = `/${foto}`; 
+    } else {
+        containerPreview.classList.add('d-none');
+        imgPreview.src = '';
     }
-
-    fotos.forEach(foto => {
-        const div = document.createElement('div');
-        div.className = 'position-relative';
-        div.id = `foto-wrapper-${foto.id}`;
-        div.innerHTML = `
-            <img src="/${foto.foto}" class="rounded border" style="width: 80px; height: 80px; object-fit: cover;">
-            <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 p-0 shadow-sm" 
-                style="width: 22px; height: 22px; border-radius: 50%;"
-                onclick="hapusFotoSatu('${foto.id}')">
-                <i class="bi bi-x-small"></i>×
-            </button>
-        `;
-        container.appendChild(div);
-    });
 
     // 4. Tampilkan Modal
     new bootstrap.Modal(document.getElementById('modalEditPrestasi')).show();
 }
 
-// Fungsi AJAX untuk hapus foto tanpa tutup modal
-function hapusFotoSatu(fotoId) {
-    if (confirm('Hapus foto ini secara permanen?')) {
-        fetch(`/informasi/prestasi/foto/${fotoId}`, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            // Hapus elemen dari tampilan modal
-            document.getElementById(`foto-wrapper-${fotoId}`).remove();
-        })
-        .catch(error => alert('Gagal menghapus foto.'));
-    }
+// ===== PROGRAM STUDI (BARU) =====
+function editStudi(id, nama, desc) {
+    document.getElementById('formEditStudi').action = `/informasi/studi/${id}`;
+    document.getElementById('edit_studi_nama').value = nama;
+    document.getElementById('edit_studi_desc').value = desc;
+    new bootstrap.Modal(document.getElementById('modalEditStudi')).show();
 }
-    </script>
+
+// ===== PREVIEW FOTO KEPALA SEKOLAH (BARU) =====
+function previewFotoKepala(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const existing = document.getElementById('preview-kepala');
+        if (existing) {
+            existing.src = e.target.result;
+        }
+        const wrapper = document.getElementById('preview-kepala-wrapper');
+        if (wrapper) {
+            wrapper.classList.remove('d-none');
+            document.getElementById('preview-kepala').src = e.target.result;
+        }
+    };
+    reader.readAsDataURL(file);
+}
+
+// --- LOGIKA UPDATE TEKS DROPDOWN ---
+function switchTab(element, targetTabId, text, icon) {
+    const content = document.getElementById('dropdownTabContent');
+    if (content) {
+        content.innerHTML = `<i class="bi ${icon} me-2"></i> ${text}`;
+    }
+    document.querySelectorAll('#custom-dropdown-tabs .dropdown-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    element.classList.add('active');
+    document.querySelectorAll('.tab-content .tab-pane').forEach(pane => {
+        pane.classList.remove('show', 'active');
+    });
+    
+    const targetPane = document.querySelector(targetTabId);
+    if (targetPane) {
+        targetPane.classList.add('show', 'active');
+    }
+    
+    // Simpan posisi tab saat ini agar tidak tereset saat reload
+    localStorage.setItem('activeTab', targetTabId);
+}
+
+// --- VALIDASI UKURAN GAMBAR (MAKS 2MB) SECARA GLOBAL ---
+document.addEventListener('change', function(event) {
+    if (event.target.type === 'file') {
+        const files = event.target.files;
+        const maxSize = 2 * 1024 * 1024; // 2MB
+
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].size > maxSize) {
+                alert(`Ukuran file "${files[i].name}" terlalu besar!\nMaksimal ukuran gambar yang diperbolehkan adalah 2MB.`);
+                event.target.value = '';
+                return; 
+            }
+        }
+    }
+});
+</script>
 </body>
 </html>
