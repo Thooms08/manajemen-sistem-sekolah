@@ -25,6 +25,7 @@
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
         .search-box-wrapper { max-width: 400px; }
+         input:focus, textarea:focus, select:focus { border-color: #198754 !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;}
         @media (max-width: 768px) { #content { padding: 15px; } }
     </style>
 </head>

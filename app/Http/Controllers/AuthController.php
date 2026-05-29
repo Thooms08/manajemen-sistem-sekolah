@@ -42,15 +42,18 @@ class AuthController extends Controller
 
         // Ambil data untuk autentikasi
         $credentials = $request->only('username', 'password');
+        $remember = $request->boolean('remember');
 
         // Proses autentikasi
-        if (Auth::attempt($credentials)) {
+        if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
             $user = Auth::user();
 
             // Logika Redirection berdasarkan Role
-            return match ($user->role) {
+            $role = $user->role ?? $user->rules ?? null;
+
+            return match ($role) {
                 'admin'      => redirect()->intended('dashboard_admin'),
                 'guru'       => redirect()->intended('dashboard_guru'),
                 //'wali_murid' => redirect()->intended('dashboard_wali'),

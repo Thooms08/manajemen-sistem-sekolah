@@ -14,18 +14,16 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Data Admin
-        User::create([
-            'username' => 'admin_sekolah',
-            'password' => 'password123', // Otomatis dihash oleh Model User
-            'role'    => 'admin',
-        ]);
-        
+        User::firstOrCreate(
+            ['username' => 'admin_sekolah'],
+            ['password' => 'password123', 'role' => 'admin']
+        );
+
         // Data Guru
-        User::create([
-            'username' => 'guru_budi',
-            'password' => 'password123',
-            'role'    => 'guru',
-        ]);
+        User::firstOrCreate(
+            ['username' => 'guru_budi'],
+            ['password' => 'password123', 'role' => 'guru']
+        );
 
         $this->call([
             ProfileSekolahSeeder::class,

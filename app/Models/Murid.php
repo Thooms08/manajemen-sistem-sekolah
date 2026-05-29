@@ -8,7 +8,30 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Murid extends Model
 {
     protected $table = 'murid';
-    protected $guarded = ['id']; // Semua kolom bisa diisi kecuali ID
+
+    protected $fillable = [
+        'nama_lengkap',
+        'jenis_kelamin',
+        'nisn',
+        'nik',
+        'tempat_lahir',
+        'tgl_lahir',
+        'rt_rw',
+        'desa_kelurahan',
+        'kota_kabupaten',
+        'provinsi',
+        'alamat_detail',
+        'transportasi',
+        'no_hp',
+        'alamat_email',
+        'sekolah_asal',
+        'tinggi_badan',
+        'berat_badan',
+        'anak_ke',
+        'jlm_saudara',
+        'jumlah_kakak',
+        'jumlah_adik',
+    ];
 
     public function wali(): HasOne
     {

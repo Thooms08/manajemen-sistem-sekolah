@@ -10,6 +10,11 @@ class Prestasi extends Model
     use HasFactory;
 
     protected $table = 'prestasi';
-    protected $guarded = ['id'];
+
+    protected $fillable = [
+        'foto_prestasi',
+        'judul_prestasi',
+        'deskripsi_prestasi',
+    ];
 
 }

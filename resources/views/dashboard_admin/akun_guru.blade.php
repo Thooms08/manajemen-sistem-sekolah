@@ -67,6 +67,7 @@
             left: 0; 
         }
         #overlay.active { display: block; }
+         input:focus, textarea:focus, select:focus { border-color: #198754 !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;}
 
         @media (max-width: 768px) {
             #sidebar { margin-left: -250px; }
@@ -177,39 +178,39 @@
     @if(!$g->id_user)
     <div class="modal fade" id="modalTambah{{ $g->id_guru }}" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <form action="{{ route('akun-guru.store') }}" method="POST">
-                @csrf
-                <input type="hidden" name="id_guru" value="{{ $g->id_guru }}">
-                <div class="modal-content border-0 shadow">
+            <div class="modal-content border-0 shadow">
+                <form action="{{ route('akun-guru.store') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="id_guru" value="{{ $g->id_guru }}">
                     <div class="modal-header bg-success text-white">
                         <h5 class="modal-title fw-bold">Buat Akun: {{ $g->nama_guru }}</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body p-4">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Username</label>
+                    <div class="modal-body p-4 row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">Username</label>
                             <input type="text" name="username" class="form-control" placeholder="Masukkan username" required>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Password</label>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">Password</label>
                             <div class="input-group">
                                 <input type="password" name="password" class="form-control password-field" placeholder="Min. 6 karakter" required>
-                                <span class="input-group-text toggle-password"><i class="bi bi-eye"></i></span>
+                                <span class="input-group-text toggle-password bg-white" style="cursor: pointer;"><i class="bi bi-eye"></i></span>
                             </div>
                         </div>
-                        <div class="mb-0">
-                            <label class="form-label fw-bold">Konfirmasi Password</label>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">Konfirmasi Password</label>
                             <div class="input-group">
                                 <input type="password" name="password_confirmation" class="form-control password-field" placeholder="Ulangi password" required>
-                                <span class="input-group-text toggle-password"><i class="bi bi-eye"></i></span>
+                                <span class="input-group-text toggle-password bg-white" style="cursor: pointer;"><i class="bi bi-eye"></i></span>
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer bg-light">
-                        <button type="submit" class="btn btn-success w-100 fw-bold py-2">Simpan Akun</button>
+                    <div class="modal-footer border-0">
+                        <button type="submit" class="btn btn-success w-100 py-2 shadow">Simpan Akun</button>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
     @endif
@@ -218,33 +219,39 @@
     @if($g->id_user)
     <div class="modal fade" id="modalEdit{{ $g->id_user }}" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <form action="{{ route('akun-guru.update', $g->id_user) }}" method="POST">
-                @csrf @method('PUT')
-                <div class="modal-content border-0 shadow">
+            <div class="modal-content border-0 shadow">
+                <form action="{{ route('akun-guru.update', $g->id_user) }}" method="POST">
+                    @csrf @method('PUT')
                     <div class="modal-header bg-success text-white">
                         <h5 class="modal-title fw-bold">Edit Akun: {{ $g->nama_guru }}</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body p-4">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Username</label>
+                    <div class="modal-body p-4 row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">Username</label>
                             <input type="text" name="username" class="form-control" value="{{ $g->username }}" required>
                         </div>
-                        <div class="mb-0 text-muted small mb-2"><em>Kosongkan password jika tidak ingin mengganti</em></div>
-                        <div class="input-group mb-2">
-                            <input type="password" name="password" class="form-control password-field" placeholder="Password baru">
-                            <span class="input-group-text toggle-password"><i class="bi bi-eye"></i></span>
+                        <div class="col-12">
+                            <div class="text-muted small mb-2"><em>Kosongkan password jika tidak ingin mengganti</em></div>
+                            <label class="form-label fw-bold small">Password Baru</label>
+                            <div class="input-group">
+                                <input type="password" name="password" class="form-control password-field" placeholder="Password baru">
+                                <span class="input-group-text toggle-password bg-white" style="cursor: pointer;"><i class="bi bi-eye"></i></span>
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <input type="password" name="password_confirmation" class="form-control password-field" placeholder="Konfirmasi password baru">
-                            <span class="input-group-text toggle-password"><i class="bi bi-eye"></i></span>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">Konfirmasi Password Baru</label>
+                            <div class="input-group">
+                                <input type="password" name="password_confirmation" class="form-control password-field" placeholder="Konfirmasi password baru">
+                                <span class="input-group-text toggle-password bg-white" style="cursor: pointer;"><i class="bi bi-eye"></i></span>
+                            </div>
                         </div>
                     </div>
-                    <div class="modal-footer bg-light">
-                        <button type="submit" class="btn btn-success w-100 fw-bold py-2">Update Akun</button>
+                    <div class="modal-footer border-0">
+                        <button type="submit" class="btn btn-success w-100 py-2 shadow">Update Akun</button>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
     @endif

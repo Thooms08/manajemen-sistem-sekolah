@@ -23,7 +23,7 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-emerald-50 via-white to-green-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-linear-to-br from-emerald-50 via-white to-green-100 min-h-screen flex items-center justify-center p-4">
 
     @include('loading')
 
@@ -68,7 +68,7 @@
                         <input type="text" name="username" id="username" 
                             class="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" 
                             placeholder="Masukkan username" 
-                            value="{{ old('username') }}" required>
+                            value="{{ old('username') }}" required autocomplete="username">
                     </div>
                 </div>
 
@@ -83,7 +83,7 @@
                         </div>
                         <input type="password" name="password" id="password" 
                             class="block w-full pl-10 pr-12 py-2.5 border border-gray-200 rounded-xl bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all" 
-                            placeholder="••••••••" required>
+                            placeholder="••••••••" required autocomplete="current-password">
                         
                         <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-emerald-600 transition-colors">
                             <i data-lucide="eye" class="w-5 h-5" id="eyeIcon"></i>
@@ -110,7 +110,7 @@
                 </div>
 
                 <div class="flex items-center">
-                    <input id="remember" type="checkbox" class="w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500 cursor-pointer">
+                    <input id="remember" name="remember" type="checkbox" value="1" class="w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500 cursor-pointer">
                     <label for="remember" class="ml-2 text-sm text-gray-500 cursor-pointer">Ingat saya di perangkat ini</label>
                 </div>
 

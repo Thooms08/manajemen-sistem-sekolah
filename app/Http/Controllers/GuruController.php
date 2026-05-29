@@ -14,13 +14,14 @@ class GuruController extends Controller
         return view('dashboard_admin.guru', compact('gurus'));
     }
 
-    public function store(Request $request)
+  public function store(Request $request)
     {
         $request->validate([
-            'nama_guru' => 'required|string|max:255',
-            'email' => 'required|email|unique:guru,email',
+            // id_user dihapus dari sini karena belum wajib diisi saat awal pembuatan
+            'nama_guru'   => 'required|string|max:255',
+            'email'       => 'required|email|unique:guru,email',
             'no_whatsapp' => 'required|string|max:15',
-            'alamat' => 'required|string',
+            'alamat'      => 'required|string',
         ]);
 
         Guru::create($request->all());

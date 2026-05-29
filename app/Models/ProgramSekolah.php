@@ -2,7 +2,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-class ProgramSekolah extends Model {
+
+class ProgramSekolah extends Model
+{
     protected $table = 'program_sekolah';
-    protected $guarded = ['id'];
+
+    protected $fillable = [
+        'nama_program',
+        'deskripsi_program',
+    ];
 }

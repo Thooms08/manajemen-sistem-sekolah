@@ -19,7 +19,9 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
-        if (!Auth::check() || Auth::user()->role !== $role) {
+        $user = Auth::user();
+
+        if (!Auth::check() || ($user->role ?? $user->rules) !== $role) {
             abort(403, 'Access denied. You do not have permission for this page.');
         }
 
