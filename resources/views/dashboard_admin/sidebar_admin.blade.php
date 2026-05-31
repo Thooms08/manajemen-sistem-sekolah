@@ -174,6 +174,8 @@
         </button>
     </div>
 
+    <?php $menu_biaya = request()->routeIs('biaya-murid.*') ? 'active' : ''; ?>
+
     <ul class="list-unstyled components">
         <li class="{{ Request::is('dashboard_admin') ? 'active' : '' }}">
             <a href="{{ route('admin.home') }}">
@@ -218,9 +220,14 @@
                 <i class="bi bi-people"></i> Data Murid
             </a>
         </li>
-        <li class="{{ request()->routeIs('wali-murid.*') ? 'active' : '' }}">
-            <a href="{{ route('wali-murid.index') }}">
-                <i class="bi bi-person-hearts"></i> Data Wali Murid
+        <li class="{{ request()->routeIs('ortu-murid.*') ? 'active' : '' }}">
+            <a href="{{ route('ortu-murid.index') }}">
+                <i class="bi bi-person-hearts"></i> Data Ortu Murid
+            </a>
+        </li>
+        <li class="{{ $menu_biaya }}">
+            <a href="{{ route('biaya-murid.index') }}">
+                <i class="bi bi-cash-stack"></i> Biaya Murid
             </a>
         </li>
 
@@ -257,24 +264,29 @@
             </a>
         </li>
 
-        <li class="{{ request()->routeIs('akun-guru.*', 'akun-wali.*') ? 'active' : '' }}">
+        <li class="{{ request()->routeIs('akun-guru.*', 'akun-ortu.*') ? 'active' : '' }}">
             <a href="#submenuAkun" 
             data-bs-toggle="collapse" 
-            aria-expanded="{{ request()->routeIs('akun-guru.*', 'akun-wali.*') ? 'true' : 'false' }}" 
-            class="dropdown-toggle {{ request()->routeIs('akun-guru.*', 'akun-wali.*') ? 'active' : '' }}">
+            aria-expanded="{{ request()->routeIs('akun-guru.*', 'akun-ortu.*') ? 'true' : 'false' }}" 
+            class="dropdown-toggle {{ request()->routeIs('akun-guru.*', 'akun-ortu.*') ? 'active' : '' }}">
                 <i class="bi bi-shield-lock"></i> Kelola Akun
             </a>
 
-            <div class="collapse {{ request()->routeIs('akun-guru.*', 'akun-wali.*') ? 'show' : '' }}" id="submenuAkun">
+            <div class="collapse {{ request()->routeIs('akun-guru.*', 'akun-ortu.*') ? 'show' : '' }}" id="submenuAkun">
                 <div class="collapse-inner">
                     <a href="{{ route('akun-guru.index') }}" 
                     class="d-block {{ request()->routeIs('akun-guru.*') ? 'active-sub' : '' }}">
                     <i class="bi bi-person-badge-fill me-2" style="font-size: 0.8rem;"></i> Akun Guru
                     </a>
 
-                    <a href="{{ route('akun-wali.index') }}" 
-                    class="d-block {{ request()->routeIs('akun-wali.*') ? 'active-sub' : '' }}">
-                    <i class="bi bi-person-hearts me-2" style="font-size: 0.8rem;"></i> Akun Wali Murid
+                    <a href="{{ route('akun-ortu.index') }}" 
+                    class="d-block {{ request()->routeIs('akun-ortu.*') ? 'active-sub' : '' }}">
+                    <i class="bi bi-person-hearts me-2" style="font-size: 0.8rem;"></i> Akun Ortu Murid
+                    </a>
+                    
+                    <a href="{{ route('akun-pembayaran.index') }}" 
+                    class="d-block {{ request()->routeIs('akun-pembayaran.*') ? 'active-sub' : '' }}">
+                    <i class="bi bi-wallet2 me-2" style="font-size: 0.8rem;"></i> Akun Pembayaran
                     </a>
                 </div>
             </div>

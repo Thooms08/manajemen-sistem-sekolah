@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Wali Murid </title>
+    <title>Data Ortu Murid </title>
     @if(isset($sekolah->logo))
     <link rel="icon" type="image/png" href="{{ asset($sekolah->logo) }}">
     @else
@@ -37,7 +37,7 @@
                 <div class="d-flex align-items-center justify-content-between mb-4 mt-2">
                     <div class="d-flex align-items-center">
                         <button type="button" id="sidebarCollapse" class="btn"><i class="bi bi-list fs-4"></i></button>
-                        <h4 class="ms-3 mb-0 fw-bold text-success">Data Wali Murid</h4>
+                        <h4 class="ms-3 mb-0 fw-bold text-success">Data Ortu Murid</h4>
                     </div>
                 </div>
 
@@ -70,13 +70,13 @@
                                 @forelse($data as $row)
                                 <tr>
                                     <td class="fw-bold text-dark">{{ $row->nama_lengkap }}</td>
-                                    <td>{{ $row->wali->nama_ayah ?? '-' }}</td>
-                                    <td>{{ $row->wali->nama_ibu ?? '-' }}</td>
+                                    <td>{{ $row->ortu->nama_ayah ?? '-' }}</td>
+                                    <td>{{ $row->ortu->nama_ibu ?? '-' }}</td>
                                     <td><span class="badge bg-success bg-opacity-10 text-success px-3">{{ $row->no_hp }}</span></td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="4" class="text-center py-4 text-muted">Belum ada data wali murid</td>
+                                    <td colspan="4" class="text-center py-4 text-muted">Belum ada data ortu murid</td>
                                 </tr>
                                 @endforelse
                             </tbody>
@@ -113,7 +113,7 @@
                 
                 $.ajax({
                     type: 'GET',
-                    url: "{{ route('wali-murid.search') }}",
+                    url: "{{ route('ortu-murid.search') }}",
                     data: { 'search': value },
                     success: function(data) {
                         $('#table-body').html(data);

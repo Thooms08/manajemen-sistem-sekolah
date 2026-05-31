@@ -33,9 +33,9 @@ class Murid extends Model
         'jumlah_adik',
     ];
 
-    public function wali(): HasOne
+    public function ortu(): HasOne
     {
-        return $this->hasOne(WaliMurid::class, 'id_murid');
+        return $this->hasOne(OrtuMurid::class, 'id_murid');
     }
 
     public function kelas(): BelongsToMany

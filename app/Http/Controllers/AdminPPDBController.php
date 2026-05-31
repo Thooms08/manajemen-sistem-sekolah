@@ -30,15 +30,15 @@ class AdminPPDBController extends Controller
         return response()->json(['count' => $count]);
     }
 
-    // Ambil detail murid dan wali untuk modal
+    // Ambil detail murid dan ortu untuk modal
     public function getDetail($id)
     {
         $murid = DB::table('murid')->where('id', $id)->first();
-        $wali = DB::table('wali_murid')->where('id_murid', $id)->first();
+        $ortu = DB::table('ortu_murid')->where('id_murid', $id)->first();
 
         return response()->json([
             'murid' => $murid,
-            'wali' => $wali
+            'ortu' => $ortu
         ]);
     }
 

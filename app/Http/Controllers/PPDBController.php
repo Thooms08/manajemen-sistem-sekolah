@@ -35,7 +35,7 @@ public function index() {
             'no_hp' => 'required',
             'alamat_email' => 'required|email|unique:murid,alamat_email',
             
-            // Data Wali
+            // Data Ortu
             'nama_ayah' => 'required|string|max:255',
             'nama_ibu' => 'required|string|max:255',
         ]);
@@ -70,8 +70,8 @@ public function index() {
                 'updated_at'      => now(),
             ]);
 
-            // 3. Simpan Data Wali Murid
-            DB::table('wali_murid')->insert([
+            // 3. Simpan Data Ortu Murid
+            DB::table('ortu_murid')->insert([
                 'id_murid'            => $muridId,
                 'nama_ayah'           => $request->nama_ayah,
                 'tempat_lahir_ayah'   => $request->tempat_lahir_ayah,

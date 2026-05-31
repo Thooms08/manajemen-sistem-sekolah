@@ -16,11 +16,13 @@ use App\Http\Controllers\PPDBController;
 // =========================================================
 use App\Http\Controllers\InformasiController;
 use App\Http\Controllers\KelasController;
-use App\Http\Controllers\WaliMuridController;
+use App\Http\Controllers\OrtuMuridController;
 use App\Http\Controllers\MuridController;
 use App\Http\Controllers\ProfileSekolahController;
 use App\Http\Controllers\AkunGuruController;
-use App\Http\Controllers\AkunWaliController;
+use App\Http\Controllers\AkunOrtuController;
+use App\Http\Controllers\AkunPembayaranController;
+use App\Http\Controllers\BiayaMuridController;
 use App\Http\Controllers\PelanggaranController;
 use App\Http\Controllers\KonfirmasiPelanggaranController;
 use App\Http\Controllers\KeaktifanAdminController;
@@ -114,9 +116,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/kelas/tambah-murid', [KelasController::class, 'addStudent'])->name('kelas.addStudent');
         Route::delete('/kelas/hapus-murid/{id_murid}', [KelasController::class, 'removeStudent'])->name('kelas.removeStudent');
 
-        // Master Data: Wali Murid
-        Route::get('/wali-murid/search', [WaliMuridController::class, 'search'])->name('wali-murid.search');
-        Route::resource('wali-murid', WaliMuridController::class);
+        // Master Data: Ortu Murid
+        Route::get('/ortu-murid/search', [OrtuMuridController::class, 'search'])->name('ortu-murid.search');
+        Route::resource('ortu-murid', OrtuMuridController::class);
 
         // Master Data: Guru
         Route::get('/guru/search', [GuruController::class, 'search'])->name('guru.search');
@@ -138,11 +140,25 @@ Route::middleware('auth')->group(function () {
         Route::put('/akun-guru/{id_user}', [AkunGuruController::class, 'update'])->name('akun-guru.update');
         Route::delete('/akun-guru/{id_user}', [AkunGuruController::class, 'destroy'])->name('akun-guru.destroy');
 
-        Route::get('/akun-wali', [AkunWaliController::class, 'index'])->name('akun-wali.index');
-        Route::get('/akun-wali/search', [AkunWaliController::class, 'search'])->name('akun-wali.search');
-        Route::post('/akun-wali', [AkunWaliController::class, 'store'])->name('akun-wali.store');
-        Route::put('/akun-wali/{id_user}', [AkunWaliController::class, 'update'])->name('akun-wali.update');
-        Route::delete('/akun-wali/{id_user}', [AkunWaliController::class, 'destroy'])->name('akun-wali.destroy');
+        Route::get('/akun-ortu', [AkunOrtuController::class, 'index'])->name('akun-ortu.index');
+        Route::get('/akun-ortu/search', [AkunOrtuController::class, 'search'])->name('akun-ortu.search');
+        Route::post('/akun-ortu', [AkunOrtuController::class, 'store'])->name('akun-ortu.store');
+        Route::put('/akun-ortu/{id_user}', [AkunOrtuController::class, 'update'])->name('akun-ortu.update');
+        Route::delete('/akun-ortu/{id_user}', [AkunOrtuController::class, 'destroy'])->name('akun-ortu.destroy');
+
+        // Akun Pembayaran (Bank / QRIS)
+        Route::get('/akun-pembayaran', [AkunPembayaranController::class, 'index'])->name('akun-pembayaran.index');
+        Route::post('/akun-pembayaran', [AkunPembayaranController::class, 'store'])->name('akun-pembayaran.store');
+        Route::put('/akun-pembayaran/{id}', [AkunPembayaranController::class, 'update'])->name('akun-pembayaran.update');
+        Route::delete('/akun-pembayaran/{id}', [AkunPembayaranController::class, 'destroy'])->name('akun-pembayaran.destroy');
+        Route::get('/akun-pembayaran/check-number', [AkunPembayaranController::class, 'checkNumber'])->name('akun-pembayaran.checkNumber');
+
+        // Biaya Murid
+        Route::get('/biaya-murid', [BiayaMuridController::class, 'index'])->name('biaya-murid.index');
+        Route::post('/biaya-murid', [BiayaMuridController::class, 'store'])->name('biaya-murid.store');
+        Route::post('/biaya-murid/check-name', [BiayaMuridController::class, 'checkFeeName'])->name('biaya-murid.check-name');
+        Route::put('/biaya-murid/{id}', [BiayaMuridController::class, 'update'])->name('biaya-murid.update');
+        Route::delete('/biaya-murid/{id}', [BiayaMuridController::class, 'destroy'])->name('biaya-murid.destroy');
 
         // Manajemen Pelanggaran
         Route::get('/pelanggaran', [PelanggaranController::class, 'index'])->name('pelanggaran.index');
@@ -207,12 +223,12 @@ Route::middleware('auth')->group(function () {
     });
 
     // -----------------------------------------------------
-    // ROLE: WALI MURID (DIPERSIAPKAN / DIKOMENTARI)
+    // ROLE: ORTU MURID (DIPERSIAPKAN / DIKOMENTARI)
     // -----------------------------------------------------
     /*
-    Route::middleware('role:wali')->group(function () {
-        Route::get('/dashboard_wali', fn() => view('dashboard_wali.index'))->name('wali.home');
-        // Tambahkan route khusus wali murid lainnya di sini nantinya
+    Route::middleware('role:ortu')->group(function () {
+        Route::get('/dashboard_ortu', fn() => view('dashboard_ortu.index'))->name('ortu.home');
+        // Tambahkan route khusus ortu murid lainnya di sini nantinya
     });
     */
     

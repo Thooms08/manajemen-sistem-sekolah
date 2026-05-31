@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Murid;
-use App\Models\WaliMurid;
+use App\Models\OrtuMurid;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -30,7 +30,7 @@ class MuridController extends Controller
             'nik' => 'required|string|unique:murid,nik',
             'no_hp' => 'required',
             'alamat_email' => 'required|email',
-            // Step 2: Wali
+            // Step 2: Ortu
             'nama_ayah' => 'required',
             'nama_ibu' => 'required',
         ]);
@@ -44,8 +44,8 @@ class MuridController extends Controller
                 'berat_badan', 'anak_ke', 'jml_saudara', 'jumlah_kakak', 'jumlah_adik'
             ]));
 
-            // Simpan Wali Murid
-            WaliMurid::create(array_merge(
+            // Simpan Ortu Murid
+            OrtuMurid::create(array_merge(
                 $request->only([
                     'nama_ayah', 'tempat_lahir_ayah', 'tgl_lahir_ayah', 'pendidikan_ayah', 'pekerjaan_ayah', 'penghasilan_ayah', 'status_ayah',
                     'nama_ibu', 'tempat_lahir_ibu', 'tgl_lahir_ibu', 'pendidikan_ibu', 'pekerjaan_ibu', 'penghasilan_ibu', 'status_ibu'
@@ -59,7 +59,7 @@ class MuridController extends Controller
 
     public function show($id)
     {
-        $murid = Murid::with('wali')->findOrFail($id);
+        $murid = Murid::with('ortu')->findOrFail($id);
         return response()->json($murid);
     }
 
@@ -72,8 +72,8 @@ class MuridController extends Controller
 
 public function edit($id)
 {
-    // Mengambil data murid beserta data walinya
-    $murid = Murid::with('wali')->findOrFail($id);
+    // Mengambil data murid beserta data ortunya
+    $murid = Murid::with('ortu')->findOrFail($id);
     return view('dashboard_admin.form_ppdb', compact('murid'));
 }
 
@@ -98,7 +98,7 @@ public function update(Request $request, $id)
             'berat_badan', 'anak_ke', 'jml_saudara', 'jumlah_kakak', 'jumlah_adik'
         ]));
 
-        $murid->wali()->update($request->only([
+        $murid->ortu()->update($request->only([
             'nama_ayah', 'tempat_lahir_ayah', 'tgl_lahir_ayah', 'pendidikan_ayah', 'pekerjaan_ayah', 'penghasilan_ayah', 'status_ayah',
             'nama_ibu', 'tempat_lahir_ibu', 'tgl_lahir_ibu', 'pendidikan_ibu', 'pekerjaan_ibu', 'penghasilan_ibu', 'status_ibu'
         ]));

@@ -56,7 +56,7 @@ class AuthController extends Controller
             return match ($role) {
                 'admin'      => redirect()->intended('dashboard_admin'),
                 'guru'       => redirect()->intended('dashboard_guru'),
-                //'wali_murid' => redirect()->intended('dashboard_wali'),
+                //'ortu_murid' => redirect()->intended('dashboard_ortu'),
                 default      => redirect('/login'),
             };
         }

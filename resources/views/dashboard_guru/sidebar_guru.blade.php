@@ -173,7 +173,7 @@
 
         <!-- <li><a href="#"><i class="bi bi-person-badge"></i> Data Guru / Staff</a></li>
         <li><a href="#"><i class="bi bi-people"></i> Data Murid</a></li>
-        <li><a href="#"><i class="bi bi-person-hearts"></i> Data Wali Murid</a></li>
+        <li><a href="#"><i class="bi bi-person-hearts"></i> Data Ortu Murid</a></li>
 
         <li>
             <a href="#submenuMurid" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
@@ -197,7 +197,7 @@
             <div class="collapse" id="submenuAkun">
                 <div class="collapse-inner">
                     <a href="#" class="d-block">Akun Guru</a>
-                    <a href="#" class="d-block">Akun Wali Murid</a>
+                    <a href="#" class="d-block">Akun Ortu Murid</a>
                 </div>
             </div>
         </li> -->

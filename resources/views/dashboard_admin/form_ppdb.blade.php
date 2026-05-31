@@ -97,35 +97,35 @@
                     </div>
 
                     <div id="step2" class="card p-4 hidden">
-                        <h5 class="step-header text-success fw-bold"><i class="bi bi-2-circle-fill me-2"></i>Data Wali Murid</h5>
+                        <h5 class="step-header text-success fw-bold"><i class="bi bi-2-circle-fill me-2"></i>Data Orang Tua Murid</h5>
                         <div class="row g-3">
                             <h6 class="fw-bold text-muted">Data Ayah</h6>
-                            <div class="col-md-4"><label class="form-label">Nama Ayah</label><input type="text" name="nama_ayah" class="form-control" value="{{ old('nama_ayah', $murid->wali->nama_ayah ?? '') }}" required></div>
-                            <div class="col-md-4"><label class="form-label">Tempat Lahir</label><input type="text" name="tempat_lahir_ayah" class="form-control" value="{{ old('tempat_lahir_ayah', $murid->wali->tempat_lahir_ayah ?? '') }}"></div>
-                            <div class="col-md-4"><label class="form-label">Tgl Lahir</label><input type="date" name="tgl_lahir_ayah" class="form-control" value="{{ old('tgl_lahir_ayah', $murid->wali->tgl_lahir_ayah ?? '') }}"></div>
-                            <div class="col-md-3"><label class="form-label">Pendidikan</label><input type="text" name="pendidikan_ayah" class="form-control" value="{{ old('pendidikan_ayah', $murid->wali->pendidikan_ayah ?? '') }}"></div>
-                            <div class="col-md-3"><label class="form-label">Pekerjaan</label><input type="text" name="pekerjaan_ayah" class="form-control" value="{{ old('pekerjaan_ayah', $murid->wali->pekerjaan_ayah ?? '') }}"></div>
-                            <div class="col-md-3"><label class="form-label">Penghasilan</label><input type="number" name="penghasilan_ayah" class="form-control" value="{{ old('penghasilan_ayah', $murid->wali->penghasilan_ayah ?? '') }}"></div>
+                            <div class="col-md-4"><label class="form-label">Nama Ayah</label><input type="text" name="nama_ayah" class="form-control" value="{{ old('nama_ayah', $murid->ortu->nama_ayah ?? '') }}" required></div>
+                            <div class="col-md-4"><label class="form-label">Tempat Lahir</label><input type="text" name="tempat_lahir_ayah" class="form-control" value="{{ old('tempat_lahir_ayah', $murid->ortu->tempat_lahir_ayah ?? '') }}"></div>
+                            <div class="col-md-4"><label class="form-label">Tgl Lahir</label><input type="date" name="tgl_lahir_ayah" class="form-control" value="{{ old('tgl_lahir_ayah', $murid->ortu->tgl_lahir_ayah ?? '') }}"></div>
+                            <div class="col-md-3"><label class="form-label">Pendidikan</label><input type="text" name="pendidikan_ayah" class="form-control" value="{{ old('pendidikan_ayah', $murid->ortu->pendidikan_ayah ?? '') }}"></div>
+                            <div class="col-md-3"><label class="form-label">Pekerjaan</label><input type="text" name="pekerjaan_ayah" class="form-control" value="{{ old('pekerjaan_ayah', $murid->ortu->pekerjaan_ayah ?? '') }}"></div>
+                            <div class="col-md-3"><label class="form-label">Penghasilan</label><input type="number" name="penghasilan_ayah" class="form-control" value="{{ old('penghasilan_ayah', $murid->ortu->penghasilan_ayah ?? '') }}"></div>
                             <div class="col-md-3">
                                 <label class="form-label">Status</label>
                                 <select name="status_ayah" class="form-select">
-                                    <option value="hidup" {{ (old('status_ayah', $murid->wali->status_ayah ?? '') == 'hidup') ? 'selected' : '' }}>Hidup</option>
-                                    <option value="meninggal" {{ (old('status_ayah', $murid->wali->status_ayah ?? '') == 'meninggal') ? 'selected' : '' }}>Meninggal</option>
+                                    <option value="hidup" {{ (old('status_ayah', $murid->ortu->status_ayah ?? '') == 'hidup') ? 'selected' : '' }}>Hidup</option>
+                                    <option value="meninggal" {{ (old('status_ayah', $murid->ortu->status_ayah ?? '') == 'meninggal') ? 'selected' : '' }}>Meninggal</option>
                                 </select>
                             </div>
                             <hr>
                             <h6 class="fw-bold text-muted">Data Ibu</h6>
-                            <div class="col-md-4"><label class="form-label">Nama Ibu</label><input type="text" name="nama_ibu" class="form-control" value="{{ old('nama_ibu', $murid->wali->nama_ibu ?? '') }}" required></div>
-                            <div class="col-md-4"><label class="form-label">Tempat Lahir</label><input type="text" name="tempat_lahir_ibu" class="form-control" value="{{ old('tempat_lahir_ibu', $murid->wali->tempat_lahir_ibu ?? '') }}"></div>
-                            <div class="col-md-4"><label class="form-label">Tgl Lahir</label><input type="date" name="tgl_lahir_ibu" class="form-control" value="{{ old('tgl_lahir_ibu', $murid->wali->tgl_lahir_ibu ?? '') }}"></div>
-                            <div class="col-md-3"><label class="form-label">Pendidikan</label><input type="text" name="pendidikan_ibu" class="form-control" value="{{ old('pendidikan_ibu', $murid->wali->pendidikan_ibu ?? '') }}"></div>
-                            <div class="col-md-3"><label class="form-label">Pekerjaan</label><input type="text" name="pekerjaan_ibu" class="form-control" value="{{ old('pekerjaan_ibu', $murid->wali->pekerjaan_ibu ?? '') }}"></div>
-                            <div class="col-md-3"><label class="form-label">Penghasilan</label><input type="number" name="penghasilan_ibu" class="form-control" value="{{ old('penghasilan_ibu', $murid->wali->penghasilan_ibu ?? '') }}"></div>
+                            <div class="col-md-4"><label class="form-label">Nama Ibu</label><input type="text" name="nama_ibu" class="form-control" value="{{ old('nama_ibu', $murid->ortu->nama_ibu ?? '') }}" required></div>
+                            <div class="col-md-4"><label class="form-label">Tempat Lahir</label><input type="text" name="tempat_lahir_ibu" class="form-control" value="{{ old('tempat_lahir_ibu', $murid->ortu->tempat_lahir_ibu ?? '') }}"></div>
+                            <div class="col-md-4"><label class="form-label">Tgl Lahir</label><input type="date" name="tgl_lahir_ibu" class="form-control" value="{{ old('tgl_lahir_ibu', $murid->ortu->tgl_lahir_ibu ?? '') }}"></div>
+                            <div class="col-md-3"><label class="form-label">Pendidikan</label><input type="text" name="pendidikan_ibu" class="form-control" value="{{ old('pendidikan_ibu', $murid->ortu->pendidikan_ibu ?? '') }}"></div>
+                            <div class="col-md-3"><label class="form-label">Pekerjaan</label><input type="text" name="pekerjaan_ibu" class="form-control" value="{{ old('pekerjaan_ibu', $murid->ortu->pekerjaan_ibu ?? '') }}"></div>
+                            <div class="col-md-3"><label class="form-label">Penghasilan</label><input type="number" name="penghasilan_ibu" class="form-control" value="{{ old('penghasilan_ibu', $murid->ortu->penghasilan_ibu ?? '') }}"></div>
                             <div class="col-md-3">
                                 <label class="form-label">Status</label>
                                 <select name="status_ibu" class="form-select">
-                                    <option value="hidup" {{ (old('status_ibu', $murid->wali->status_ibu ?? '') == 'hidup') ? 'selected' : '' }}>Hidup</option>
-                                    <option value="meninggal" {{ (old('status_ibu', $murid->wali->status_ibu ?? '') == 'meninggal') ? 'selected' : '' }}>Meninggal</option>
+                                    <option value="hidup" {{ (old('status_ibu', $murid->ortu->status_ibu ?? '') == 'hidup') ? 'selected' : '' }}>Hidup</option>
+                                    <option value="meninggal" {{ (old('status_ibu', $murid->ortu->status_ibu ?? '') == 'meninggal') ? 'selected' : '' }}>Meninggal</option>
                                 </select>
                             </div>
                         </div>

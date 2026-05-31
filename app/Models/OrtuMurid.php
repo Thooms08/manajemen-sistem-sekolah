@@ -4,9 +4,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class WaliMurid extends Model
+class OrtuMurid extends Model
 {
-    protected $table = 'wali_murid';
+    protected $table = 'ortu_murid';
 
     protected $fillable = [
         'id_murid',

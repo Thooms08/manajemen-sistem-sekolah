@@ -207,7 +207,7 @@
             .then(res => res.json())
             .then(data => {
                 const m = data.murid;
-                const w = data.wali;
+                const o = data.ortu;
 
                 content.innerHTML = `
                     <div class="row">
@@ -233,16 +233,16 @@
                         <div class="col-md-6 ps-md-4">
                             <div class="section-title text-primary"><i class="bi bi-gender-male"></i> Data Ayah</div>
                             <table class="table table-sm table-bordered table-detail mb-3">
-                                <tr><th>Nama</th><td>${w.nama_ayah || '-'}</td></tr>
-                                <tr><th>Pekerjaan</th><td>${w.pekerjaan_ayah || '-'}</td></tr>
-                                <tr><th>Penghasilan</th><td>Rp ${new Number(w.penghasilan_ayah).toLocaleString('id-ID')}</td></tr>
+                                <tr><th>Nama</th><td>${o.nama_ayah || '-'}</td></tr>
+                                <tr><th>Pekerjaan</th><td>${o.pekerjaan_ayah || '-'}</td></tr>
+                                <tr><th>Penghasilan</th><td>Rp ${new Number(o.penghasilan_ayah).toLocaleString('id-ID')}</td></tr>
                             </table>
 
                             <div class="section-title text-danger"><i class="bi bi-gender-female"></i> Data Ibu</div>
                             <table class="table table-sm table-bordered table-detail mb-3">
-                                <tr><th>Nama</th><td>${w.nama_ibu || '-'}</td></tr>
-                                <tr><th>Pekerjaan</th><td>${w.pekerjaan_ibu || '-'}</td></tr>
-                                <tr><th>Penghasilan</th><td>Rp ${new Number(w.penghasilan_ibu).toLocaleString('id-ID')}</td></tr>
+                                <tr><th>Nama</th><td>${o.nama_ibu || '-'}</td></tr>
+                                <tr><th>Pekerjaan</th><td>${o.pekerjaan_ibu || '-'}</td></tr>
+                                <tr><th>Penghasilan</th><td>Rp ${new Number(o.penghasilan_ibu).toLocaleString('id-ID')}</td></tr>
                             </table>
                         </div>
                     </div>`;

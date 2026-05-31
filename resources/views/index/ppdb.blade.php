@@ -101,13 +101,13 @@
                         <i class="bi bi-arrow-left me-2"></i> Batal
                     </a>
                     <button type="button" class="btn btn-success px-5 rounded-pill shadow-sm" onclick="showStep2()">
-                        Lanjut: Data Wali <i class="bi bi-arrow-right ms-2"></i>
+                        Lanjut: Data Ortu <i class="bi bi-arrow-right ms-2"></i>
                     </button>
                 </div>
             </div>
 
             <div id="step2" class="card p-4 hidden">
-                <h5 class="step-header text-success fw-bold"><i class="bi bi-2-circle-fill me-2"></i>Data Orang Tua / Wali</h5>
+                <h5 class="step-header text-success fw-bold"><i class="bi bi-2-circle-fill me-2"></i>Data Orang Tua / Ortu</h5>
                 <div class="row g-3">
                     <h6 class="fw-bold text-muted border-start border-success border-3 ps-2">Data Ayah Kandung</h6>
                     <div class="col-md-4"><label class="form-label">Nama Ayah</label><input type="text" name="nama_ayah" class="form-control" value="{{ old('nama_ayah') }}" required></div>
