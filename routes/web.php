@@ -29,6 +29,7 @@ use App\Http\Controllers\KeaktifanAdminController;
 use App\Http\Controllers\AdminAbsensiController;
 use App\Http\Controllers\AdminAktifitasGuruController;
 use App\Http\Controllers\AdminPPDBController;
+use App\Http\Controllers\PengaturanFormPpdbController;
 
 // =========================================================
 // CONTROLLER: ROLE GURU
@@ -50,6 +51,7 @@ Route::get('/', [IndexController::class, 'index'])->name('home');
 Route::get('/ppdb', [PPDBController::class, 'index'])->name('ppdb.index');
 Route::post('/ppdb', [PPDBController::class, 'store'])->name('ppdb.store');
 Route::get('/ppdb/berhasil', [PPDBController::class, 'success'])->name('ppdb.success');
+Route::get('/ppdb/check-nisn', [PPDBController::class, 'checkNISN'])->name('ppdb.check-nisn');
 
 Route::get('/artikel/{slug}', [InformasiController::class, 'showArtikel'])->name('artikel.show');
 
@@ -126,7 +128,8 @@ Route::middleware('auth')->group(function () {
 
         // Master Data: Murid
         Route::get('/murid/search', [MuridController::class, 'search'])->name('murid.search');
-        Route::get('/get-murid-by-kelas', [MuridController::class, 'getMuridByKelas'])->name('murid.getByKelas'); 
+        Route::get('/get-murid-by-kelas', [MuridController::class, 'getMuridByKelas'])->name('murid.getByKelas');
+        Route::get('/murid/check-nisn', [MuridController::class, 'checkNISN'])->name('murid.check-nisn');
         Route::resource('murid', MuridController::class);
 
         // Profile Sekolah
@@ -197,6 +200,9 @@ Route::middleware('auth')->group(function () {
         });
         Route::post('/admin/ppdb/toggle', [AdminPPDBController::class, 'toggleStatus'])->name('admin.ppdb.toggle');
         Route::get('/admin/ppdb/status', [AdminPPDBController::class, 'getStatus'])->name('admin.ppdb.status');
+
+        Route::get('/admin/pengaturan-form-ppdb', [PengaturanFormPpdbController::class, 'index'])->name('admin.pengaturan-form-ppdb');
+        Route::post('/admin/pengaturan-form-ppdb', [PengaturanFormPpdbController::class, 'update'])->name('admin.pengaturan-form-ppdb.update');
     });
 
     // -----------------------------------------------------

@@ -2,48 +2,58 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PPDBRequest;
+use App\Models\Murid;
+use App\Models\OrtuMurid;
+use App\Models\WaliMurid;
+use App\Models\DokumenMurid;
+use App\Models\BiayaMurid;
+use App\Models\AkunPembayaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
 class PPDBController extends Controller
 {
-public function index() {
-    $isOpen = DB::table('profile_sekolah')->value('is_ppdb_open');
+    public function index()
+    {
+        $isOpen = DB::table('profile_sekolah')->value('is_ppdb_open');
 
-    if (!$isOpen) {
-        return view('index.ppdb_tutup'); 
+        if (!$isOpen) {
+            return view('index.ppdb_tutup');
+        }
+
+        // Get biaya data for payment display
+        $biayas = BiayaMurid::with('account')->orderBy('id')->get();
+        $accounts = AkunPembayaran::orderBy('bank_name')->get();
+        $formSettings = \App\Models\PpdbFormSetting::all()->keyBy('field_name');
+
+        return view('index.ppdb', compact('biayas', 'accounts', 'formSettings'));
     }
-
-    return view('index.ppdb'); 
-}
 
     public function success()
     {
         return view('index.ppdb_berhasil');
     }
 
-    public function store(Request $request)
+    public function checkNISN(Request $request)
     {
-        // 1. Validasi Input (Menyesuaikan dengan field form_ppdb)
-        $request->validate([
-            // Data Murid
-            'nama_lengkap' => 'required|string|max:255',
-            'jenis_kelamin' => 'required|in:L,P',
-            'nisn' => 'required|numeric|digits:10|unique:murid,nisn',
-            'nik' => 'required|numeric|unique:murid,nik',
-            'no_hp' => 'required',
-            'alamat_email' => 'required|email|unique:murid,alamat_email',
-            
-            // Data Ortu
-            'nama_ayah' => 'required|string|max:255',
-            'nama_ibu' => 'required|string|max:255',
+        $nisn = $request->get('nisn');
+        $exists = Murid::where('nisn', $nisn)->exists();
+        
+        return response()->json([
+            'exists' => $exists,
+            'message' => $exists ? 'NISN sudah terdaftar di database' : 'NISN tersedia'
         ]);
+    }
 
+    public function store(PPDBRequest $request)
+    {
         DB::beginTransaction();
         try {
-            // 2. Simpan Data Murid (Status Otomatis Pending)
-            $muridId = DB::table('murid')->insertGetId([
+            // 1. Simpan Data Murid
+            $murid = Murid::create([
                 'nama_lengkap'    => $request->nama_lengkap,
                 'jenis_kelamin'   => $request->jenis_kelamin,
                 'nisn'            => $request->nisn,
@@ -65,14 +75,12 @@ public function index() {
                 'jml_saudara'     => $request->jml_saudara,
                 'jumlah_kakak'    => $request->jumlah_kakak,
                 'jumlah_adik'     => $request->jumlah_adik,
-                'status'          => 'pending', 
-                'created_at'      => now(),
-                'updated_at'      => now(),
+                'status'          => 'pending',
             ]);
 
-            // 3. Simpan Data Ortu Murid
-            DB::table('ortu_murid')->insert([
-                'id_murid'            => $muridId,
+            // 2. Simpan Data Orang Tua
+            OrtuMurid::create([
+                'id_murid'            => $murid->id,
                 'nama_ayah'           => $request->nama_ayah,
                 'tempat_lahir_ayah'   => $request->tempat_lahir_ayah,
                 'tgl_lahir_ayah'      => $request->tgl_lahir_ayah,
@@ -87,17 +95,60 @@ public function index() {
                 'pekerjaan_ibu'       => $request->pekerjaan_ibu,
                 'penghasilan_ibu'     => $request->penghasilan_ibu,
                 'status_ibu'          => $request->status_ibu,
-                'created_at'          => now(),
-                'updated_at'          => now(),
             ]);
+
+            // 3. Simpan Data Wali (jika ada)
+            if ($request->filled('nama_wali')) {
+                WaliMurid::create([
+                    'id_murid'            => $murid->id,
+                    'nama_wali'           => $request->nama_wali,
+                    'tempat_lahir_wali'   => $request->tempat_lahir_wali,
+                    'tgl_lahir_wali'      => $request->tgl_lahir_wali,
+                    'pendidikan_wali'     => $request->pendidikan_wali,
+                    'pekerjaan_wali'      => $request->pekerjaan_wali,
+                    'penghasilan_wali'    => $request->penghasilan_wali,
+                    'status_wali'         => $request->status_wali,
+                    'hubungan_wali'      => $request->hubungan_wali,
+                ]);
+            }
+
+            // 4. Simpan Dokumen (jika ada)
+            $dokumenData = [];
+            $documentFields = [
+                'ktp_ayah' => 'ktp-ayah',
+                'ktp_ibu' => 'ktp-ibu',
+                'ktp_wali' => 'ktp-wali',
+                'kartu_keluarga' => 'kk',
+                'akte_kelahiran' => 'ak',
+                'ijazah_terakhir' => 'izt',
+                'transkip_nilai' => 'tn',
+                'surat_kelulusan' => 'skl',
+                'surat_keterangan_hasil_ujian' => 'skhu',
+                'surat_pindahan' => 'spn',
+                'formulir_fisik' => 'fs',
+            ];
+
+            foreach ($documentFields as $field => $folder) {
+                if ($request->hasFile($field)) {
+                    $file = $request->file($field);
+                    $fileName = time() . '_' . $field . '_' . $murid->id . '.' . $file->getClientOriginalExtension();
+                    $filePath = $file->storeAs('private/' . $folder, $fileName);
+                    $dokumenData[$field] = $filePath;
+                }
+            }
+
+            if (!empty($dokumenData)) {
+                $dokumenData['id_murid'] = $murid->id;
+                DokumenMurid::create($dokumenData);
+            }
 
             DB::commit();
             return redirect()->route('ppdb.success');
 
         } catch (\Exception $e) {
-    DB::rollback();
-    // Tampilkan error aslinya agar kita tahu apa yang salah
-    return dd($e->getMessage()); 
-}
+            DB::rollback();
+            Log::error('PPDB Error: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.');
+        }
     }
 }

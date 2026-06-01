@@ -112,6 +112,17 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        'dokumen_db' => [
+            'driver' => env('DOKUMEN_DB_CONNECTION', 'sqlite'),
+            'url' => env('DOKUMEN_DB_URL'),
+            'database' => env('DOKUMEN_DB_DATABASE', database_path('dokumen_db.sqlite')),
+            'prefix' => '',
+            'foreign_key_constraints' => env('DOKUMEN_DB_FOREIGN_KEYS', true),
+            'busy_timeout' => null,
+            'journal_mode' => null,
+            'synchronous' => null,
+        ],
+
     ],
 
     /*

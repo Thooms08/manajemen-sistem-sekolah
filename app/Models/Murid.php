@@ -38,6 +38,16 @@ class Murid extends Model
         return $this->hasOne(OrtuMurid::class, 'id_murid');
     }
 
+    public function wali(): HasOne
+    {
+        return $this->hasOne(WaliMurid::class, 'id_murid');
+    }
+
+    public function dokumen(): HasOne
+    {
+        return $this->hasOne(DokumenMurid::class, 'id_murid');
+    }
+
     public function kelas(): BelongsToMany
     {
         return $this->belongsToMany(Kelas::class, 'murid_kelas', 'id_murid', 'id_kelas');

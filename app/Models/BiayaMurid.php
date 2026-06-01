@@ -10,7 +10,8 @@ class BiayaMurid extends Model
     protected $fillable = [
         'name',
         'amount',
-        'account_id'
+        'account_id',
+        'is_active'
     ];
 
     public function account()

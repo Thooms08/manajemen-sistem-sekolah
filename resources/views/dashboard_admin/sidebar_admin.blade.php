@@ -200,6 +200,13 @@
                 <span id="ppdb-badge" class="badge-notif" style="display: none;">0</span>
             </a>
         </li>
+        <li class="{{ request()->routeIs('murid.create') ? 'active' : '' }}">
+            <a href="{{ route('murid.create') }}" class="d-flex align-items-center w-100">
+                <i class="bi bi-person-plus"></i> 
+                <span>PPDB</span>
+                <span id="ppdb-badge" class="badge-notif" style="display: none;">0</span>
+            </a>
+        </li>
         <li class="{{ Request::is('kelas*') ? 'active' : '' }}">
             <a href="{{ route('kelas.index') }}">
                 <i class="bi bi-door-open"></i> Kelola Kelas
@@ -223,6 +230,11 @@
         <li class="{{ request()->routeIs('ortu-murid.*') ? 'active' : '' }}">
             <a href="{{ route('ortu-murid.index') }}">
                 <i class="bi bi-person-hearts"></i> Data Ortu Murid
+            </a>
+        </li>
+        <li class="{{ request()->routeIs('admin.pengaturan-form-ppdb.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.pengaturan-form-ppdb') }}">
+                <i class="bi bi-gear"></i> Pengaturan Form PPDB
             </a>
         </li>
         <li class="{{ $menu_biaya }}">
