@@ -547,9 +547,8 @@
         }
 
         // ── Validasi field required di step aktif ──────────────────────────
-        function validateStep(stepNum) {
+         function validateStep(stepNum) {
             const stepEl = document.getElementById('step' + stepNum);
-            // Hapus semua error sebelumnya di step ini
             stepEl.querySelectorAll('.field-required-alert').forEach(el => el.remove());
             stepEl.querySelectorAll('.is-invalid-required').forEach(el => {
                 el.classList.remove('is-invalid-required');
@@ -592,6 +591,13 @@
                     // Reset border jika sudah diisi
                     field.style.borderColor = '';
                     field.classList.remove('is-invalid-required');
+                }
+            });
+
+            stepEl.querySelectorAll('input[type="file"]').forEach(field => {
+                if (field.classList.contains('is-invalid')) {
+                    hasError = true;
+                    if (!firstInvalid) firstInvalid = field;
                 }
             });
 
@@ -807,30 +813,35 @@
             }
         }
 
-        function previewFile(input, previewId, alertId) {
+       function previewFile(input, previewId, alertId) {
             const previewDiv = document.getElementById(previewId);
             const alertDiv = document.getElementById(alertId);
             const file = input.files[0];
             
-            // Clear previous preview and alert
+            // Reset kondisi awal preview, alert, dan class validasi
             previewDiv.innerHTML = '';
             alertDiv.innerHTML = '';
+            input.classList.remove('is-invalid', 'is-valid');
             
             if (!file) return;
             
-            // Check file size (max 5MB)
-            const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+            // Batasan diubah menjadi 2MB (2 * 1024 * 1024 bytes)
+            const maxSize = 2 * 1024 * 1024; 
             if (file.size > maxSize) {
-                alertDiv.innerHTML = '<span class="text-danger"><i class="bi bi-exclamation-circle"></i> Ukuran file maksimal 5MB. File Anda: ' + (file.size / (1024 * 1024)).toFixed(2) + 'MB</span>';
-                input.value = ''; // Clear the file input
+                // Tampilkan pesan alert teks merah tepat di bawah form upload
+                alertDiv.innerHTML = '<span class="text-danger fw-bold"><i class="bi bi-exclamation-circle"></i> Ukuran file melebihi 2MB (File Anda: ' + (file.size / (1024 * 1024)).toFixed(2) + 'MB). Anda harus mengubah file ini untuk melanjutkan.</span>';
+                
+                // Menambahkan class is-invalid agar input ditandai error
+                input.classList.add('is-invalid'); 
                 return;
             }
             
-            // Show file info
+            // Jika lolos validasi ukuran (< 2MB)
+            input.classList.add('is-valid');
             const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-            alertDiv.innerHTML = '<span class="text-success"><i class="bi bi-check-circle"></i> Ukuran: ' + fileSizeMB + 'MB</span>';
+            alertDiv.innerHTML = '<span class="text-success"><i class="bi bi-check-circle"></i> Ukuran: ' + fileSizeMB + 'MB (Valid)</span>';
             
-            // Preview image if it's an image file
+            // Render preview file (Gambar / PDF) sesuai bawaan kode Anda
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -843,7 +854,6 @@
                 previewDiv.innerHTML = '<div class="alert alert-info py-2"><i class="bi bi-file-earmark"></i> ' + file.name + '</div>';
             }
         }
-
         // Auto-save functionality with debouncing
         let autoSaveTimeout;
         const formSettings = JSON.parse(document.getElementById('ppdbForm').dataset.formSettings);

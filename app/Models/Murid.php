@@ -57,4 +57,9 @@ class Murid extends Model
     {
         return $this->belongsToMany(Kelas::class, 'murid_kelas', 'id_murid', 'id_kelas');
     }
+
+    public function kelulusan(): HasOne
+    {
+       return $this->hasOne(\App\Models\Dokumen\Kelulusan::class, 'id_murid');
+    }
 }

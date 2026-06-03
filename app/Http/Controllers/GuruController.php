@@ -17,8 +17,8 @@ class GuruController extends Controller
   public function store(Request $request)
     {
         $request->validate([
-            // id_user dihapus dari sini karena belum wajib diisi saat awal pembuatan
             'nama_guru'   => 'required|string|max:255',
+            'mapel'       => 'required|string|max:255',
             'email'       => 'required|email|unique:guru,email',
             'no_whatsapp' => 'required|string|max:15',
             'alamat'      => 'required|string',
@@ -33,6 +33,7 @@ class GuruController extends Controller
     {
         $request->validate([
             'nama_guru' => 'required|string|max:255',
+            'mapel' => 'required|string|max:255',
             'email' => 'required|email|unique:guru,email,' . $id,
             'no_whatsapp' => 'required|string|max:15',
             'alamat' => 'required|string',
@@ -54,8 +55,8 @@ class GuruController extends Controller
     $query = $request->get('search');
     $output = "";
 
-    // Mencari berdasarkan nama, email, atau no whatsapp
     $gurus = Guru::where('nama_guru', 'LIKE', '%' . $query . '%')
+         ->orWhere('mapel', 'LIKE', '%' . $query . '%')
         ->orWhere('email', 'LIKE', '%' . $query . '%')
         ->orWhere('no_whatsapp', 'LIKE', '%' . $query . '%')
         ->get();
@@ -66,13 +67,14 @@ class GuruController extends Controller
             <tr>
                 <td>' . ($index + 1) . '</td>
                 <td class="fw-bold">' . $g->nama_guru . '</td>
+                <td>' . $g->mapel . '</td>
                 <td>' . $g->email . '</td>
                 <td>' . $g->no_whatsapp . '</td>
                 <td>' . \Illuminate\Support\Str::limit($g->alamat, 40) . '</td>
                 <td class="text-center">
                     <div class="btn-group">
                         <button class="btn btn-sm btn-outline-primary border-0" 
-                            onclick="openEditModal(\'' . $g->id . '\', \'' . $g->nama_guru . '\', \'' . $g->email . '\', \'' . $g->no_whatsapp . '\', \'' . $g->alamat . '\')">
+                            onclick="openEditModal(\'' . $g->id . '\', \'' . $g->nama_guru . '\', \'' . $g->mapel . '\', \'' . $g->email . '\', \'' . $g->no_whatsapp . '\', \'' . $g->alamat . '\')">
                             <i class="bi bi-pencil-square"></i>
                         </button>
                         <form action="' . route('guru.destroy', $g->id) . '" method="POST" onsubmit="return confirm(\'Hapus data guru ini?\')">

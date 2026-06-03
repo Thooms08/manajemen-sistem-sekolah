@@ -17,9 +17,26 @@ use Illuminate\Support\Facades\Log;
 
 class MuridController extends Controller
 {
+    /**
+     * Ambil ID murid yang sudah lulus dari database dokumen_db.
+     * Cross-database — tidak bisa pakai JOIN/whereHas, jadi ambil dulu ID-nya.
+     */
+    private function getIdMuridLulus(): array
+    {
+        return \App\Models\Dokumen\Kelulusan::where('status', 'lulus')
+            ->pluck('id_murid')
+            ->toArray();
+    }
+
     public function index()
     {
-        $murids = Murid::where('status', 'konfirmasi')->with(['ortu', 'wali', 'dokumen'])->get();
+        $idLulus = $this->getIdMuridLulus();
+
+        $murids = Murid::where('status', 'konfirmasi')
+            ->whereNotIn('id', $idLulus)
+            ->with(['ortu', 'wali', 'dokumen'])
+            ->get();
+
         return view('dashboard_admin.murid', compact('murids'));
     }
 
@@ -430,17 +447,20 @@ class MuridController extends Controller
 
     public function search(Request $request)
     {
-        $query = $request->get('query') ?? $request->get('search');
+        $query    = $request->get('query') ?? $request->get('search');
         $kelas_id = $request->get('kelas_id');
 
-        $muridQuery = Murid::query();
+        // Exclude murid yang sudah lulus (cross-database)
+        $idLulus = $this->getIdMuridLulus();
+
+        $muridQuery = Murid::query()->whereNotIn('id', $idLulus);
 
         if ($kelas_id) {
             $muridQuery->where('id_kelas', $kelas_id);
         }
 
         if ($query) {
-            $muridQuery->where(function($q) use ($query) {
+            $muridQuery->where(function ($q) use ($query) {
                 $q->where('nama_lengkap', 'LIKE', '%' . $query . '%')
                   ->orWhere('nisn', 'LIKE', '%' . $query . '%')
                   ->orWhere('no_hp', 'LIKE', '%' . $query . '%');

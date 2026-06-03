@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Guru</title>
+    <title>Data Staff</title>
     @if(isset($sekolah->logo))
     <link rel="icon" type="image/png" href="{{ asset($sekolah->logo) }}">
     @else
@@ -42,10 +42,10 @@
                 <div class="d-flex align-items-center justify-content-between mb-4 mt-2">
                     <div class="d-flex align-items-center">
                         <button type="button" id="sidebarCollapse" class="btn"><i class="bi bi-list fs-4"></i></button>
-                        <h4 class="ms-3 mb-0 fw-bold text-success">Data Guru & Staff</h4>
+                        <h4 class="ms-3 mb-0 fw-bold text-success">Data Staff</h4>
                     </div>
-                    <button class="btn btn-success px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambahGuru">
-                        <i class="bi bi-person-plus me-2"></i>Tambah Guru
+                    <button class="btn btn-success px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambahStaff">
+                        <i class="bi bi-person-plus me-2"></i>Tambah Staff
                     </button>
                 </div>
 
@@ -56,24 +56,12 @@
                     </div>
                 @endif
 
-                @if($errors->any())
-                    <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4">
-                        <div class="fw-bold mb-1"><i class="bi bi-exclamation-triangle-fill me-2"></i> Gagal Menyimpan Data:</div>
-                        <ul class="mb-0 small ps-3">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
-
                 <div class="card p-3 mb-4 shadow-sm">
                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                        <p class="text-muted small mb-0">Kelola data tenaga pendidik secara efisien.</p>
+                        <p class="text-muted small mb-0">Kelola data administrasi dan tenaga pendukung secara efisien.</p>
                         <div class="input-group search-box-wrapper">
                             <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                            <input type="text" id="search-guru" class="form-control border-start-0" placeholder="Cari Nama, Email, atau WhatsApp...">
+                            <input type="text" id="search-staff" class="form-control border-start-0" placeholder="Cari Nama, Jabatan, atau Email...">
                         </div>
                     </div>
                 </div>
@@ -84,8 +72,8 @@
                             <thead>
                                 <tr>
                                     <th width="50">No</th>
-                                    <th>Nama Guru</th>
-                                    <th>Mapel</th>
+                                    <th>Nama Staff</th>
+                                    <th>Jabatan</th>
                                     <th>Email</th>
                                     <th>WhatsApp</th>
                                     <th>Alamat</th>
@@ -93,21 +81,21 @@
                                 </tr>
                             </thead>
                             <tbody id="table-body">
-                                @forelse($gurus as $index => $g)
+                                @forelse($staffs as $index => $s)
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
-                                    <td class="fw-bold">{{ $g->nama_guru }}</td>
-                                    <td>{{ $g->mapel }}</td>
-                                    <td>{{ $g->email }}</td>
-                                    <td>{{ $g->no_whatsapp }}</td>
-                                    <td>{{ Str::limit($g->alamat, 40) }}</td>
+                                    <td class="fw-bold">{{ $s->nama_staff }}</td>
+                                    <td>{{ $s->jabatan }}</td>
+                                    <td>{{ $s->email }}</td>
+                                    <td>{{ $s->no_wa }}</td>
+                                    <td>{{ Str::limit($s->alamat, 40) }}</td>
                                     <td class="text-center">
                                         <div class="btn-group">
-                                            <button class="btn btn-sm btn-outline-success border-0" 
-                                                onclick="openEditModal('{{ $g->id }}', '{{ $g->nama_guru }}', '{{ $g->mapel }}' , '{{ $g->email }}', '{{ $g->no_whatsapp }}', '{{ $g->alamat }}')">
+                                            <button class="btn btn-sm btn-outline-primary border-0" 
+                                                onclick="openEditModal('{{ $s->id }}', '{{ addslashes($s->nama_staff) }}', '{{ addslashes($s->jabatan) }}', '{{ addslashes($s->email) }}', '{{ addslashes($s->no_wa) }}', '{{ addslashes($s->alamat) }}')">
                                                 <i class="bi bi-pencil-square"></i>
                                             </button>
-                                            <form action="{{ route('guru.destroy', $g->id) }}" method="POST" onsubmit="return confirm('Hapus data guru ini?')">
+                                            <form action="{{ route('staff.destroy', $s->id) }}" method="POST" onsubmit="return confirm('Hapus data staff ini?')">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-outline-danger border-0">
                                                     <i class="bi bi-trash"></i>
@@ -118,7 +106,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-4 text-muted">Belum ada data guru.</td>
+                                    <td colspan="7" class="text-center py-4 text-muted">Belum ada data staff.</td>
                                 </tr>
                                 @endforelse
                             </tbody>
@@ -129,23 +117,23 @@
         </div>
     </div>
 
-    <div class="modal fade" id="modalTambahGuru" tabindex="-1">
+    <div class="modal fade" id="modalTambahStaff" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
-                <form action="{{ route('guru.store') }}" method="POST">
+                <form action="{{ route('staff.store') }}" method="POST">
                     @csrf
                     <div class="modal-header bg-success text-white">
-                        <h5 class="modal-title fw-bold">Tambah Guru Baru</h5>
+                        <h5 class="modal-title fw-bold">Tambah Staff Baru</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body p-4 row g-3">
                         <div class="col-12">
-                            <label class="form-label fw-bold small">Nama Guru</label>
-                            <input type="text" name="nama_guru" class="form-control" required>
+                            <label class="form-label fw-bold small">Nama Staff</label>
+                            <input type="text" name="nama_staff" class="form-control" required>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-bold small">Mapel</label>
-                            <input type="text" name="mapel" class="form-control" required>
+                            <label class="form-label fw-bold small">Jabatan</label>
+                            <input type="text" name="jabatan" class="form-control" required>
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-bold small">Email</label>
@@ -153,7 +141,7 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-bold small">Nomor WhatsApp</label>
-                            <input type="text" name="no_whatsapp" class="form-control" required>
+                            <input type="text" name="no_wa" class="form-control" required>
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-bold small">Alamat</label>
@@ -168,23 +156,23 @@
         </div>
     </div>
 
-    <div class="modal fade" id="modalEditGuru" tabindex="-1">
+    <div class="modal fade" id="modalEditStaff" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
-                <form id="formEditGuru" method="POST">
+                <form id="formEditStaff" method="POST">
                     @csrf @method('PUT')
-                    <div class="modal-header bg-success text-white">
-                        <h5 class="modal-title fw-bold">Edit Data Guru</h5>
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title fw-bold">Edit Data Staff</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body p-4 row g-3">
                         <div class="col-12">
-                            <label class="form-label fw-bold small">Nama Guru</label>
-                            <input type="text" name="nama_guru" id="edit_nama" class="form-control" required>
+                            <label class="form-label fw-bold small">Nama Staff</label>
+                            <input type="text" name="nama_staff" id="edit_nama" class="form-control" required>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-bold small">Mapel</label>
-                            <input type="text" name="mapel" id="edit_mapel" class="form-control" required>
+                            <label class="form-label fw-bold small">Jabatan</label>
+                            <input type="text" name="jabatan" id="edit_jabatan" class="form-control" required>
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-bold small">Email</label>
@@ -192,7 +180,7 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-bold small">Nomor WhatsApp</label>
-                            <input type="text" name="no_whatsapp" id="edit_whatsapp" class="form-control" required>
+                            <input type="text" name="no_wa" id="edit_wa" class="form-control" required>
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-bold small">Alamat</label>
@@ -200,7 +188,7 @@
                         </div>
                     </div>
                     <div class="modal-footer border-0">
-                        <button type="submit" class="btn btn-success w-100 py-2 shadow">Perbarui Data</button>
+                        <button type="submit" class="btn btn-primary w-100 py-2 shadow">Perbarui Data</button>
                     </div>
                 </form>
             </div>
@@ -210,7 +198,6 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Sidebar & Hamburger Logic
         $(document).ready(function() {
             const sidebar = $('#sidebar');
             const overlay = $('#overlay');
@@ -226,13 +213,13 @@
 
             $('#sidebarCollapse, #close-sidebar, #overlay').on('click', toggleSidebar);
 
-            // AJAX Search Guru
-            $('#search-guru').on('keyup', function() {
+            // AJAX Search Staff Real-time
+            $('#search-staff').on('keyup', function() {
                 let value = $(this).val();
                 
                 $.ajax({
                     type: 'GET',
-                    url: "{{ route('guru.search') }}",
+                    url: "{{ route('staff.search') }}",
                     data: { 'search': value },
                     success: function(data) {
                         $('#table-body').html(data);
@@ -241,14 +228,14 @@
             });
         });
 
-        // Edit Modal Logic
-        const editModal = new bootstrap.Modal(document.getElementById('modalEditGuru'));
-        function openEditModal(id, nama, mapel, email, whatsapp, alamat) {
-            document.getElementById('formEditGuru').action = `/guru/${id}`;
+        // Logika Pengisian data ke Modal Edit
+        const editModal = new bootstrap.Modal(document.getElementById('modalEditStaff'));
+        function openEditModal(id, nama, jabatan, email, wa, alamat) {
+            document.getElementById('formEditStaff').action = `/staff/${id}`;
             document.getElementById('edit_nama').value = nama;
-            document.getElementById('edit_mapel').value = mapel;
+            document.getElementById('edit_jabatan').value = jabatan;
             document.getElementById('edit_email').value = email;
-            document.getElementById('edit_whatsapp').value = whatsapp;
+            document.getElementById('edit_wa').value = wa;
             document.getElementById('edit_alamat').value = alamat;
             editModal.show();
         }

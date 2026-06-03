@@ -31,6 +31,9 @@ use App\Http\Controllers\AdminAbsensiController;
 use App\Http\Controllers\AdminAktifitasGuruController;
 use App\Http\Controllers\AdminPPDBController;
 use App\Http\Controllers\PengaturanFormPpdbController;
+use App\Http\Controllers\KelulusanController;
+use App\Http\Controllers\AlumniController;
+use App\Http\Controllers\StaffController;
 
 // =========================================================
 // CONTROLLER: ROLE GURU
@@ -146,6 +149,19 @@ Route::middleware('auth')->group(function () {
         Route::get('/murid/{id}/pdf', [MuridController::class, 'downloadPdf'])->name('murid.pdf');
         Route::resource('murid', MuridController::class);
 
+        //Master Data: Kelulusan
+        Route::get('/data-kelulusan', [KelulusanController::class, 'index'])->name('kelulusan.index');
+        Route::get('/data-kelulusan/search', [KelulusanController::class, 'search'])->name('kelulusan.search');
+        Route::get('/data-kelulusan/{uuid}/edit', [KelulusanController::class, 'edit'])->name('kelulusan.edit');
+        Route::post('/data-kelulusan/{uuid}/update', [KelulusanController::class, 'update'])->name('kelulusan.update');
+        Route::get('/data-kelulusan/berkas/ijazah/{uuid}', [KelulusanController::class, 'viewIjazah'])->name('kelulusan.view.ijazah');
+        Route::get('/data-kelulusan/berkas/raport/{uuid}', [KelulusanController::class, 'viewRaport'])->name('kelulusan.view.raport');
+        Route::get('/data-kelulusan/surat-kelulusan/{uuid}', [KelulusanController::class, 'viewSuratKelulusan'])->name('kelulusan.view.surat');
+
+        //Master Data: Alumni
+        Route::get('/data-alumni', [AlumniController::class, 'index'])->name('alumni.index');
+        Route::get('/data-alumni/search', [AlumniController::class, 'search'])->name('alumni.search');
+
         // Profile Sekolah
         Route::resource('profile-sekolah', ProfileSekolahController::class);
         Route::delete('/profile-sekolah/delete-image/{id}', [ProfileSekolahController::class, 'deleteImage'])->name('profile-sekolah.delete-image'); 
@@ -185,6 +201,9 @@ Route::middleware('auth')->group(function () {
         Route::delete('/pelanggaran/aturan/{id}', [PelanggaranController::class, 'destroyAturan'])->name('pelanggaran.destroyAturan');
         Route::post('/pelanggaran/murid', [PelanggaranController::class, 'storePelanggaranMurid'])->name('pelanggaran.storeMurid');
         Route::delete('/pelanggaran/{id}', [PelanggaranController::class, 'destroy'])->name('pelanggaran.destroy');
+
+        Route::get('staff/search', [StaffController::class, 'search'])->name('staff.search');
+        Route::resource('staff', StaffController::class);
 
         // Konfirmasi Pelanggaran
         Route::resource('konfirmasi-pelanggaran', KonfirmasiPelanggaranController::class);

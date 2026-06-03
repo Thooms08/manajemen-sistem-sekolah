@@ -222,6 +222,11 @@
                 <i class="bi bi-person-badge"></i> Data Guru
             </a>
         </li>
+        <li class="{{ Request::is('staff*') ? 'active' : '' }}">
+            <a href="{{ route('staff.index') }}">
+                <i class="bi bi-person-badge"></i> Data Staff
+            </a>
+        </li>
         <li class="{{ request()->routeIs('murid.*') ? 'active' : '' }}">
             <a href="{{ route('murid.index') }}">
                 <i class="bi bi-people"></i> Data Murid
@@ -235,6 +240,16 @@
         <li class="{{ request()->routeIs('wali-murid.*') ? 'active' : '' }}">
             <a href="{{ route('wali-murid.index') }}">
                 <i class="bi bi-person-hearts"></i> Data Wali Murid
+            </a>
+        </li>
+        <li class="{{ request()->routeIs('kelulusan.*') ? 'active' : '' }}">
+            <a href="{{ route('kelulusan.index') }}">
+                <i class="bi bi-people-fill"></i> Data Kelulusan
+            </a>
+        </li>
+        <li class="{{ request()->routeIs('alumni.*') ? 'active' : '' }}">
+            <a href="{{ route('alumni.index') }}">
+                <i class="bi bi-people-fill"></i> Data Alumni
             </a>
         </li>
         <li class="{{ request()->routeIs('admin.pengaturan-form-ppdb.*') ? 'active' : '' }}">

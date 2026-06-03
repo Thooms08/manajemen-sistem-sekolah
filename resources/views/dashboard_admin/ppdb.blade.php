@@ -610,9 +610,8 @@
         }
 
         // ── Validasi field required di step aktif ──────────────────────────
-        function validateStep(stepNum) {
+       function validateStep(stepNum) {
             const stepEl = document.getElementById('step' + stepNum);
-            // Hapus semua error sebelumnya di step ini
             stepEl.querySelectorAll('.field-required-alert').forEach(el => el.remove());
             stepEl.querySelectorAll('.is-invalid-required').forEach(el => {
                 el.classList.remove('is-invalid-required');
@@ -622,39 +621,28 @@
             let firstInvalid = null;
             let hasError = false;
 
-            // Cek semua input/select/textarea yang punya atribut required dan tidak disabled
+            // (Logika pemeriksaan field 'required' bawaan Anda tetap di sini...)
             stepEl.querySelectorAll('input[required]:not([disabled]), select[required]:not([disabled]), textarea[required]:not([disabled])').forEach(field => {
-                const isEmpty = (field.type === 'file')
-                    ? (!field.files || field.files.length === 0)
-                    : (field.value.trim() === '');
-
-                // Hapus error lama spesifik field ini dulu
-                const existingAlert = field.parentElement.querySelector('.field-required-alert');
-                if (existingAlert) existingAlert.remove();
-
+                const isEmpty = (field.type === 'file') ? (!field.files || field.files.length === 0) : (field.value.trim() === '');
                 if (isEmpty) {
                     hasError = true;
-                    // Beri border merah pada field
                     field.style.borderColor = '#dc3545';
                     field.classList.add('is-invalid-required');
-
-                    // Ambil label untuk pesan
-                    const labelEl = field.closest('.col-md-3, .col-md-4, .col-md-6, .col-12, .col')
-                                  ?.querySelector('label');
+                    const labelEl = field.closest('.col-md-3, .col-md-4, .col-md-6, .col-12, .col')?.querySelector('label');
                     const labelText = labelEl ? labelEl.textContent.trim() : 'Field ini';
-
-                    // Buat elemen alert di bawah field
                     const alert = document.createElement('div');
                     alert.className = 'field-required-alert text-danger mt-1';
                     alert.style.fontSize = '0.8rem';
                     alert.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i>' + labelText + ' wajib diisi.';
                     field.insertAdjacentElement('afterend', alert);
-
                     if (!firstInvalid) firstInvalid = field;
-                } else {
-                    // Reset border jika sudah diisi
-                    field.style.borderColor = '';
-                    field.classList.remove('is-invalid-required');
+                }
+            });
+
+            stepEl.querySelectorAll('input[type="file"]').forEach(field => {
+                if (field.classList.contains('is-invalid')) {
+                    hasError = true;
+                    if (!firstInvalid) firstInvalid = field;
                 }
             });
 
@@ -665,7 +653,6 @@
 
             return !hasError;
         }
-
         // Hapus error pada field saat user mulai mengetik/memilih
         document.addEventListener('input', function(e) {
             if (e.target.classList.contains('is-invalid-required')) {
@@ -893,39 +880,41 @@
             const alertDiv = document.getElementById(alertId);
             const file = input.files[0];
             
-            // Clear previous preview and alert
+            // Reset kondisi awal preview, alert, dan class Bootstrap
             previewDiv.innerHTML = '';
             alertDiv.innerHTML = '';
+            input.classList.remove('is-invalid', 'is-valid');
             
             if (!file) return;
             
-            // Check file size (max 5MB)
-            const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+            // Batasan diubah menjadi 2MB (2 * 1024 * 1024 bytes)
+            const maxSize = 2 * 1024 * 1024; 
             if (file.size > maxSize) {
-                alertDiv.innerHTML = '<span class="text-danger"><i class="bi bi-exclamation-circle"></i> Ukuran file maksimal 5MB. File Anda: ' + (file.size / (1024 * 1024)).toFixed(2) + 'MB</span>';
-                input.value = ''; // Clear the file input
+                // Tampilkan alert teks merah tepat di bawah input form
+                alertDiv.innerHTML = '<span class="text-danger fw-bold"><i class="bi bi-exclamation-circle"></i> Ukuran file melebihi 2MB (File Anda: ' + (file.size / (1024 * 1024)).toFixed(2) + 'MB). Anda harus mengganti file ini untuk melanjutkan.</span>';
+                
+                // Tambahkan class invalid agar terdeteksi gagal saat tombol Selanjutnya diklik
+                input.classList.add('is-invalid'); 
                 return;
             }
             
-            // Show file info
+            // Jika lolos validasi ukuran (< 2MB)
+            input.classList.add('is-valid');
             const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
-            alertDiv.innerHTML = '<span class="text-success"><i class="bi bi-check-circle"></i> Ukuran: ' + fileSizeMB + 'MB</span>';
+            alertDiv.innerHTML = '<span class="text-success"><i class="bi bi-check-circle"></i> Ukuran: ' + fileSizeMB + 'MB (Valid)</span>';
             
-            // Preview image if it's an image file
+            // Render preview file (Gambar / PDF)
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     previewDiv.innerHTML = '<img src="' + e.target.result + '" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">';
                 };
                 reader.readAsDataURL(file);
-            } else if (file.type === 'application/pdf') {
-                previewDiv.innerHTML = '<div class="alert alert-info py-2"><i class="bi bi-file-earmark-pdf"></i> ' + file.name + '</div>';
             } else {
-                previewDiv.innerHTML = '<div class="alert alert-info py-2"><i class="bi bi-file-earmark"></i> ' + file.name + '</div>';
+                previewDiv.innerHTML = '<div class="alert alert-info py-2"><i class="bi bi-file-earmark-pdf"></i> ' + file.name + '</div>';
             }
         }
 
-        // Auto-save functionality with debouncing
         let autoSaveTimeout;
         const formSettings = JSON.parse(document.getElementById('ppdbForm').dataset.formSettings);
 
