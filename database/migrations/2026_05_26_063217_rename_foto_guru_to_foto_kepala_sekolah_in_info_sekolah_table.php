@@ -12,8 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('info_sekolah', function (Blueprint $table) {
-            // Mengubah nama kolom 'foto_guru' menjadi 'foto_kepala_sekolah'
-            $table->renameColumn('foto_guru', 'foto_kepala_sekolah');
+            // Check if column exists before renaming
+            if (Schema::hasColumn('info_sekolah', 'foto_guru')) {
+                // Mengubah nama kolom 'foto_guru' menjadi 'foto_kepala_sekolah'
+                $table->renameColumn('foto_guru', 'foto_kepala_sekolah');
+            }
         });
     }
 
@@ -23,8 +26,11 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('info_sekolah', function (Blueprint $table) {
-            // Mengembalikan nama kolom dari 'foto_kepala_sekolah' menjadi 'foto_guru' jika dilakukan rollback
-            $table->renameColumn('foto_kepala_sekolah', 'foto_guru');
+            // Check if column exists before renaming
+            if (Schema::hasColumn('info_sekolah', 'foto_kepala_sekolah')) {
+                // Mengembalikan nama kolom dari 'foto_kepala_sekolah' menjadi 'foto_guru' jika dilakukan rollback
+                $table->renameColumn('foto_kepala_sekolah', 'foto_guru');
+            }
         });
     }
 };  

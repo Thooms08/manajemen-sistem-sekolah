@@ -6,9 +6,10 @@ use App\Http\Requests\PPDBRequest;
 use App\Models\Murid;
 use App\Models\OrtuMurid;
 use App\Models\WaliMurid;
-use App\Models\DokumenMurid;
+use App\Models\Dokumen\DokumenPpdb;
 use App\Models\BiayaMurid;
 use App\Models\AkunPembayaran;
+use App\Models\PpdbDraft;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -28,7 +29,7 @@ class MuridController extends Controller
         $biayas = BiayaMurid::with('account')->orderBy('id')->get();
         $accounts = AkunPembayaran::orderBy('bank_name')->get();
         $formSettings = \App\Models\PpdbFormSetting::all()->keyBy('field_name');
-        return view('dashboard_admin.form_ppdb', compact('murid', 'biayas', 'accounts', 'formSettings'));
+        return view('dashboard_admin.ppdb', compact('murid', 'biayas', 'accounts', 'formSettings'));
     }
 
     public function store(PPDBRequest $request)
@@ -41,6 +42,7 @@ class MuridController extends Controller
                 'jenis_kelamin'   => $request->jenis_kelamin,
                 'nisn'            => $request->nisn,
                 'nik'             => $request->nik,
+                'nis_lama'        => $request->nis_lama,   // store → nis_lama
                 'tempat_lahir'    => $request->tempat_lahir,
                 'tgl_lahir'       => $request->tgl_lahir,
                 'rt_rw'           => $request->rt_rw,
@@ -98,31 +100,32 @@ class MuridController extends Controller
             // 4. Simpan Dokumen (jika ada)
             $dokumenData = [];
             $documentFields = [
-                'ktp_ayah' => 'ktp-ayah',
-                'ktp_ibu' => 'ktp-ibu',
-                'ktp_wali' => 'ktp-wali',
-                'kartu_keluarga' => 'kk',
-                'akte_kelahiran' => 'ak',
-                'ijazah_terakhir' => 'izt',
-                'transkip_nilai' => 'tn',
-                'surat_kelulusan' => 'skl',
+                'pasfoto'                      => 'pasfoto',
+                'ktp_ayah'                     => 'ktp-ayah',
+                'ktp_ibu'                      => 'ktp-ibu',
+                'ktp_wali'                     => 'ktp-wali',
+                'kartu_keluarga'               => 'kk',
+                'akte_kelahiran'               => 'ak',
+                'ijazah_terakhir'              => 'izt',
+                'transkip_nilai'               => 'tn',
+                'surat_kelulusan'              => 'skl',
                 'surat_keterangan_hasil_ujian' => 'skhu',
-                'surat_pindahan' => 'spn',
-                'formulir_fisik' => 'fs',
+                'surat_pindahan'               => 'spn',
+                'formulir_fisik'               => 'fs',
             ];
 
             foreach ($documentFields as $field => $folder) {
                 if ($request->hasFile($field)) {
-                    $file = $request->file($field);
+                    $file     = $request->file($field);
                     $fileName = time() . '_' . $field . '_' . $murid->id . '.' . $file->getClientOriginalExtension();
-                    $filePath = $file->storeAs('private/' . $folder, $fileName);
+                    $filePath = $file->storeAs('ppdb/' . $folder, $fileName);
                     $dokumenData[$field] = $filePath;
                 }
             }
 
             if (!empty($dokumenData)) {
                 $dokumenData['id_murid'] = $murid->id;
-                DokumenMurid::create($dokumenData);
+                DokumenPpdb::create($dokumenData);
             }
 
             DB::commit();
@@ -141,6 +144,136 @@ class MuridController extends Controller
         return response()->json($murid);
     }
 
+    /**
+     * Kembalikan data lengkap murid untuk modal detail (JSON).
+     * Reuse struktur yang sama dengan AdminPPDBController@getDetail.
+     */
+    public function detail($id)
+    {
+        $murid = Murid::with(['ortu', 'wali', 'dokumen'])->findOrFail($id);
+
+        $formSettings = \App\Models\PpdbFormSetting::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get()
+            ->groupBy('field_category');
+
+        $ortu    = $murid->ortu    ? $murid->ortu->toArray()    : [];
+        $wali    = $murid->wali    ? $murid->wali->toArray()    : [];
+        $dokumen = $murid->dokumen ? $murid->dokumen->toArray() : [];
+
+        $dokumenUrls = [];
+        if ($murid->dokumen) {
+            $fileFields = [
+                'pasfoto',
+                'ktp_ayah', 'ktp_ibu', 'ktp_wali', 'kartu_keluarga',
+                'akte_kelahiran', 'ijazah_terakhir', 'transkip_nilai',
+                'surat_kelulusan', 'surat_keterangan_hasil_ujian',
+                'surat_pindahan', 'formulir_fisik',
+            ];
+            foreach ($fileFields as $field) {
+                if (!empty($dokumen[$field])) {
+                    $dokumenUrls[$field] = route('murid.dokumen', [
+                        'path' => base64_encode($dokumen[$field])
+                    ]);
+                }
+            }
+        }
+
+        $settings = [];
+        foreach ($formSettings as $category => $fields) {
+            foreach ($fields as $field) {
+                $settings[$category][] = [
+                    'field_name'  => $field->field_name,
+                    'field_label' => $field->field_label,
+                ];
+            }
+        }
+
+        return response()->json([
+            'murid'        => $murid->toArray(),
+            'ortu'         => $ortu,
+            'wali'         => $wali,
+            'dokumen_urls' => $dokumenUrls,
+            'settings'     => $settings,
+        ]);
+    }
+
+    /**
+     * Serve file dokumen privat untuk admin.
+     */
+    public function serveDokumen(Request $request)
+    {
+        $path = base64_decode($request->query('path'));
+
+        if (!$path || !Storage::exists($path)) {
+            abort(404, 'File tidak ditemukan');
+        }
+
+        return Storage::response($path);
+    }
+
+    /**
+     * Generate & download PDF formulir lengkap murid.
+     */
+    public function downloadPdf($id)
+    {
+        try {
+            $murid   = Murid::with(['ortu', 'wali', 'dokumen', 'kelas'])->findOrFail($id);
+            $biayas  = BiayaMurid::with('account')->orderBy('id')->get();
+            $sekolah = DB::table('profile_sekolah')->first();
+
+            // Daftar dokumen yang sudah diupload
+            $dokumenDiupload = [];
+            $labelMap = [
+                'pasfoto'                      => 'Pasfoto',
+                'ktp_ayah'                     => 'KTP Ayah',
+                'ktp_ibu'                      => 'KTP Ibu',
+                'ktp_wali'                     => 'KTP Wali',
+                'kartu_keluarga'               => 'Kartu Keluarga',
+                'akte_kelahiran'               => 'Akte Kelahiran',
+                'ijazah_terakhir'              => 'Ijazah Terakhir',
+                'transkip_nilai'               => 'Transkip Nilai',
+                'surat_kelulusan'              => 'Surat Kelulusan',
+                'surat_keterangan_hasil_ujian' => 'Surat Keterangan Hasil Ujian',
+                'surat_pindahan'               => 'Surat Pindahan',
+                'formulir_fisik'               => 'Formulir Fisik',
+            ];
+            foreach ($labelMap as $field => $label) {
+                $dokumenDiupload[$label] = $murid->dokumen && !empty($murid->dokumen->$field);
+            }
+
+            // Siapkan path absolut pasfoto untuk DomPDF (butuh path filesystem, bukan URL)
+            $pasfotoPath = null;
+            if ($murid->dokumen && !empty($murid->dokumen->pasfoto)) {
+                $abs = storage_path('app/private/') . ltrim($murid->dokumen->pasfoto, '/');
+                if (file_exists($abs)) {
+                    $pasfotoPath = $abs;
+                }
+            }
+
+            // Path absolut logo sekolah
+            $logoPath = null;
+            if (!empty($sekolah->logo)) {
+                $abs = public_path($sekolah->logo);
+                if (file_exists($abs)) {
+                    $logoPath = $abs;
+                }
+            }
+
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('format_file.pdf', compact(
+                'murid', 'sekolah', 'biayas', 'dokumenDiupload', 'pasfotoPath', 'logoPath'
+            ))->setPaper('a4', 'portrait');
+
+            $namaFile = 'Formulir_PPDB_' . str_replace(' ', '_', $murid->nama_lengkap ?? $id) . '.pdf';
+
+            return $pdf->download($namaFile);
+
+        } catch (\Exception $e) {
+            Log::error('PDF Error murid #' . $id . ': ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal generate PDF: ' . $e->getMessage());
+        }
+    }
+
     public function destroy($id)
     {
         DB::beginTransaction();
@@ -150,9 +283,9 @@ class MuridController extends Controller
             // Delete related documents
             if ($murid->dokumen) {
                 $documentFields = [
-                    'ktp_ayah', 'ktp_ibu', 'ktp_wali', 'kartu_keluarga', 'akte_kelahiran',
-                    'ijazah_terakhir', 'transkip_nilai', 'surat_kelulusan', 
-                    'surat_keterangan_hasil_ujian', 'surat_pindahan', 'formulir_fisik'
+                    'pasfoto', 'ktp_ayah', 'ktp_ibu', 'ktp_wali', 'kartu_keluarga',
+                    'akte_kelahiran', 'ijazah_terakhir', 'transkip_nilai', 'surat_kelulusan',
+                    'surat_keterangan_hasil_ujian', 'surat_pindahan', 'formulir_fisik',
                 ];
                 
                 foreach ($documentFields as $field) {
@@ -191,7 +324,7 @@ class MuridController extends Controller
         $biayas = BiayaMurid::with('account')->orderBy('id')->get();
         $accounts = AkunPembayaran::orderBy('bank_name')->get();
         $formSettings = \App\Models\PpdbFormSetting::all()->keyBy('field_name');
-        return view('dashboard_admin.form_ppdb', compact('murid', 'biayas', 'accounts', 'formSettings'));
+        return view('dashboard_admin.ppdb', compact('murid', 'biayas', 'accounts', 'formSettings'));
     }
 
     public function update(PPDBRequest $request, $id)
@@ -201,12 +334,27 @@ class MuridController extends Controller
             $murid = Murid::findOrFail($id);
             
             // 1. Update Data Murid
-            $murid->update($request->only([
-                'nama_lengkap', 'jenis_kelamin', 'nisn', 'nik', 'tempat_lahir', 'tgl_lahir',
-                'rt_rw', 'desa_kelurahan', 'kota_kabupaten', 'provinsi', 'alamat_detail',
-                'transportasi', 'no_hp', 'alamat_email', 'sekolah_asal', 'tinggi_badan',
-                'berat_badan', 'anak_ke', 'jml_saudara', 'jumlah_kakak', 'jumlah_adik'
-            ]));
+            // Validasi nis_baru harus unik (kecuali milik murid ini sendiri)
+            if ($request->filled('nis_baru')) {
+                $nisBaru = $request->nis_baru;
+                $exists  = Murid::where('nis_baru', $nisBaru)->where('id', '!=', $id)->exists();
+                if ($exists) {
+                    DB::rollback();
+                    return back()->withErrors(['nis_baru' => 'NIS Baru sudah digunakan oleh murid lain.'])->withInput();
+                }
+            }
+
+            $murid->update(array_merge(
+                $request->only([
+                    'nama_lengkap', 'jenis_kelamin', 'nisn', 'nik', 'tempat_lahir', 'tgl_lahir',
+                    'rt_rw', 'desa_kelurahan', 'kota_kabupaten', 'provinsi', 'alamat_detail',
+                    'transportasi', 'no_hp', 'alamat_email', 'sekolah_asal', 'tinggi_badan',
+                    'berat_badan', 'anak_ke', 'jml_saudara', 'jumlah_kakak', 'jumlah_adik',
+                    'nis_lama',
+                ]),
+                // nis_baru hanya diupdate jika diisi (null tidak menimpa nilai lama)
+                $request->filled('nis_baru') ? ['nis_baru' => $request->nis_baru] : []
+            ));
 
             // 2. Update Data Orang Tua
             $murid->ortu()->update($request->only([
@@ -235,28 +383,29 @@ class MuridController extends Controller
             // 4. Update Dokumen (jika ada)
             $dokumenData = [];
             $documentFields = [
-                'ktp_ayah' => 'ktp-ayah',
-                'ktp_ibu' => 'ktp-ibu',
-                'ktp_wali' => 'ktp-wali',
-                'kartu_keluarga' => 'kk',
-                'akte_kelahiran' => 'ak',
-                'ijazah_terakhir' => 'izt',
-                'transkip_nilai' => 'tn',
-                'surat_kelulusan' => 'skl',
+                'pasfoto'                      => 'pasfoto',
+                'ktp_ayah'                     => 'ktp-ayah',
+                'ktp_ibu'                      => 'ktp-ibu',
+                'ktp_wali'                     => 'ktp-wali',
+                'kartu_keluarga'               => 'kk',
+                'akte_kelahiran'               => 'ak',
+                'ijazah_terakhir'              => 'izt',
+                'transkip_nilai'               => 'tn',
+                'surat_kelulusan'              => 'skl',
                 'surat_keterangan_hasil_ujian' => 'skhu',
-                'surat_pindahan' => 'spn',
-                'formulir_fisik' => 'fs',
+                'surat_pindahan'               => 'spn',
+                'formulir_fisik'               => 'fs',
             ];
 
             foreach ($documentFields as $field => $folder) {
                 if ($request->hasFile($field)) {
                     $file = $request->file($field);
-                    // Delete old file if exists
+                    // Hapus file lama jika ada
                     if ($murid->dokumen && $murid->dokumen->$field) {
                         Storage::delete($murid->dokumen->$field);
                     }
                     $fileName = time() . '_' . $field . '_' . $murid->id . '.' . $file->getClientOriginalExtension();
-                    $filePath = $file->storeAs('private/' . $folder, $fileName);
+                    $filePath = $file->storeAs('ppdb/' . $folder, $fileName);
                     $dokumenData[$field] = $filePath;
                 }
             }
@@ -266,7 +415,7 @@ class MuridController extends Controller
                     $murid->dokumen()->update($dokumenData);
                 } else {
                     $dokumenData['id_murid'] = $murid->id;
-                    DokumenMurid::create($dokumenData);
+                    DokumenPpdb::create($dokumenData);
                 }
             }
 
@@ -313,13 +462,26 @@ class MuridController extends Controller
                     <td>' . $m->nisn . '</td>
                     <td>' . $m->no_hp . '</td>
                     <td class="text-center">
-                        <a href="' . route('murid.edit', $m->id) . '" class="btn btn-sm btn-outline-success">
+                        <button class="btn btn-sm btn-outline-danger"
+                                title="Download PDF Formulir Lengkap"
+                                onclick="downloadPdf(' . $m->id . ', \'' . addslashes($m->nama_lengkap) . '\', this)">
+                            <i class="bi bi-file-earmark-pdf-fill"></i>
+                        </button>
+                    </td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-outline-info"
+                                title="Lihat Detail Berkas"
+                                onclick="viewDetail(' . $m->id . ')">
+                            <i class="bi bi-person-vcard"></i>
+                        </button>
+                        <a href="' . route('murid.edit', $m->id) . '" class="btn btn-sm btn-outline-success" title="Edit">
                             <i class="bi bi-pencil"></i>
                         </a>
                         <form action="' . route('murid.destroy', $m->id) . '" method="POST" class="d-inline">
                             ' . csrf_field() . '
                             ' . method_field('DELETE') . '
-                            <button class="btn btn-sm btn-outline-danger" onclick="return confirm(\'Hapus murid ini?\')">
+                            <button class="btn btn-sm btn-outline-danger" title="Hapus"
+                                    onclick="return confirm(\'Hapus murid ini?\')">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </form>
@@ -327,7 +489,7 @@ class MuridController extends Controller
                 </tr>';
             }
         } else {
-            $output = '<tr><td colspan="4" class="text-center py-4 text-muted">Data tidak ditemukan</td></tr>';
+            $output = '<tr><td colspan="5" class="text-center py-4 text-muted">Data tidak ditemukan</td></tr>';
         }
 
         return response($output);
@@ -368,6 +530,108 @@ class MuridController extends Controller
         return response()->json([
             'exists' => $exists,
             'message' => $exists ? 'NISN sudah terdaftar di database' : 'NISN tersedia'
+        ]);
+    }
+
+    public function checkNIK(Request $request)
+    {
+        $nik = $request->get('nik');
+        $excludeId = $request->get('exclude_id');
+        
+        $query = Murid::where('nik', $nik);
+        
+        // Exclude current murid when editing
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+        
+        $exists = $query->exists();
+        
+        return response()->json([
+            'exists' => $exists,
+            'message' => $exists ? 'NIK sudah terdaftar di database' : 'NIK tersedia'
+        ]);
+    }
+
+    public function autoSaveDraft(Request $request)
+    {
+        $sessionId = $request->session()->getId();
+        $ipAddress = $request->ip();
+        
+        $draft = PpdbDraft::updateOrCreate(
+            ['session_id' => $sessionId],
+            [
+                'ip_address' => $ipAddress,
+                // Data Murid
+                'nama_lengkap' => $request->get('nama_lengkap'),
+                'jenis_kelamin' => $request->get('jenis_kelamin'),
+                'nisn' => $request->get('nisn'),
+                'nik' => $request->get('nik'),
+                'tempat_lahir' => $request->get('tempat_lahir'),
+                'tgl_lahir' => $request->get('tgl_lahir'),
+                'rt_rw' => $request->get('rt_rw'),
+                'desa_kelurahan' => $request->get('desa_kelurahan'),
+                'kota_kabupaten' => $request->get('kota_kabupaten'),
+                'provinsi' => $request->get('provinsi'),
+                'alamat_detail' => $request->get('alamat_detail'),
+                'transportasi' => $request->get('transportasi'),
+                'no_hp' => $request->get('no_hp'),
+                'alamat_email' => $request->get('alamat_email'),
+                'sekolah_asal' => $request->get('sekolah_asal'),
+                'tinggi_badan' => $request->get('tinggi_badan'),
+                'berat_badan' => $request->get('berat_badan'),
+                'anak_ke' => $request->get('anak_ke'),
+                'jlm_saudara' => $request->get('jlm_saudara'),
+                'jumlah_kakak' => $request->get('jumlah_kakak'),
+                'jumlah_adik' => $request->get('jumlah_adik'),
+                // Data Orang Tua
+                'nama_ayah' => $request->get('nama_ayah'),
+                'tempat_lahir_ayah' => $request->get('tempat_lahir_ayah'),
+                'tgl_lahir_ayah' => $request->get('tgl_lahir_ayah'),
+                'pendidikan_ayah' => $request->get('pendidikan_ayah'),
+                'pekerjaan_ayah' => $request->get('pekerjaan_ayah'),
+                'penghasilan_ayah' => $request->get('penghasilan_ayah'),
+                'status_ayah' => $request->get('status_ayah'),
+                'nama_ibu' => $request->get('nama_ibu'),
+                'tempat_lahir_ibu' => $request->get('tempat_lahir_ibu'),
+                'tgl_lahir_ibu' => $request->get('tgl_lahir_ibu'),
+                'pendidikan_ibu' => $request->get('pendidikan_ibu'),
+                'pekerjaan_ibu' => $request->get('pekerjaan_ibu'),
+                'penghasilan_ibu' => $request->get('penghasilan_ibu'),
+                'status_ibu' => $request->get('status_ibu'),
+                // Data Wali
+                'nama_wali' => $request->get('nama_wali'),
+                'hubungan_wali' => $request->get('hubungan_wali'),
+                'tempat_lahir_wali' => $request->get('tempat_lahir_wali'),
+                'tgl_lahir_wali' => $request->get('tgl_lahir_wali'),
+                'pendidikan_wali' => $request->get('pendidikan_wali'),
+                'pekerjaan_wali' => $request->get('pekerjaan_wali'),
+                'penghasilan_wali' => $request->get('penghasilan_wali'),
+                'status_wali' => $request->get('status_wali'),
+            ]
+        );
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Data tersimpan otomatis'
+        ]);
+    }
+
+    public function getDraftData(Request $request)
+    {
+        $sessionId = $request->session()->getId();
+        $draft = PpdbDraft::where('session_id', $sessionId)->first();
+        
+        if ($draft) {
+            return response()->json([
+                'success' => true,
+                'data' => $draft
+            ]);
+        }
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'No draft data found'
         ]);
     }
 }

@@ -50,6 +50,7 @@ class PengaturanFormPpdbController extends Controller
                 if ($biaya) {
                     $biaya->update([
                         'is_active' => $setting['is_active'] ?? true,
+                        'disabled_reason' => $setting['disabled_reason'] ?? null,
                     ]);
                 }
             }

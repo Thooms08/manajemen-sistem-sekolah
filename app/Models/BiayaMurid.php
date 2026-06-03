@@ -11,7 +11,8 @@ class BiayaMurid extends Model
         'name',
         'amount',
         'account_id',
-        'is_active'
+        'is_active',
+        'disabled_reason'
     ];
 
     public function account()

@@ -78,17 +78,25 @@
 
 // Auto-intercept tetap berfungsi sama
 document.addEventListener('DOMContentLoaded', function () {
+    // Show loading saat form di-submit (kecuali yang ada data-no-loading)
     document.addEventListener('submit', (e) => {
         if (!e.target.hasAttribute('data-no-loading')) window.Loading.show();
     });
-    
+
+    // Show loading saat link <a> diklik (kecuali yang ada data-no-loading, data-bs-toggle, atau href="#")
     document.addEventListener('click', (e) => {
         const a = e.target.closest('a[href]');
         if (a && !a.hasAttribute('data-no-loading') && !a.hasAttribute('data-bs-toggle') && a.getAttribute('href') !== '#') {
             window.Loading.show('Loading...');
+            // Safety net: auto-hide setelah 10 detik agar tidak stuck
+            setTimeout(() => window.Loading.hide(), 10000);
         }
     });
-    
+
+    // Hide loading saat halaman tampil kembali (navigasi maju/mundur, atau setelah download)
     window.addEventListener('pageshow', () => window.Loading.hide());
+
+    // Hide loading saat window mendapat fokus kembali (terjadi setelah dialog Save As download file muncul)
+    window.addEventListener('focus', () => window.Loading.hide());
 });
 </script>

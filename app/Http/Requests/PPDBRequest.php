@@ -3,6 +3,7 @@ namespace App\Http\Requests;
 
 use App\Models\PpdbFormSetting;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class PPDBRequest extends FormRequest
 {
@@ -24,14 +25,14 @@ class PPDBRequest extends FormRequest
             $rules['jenis_kelamin'] = $formSettings['jenis_kelamin']->is_required ? 'required|in:laki-laki,perempuan' : 'nullable|in:laki-laki,perempuan';
         }
         if (isset($formSettings['nisn']) && $formSettings['nisn']->is_active) {
-            $rules['nisn'] = $formSettings['nisn']->is_required 
-                ? 'required|numeric|digits:10|unique:murid,nisn,' . $this->route('id')
-                : 'nullable|numeric|digits:10|unique:murid,nisn,' . $this->route('id');
+            $rules['nisn'] = $formSettings['nisn']->is_required
+                ? ['required', 'numeric', 'digits:10', Rule::unique('murid', 'nisn')->ignore($this->route('id'))]
+                : ['nullable', 'numeric', 'digits:10', Rule::unique('murid', 'nisn')->ignore($this->route('id'))];
         }
         if (isset($formSettings['nik']) && $formSettings['nik']->is_active) {
-            $rules['nik'] = $formSettings['nik']->is_required 
-                ? 'required|numeric|digits:16|unique:murid,nik,' . $this->route('id')
-                : 'nullable|numeric|digits:16|unique:murid,nik,' . $this->route('id');
+            $rules['nik'] = $formSettings['nik']->is_required
+                ? ['required', 'numeric', 'digits:16', Rule::unique('murid', 'nik')->ignore($this->route('id'))]
+                : ['nullable', 'numeric', 'digits:16', Rule::unique('murid', 'nik')->ignore($this->route('id'))];
         }
         if (isset($formSettings['tempat_lahir']) && $formSettings['tempat_lahir']->is_active) {
             $rules['tempat_lahir'] = $formSettings['tempat_lahir']->is_required ? 'required|string|max:255' : 'nullable|string|max:255';
@@ -61,9 +62,9 @@ class PPDBRequest extends FormRequest
             $rules['no_hp'] = $formSettings['no_hp']->is_required ? 'required|string|max:20' : 'nullable|string|max:20';
         }
         if (isset($formSettings['alamat_email']) && $formSettings['alamat_email']->is_active) {
-            $rules['alamat_email'] = $formSettings['alamat_email']->is_required 
-                ? 'required|email|unique:murid,alamat_email,' . $this->route('id')
-                : 'nullable|email|unique:murid,alamat_email,' . $this->route('id');
+            $rules['alamat_email'] = $formSettings['alamat_email']->is_required
+                ? ['required', 'email', Rule::unique('murid', 'alamat_email')->ignore($this->route('id'))]
+                : ['nullable', 'email', Rule::unique('murid', 'alamat_email')->ignore($this->route('id'))];
         }
         if (isset($formSettings['sekolah_asal']) && $formSettings['sekolah_asal']->is_active) {
             $rules['sekolah_asal'] = $formSettings['sekolah_asal']->is_required ? 'required|string|max:255' : 'nullable|string|max:255';

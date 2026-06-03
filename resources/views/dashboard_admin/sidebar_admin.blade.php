@@ -232,6 +232,11 @@
                 <i class="bi bi-person-hearts"></i> Data Ortu Murid
             </a>
         </li>
+        <li class="{{ request()->routeIs('wali-murid.*') ? 'active' : '' }}">
+            <a href="{{ route('wali-murid.index') }}">
+                <i class="bi bi-person-hearts"></i> Data Wali Murid
+            </a>
+        </li>
         <li class="{{ request()->routeIs('admin.pengaturan-form-ppdb.*') ? 'active' : '' }}">
             <a href="{{ route('admin.pengaturan-form-ppdb') }}">
                 <i class="bi bi-gear"></i> Pengaturan Form PPDB

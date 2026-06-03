@@ -17,6 +17,7 @@ use App\Http\Controllers\PPDBController;
 use App\Http\Controllers\InformasiController;
 use App\Http\Controllers\KelasController;
 use App\Http\Controllers\OrtuMuridController;
+use App\Http\Controllers\WaliMuridController;
 use App\Http\Controllers\MuridController;
 use App\Http\Controllers\ProfileSekolahController;
 use App\Http\Controllers\AkunGuruController;
@@ -52,6 +53,9 @@ Route::get('/ppdb', [PPDBController::class, 'index'])->name('ppdb.index');
 Route::post('/ppdb', [PPDBController::class, 'store'])->name('ppdb.store');
 Route::get('/ppdb/berhasil', [PPDBController::class, 'success'])->name('ppdb.success');
 Route::get('/ppdb/check-nisn', [PPDBController::class, 'checkNISN'])->name('ppdb.check-nisn');
+Route::get('/ppdb/check-nik', [PPDBController::class, 'checkNIK'])->name('ppdb.check-nik');
+Route::post('/ppdb/auto-save', [PPDBController::class, 'autoSaveDraft'])->name('ppdb.auto-save');
+Route::get('/ppdb/get-draft', [PPDBController::class, 'getDraftData'])->name('ppdb.get-draft');
 
 Route::get('/artikel/{slug}', [InformasiController::class, 'showArtikel'])->name('artikel.show');
 
@@ -122,6 +126,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/ortu-murid/search', [OrtuMuridController::class, 'search'])->name('ortu-murid.search');
         Route::resource('ortu-murid', OrtuMuridController::class);
 
+        // Master Data: Wali Murid
+        Route::get('/wali-murid/search', [WaliMuridController::class, 'search'])->name('wali-murid.search');
+        Route::resource('wali-murid', WaliMuridController::class);
+
         // Master Data: Guru
         Route::get('/guru/search', [GuruController::class, 'search'])->name('guru.search');
         Route::resource('guru', GuruController::class);
@@ -130,6 +138,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/murid/search', [MuridController::class, 'search'])->name('murid.search');
         Route::get('/get-murid-by-kelas', [MuridController::class, 'getMuridByKelas'])->name('murid.getByKelas');
         Route::get('/murid/check-nisn', [MuridController::class, 'checkNISN'])->name('murid.check-nisn');
+        Route::get('/murid/check-nik', [MuridController::class, 'checkNIK'])->name('murid.check-nik');
+        Route::post('/murid/auto-save', [MuridController::class, 'autoSaveDraft'])->name('murid.auto-save');
+        Route::get('/murid/get-draft', [MuridController::class, 'getDraftData'])->name('murid.get-draft');
+        Route::get('/murid/dokumen', [MuridController::class, 'serveDokumen'])->name('murid.dokumen');
+        Route::get('/murid/{id}/detail', [MuridController::class, 'detail'])->name('murid.detail');
+        Route::get('/murid/{id}/pdf', [MuridController::class, 'downloadPdf'])->name('murid.pdf');
         Route::resource('murid', MuridController::class);
 
         // Profile Sekolah
@@ -197,6 +211,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/count', [AdminPPDBController::class, 'getBadgeCount'])->name('admin.ppdb.count');
             Route::get('/detail/{id}', [AdminPPDBController::class, 'getDetail'])->name('admin.ppdb.detail');
             Route::post('/confirm/{id}', [AdminPPDBController::class, 'confirm'])->name('admin.ppdb.confirm');
+            Route::get('/dokumen', [AdminPPDBController::class, 'serveDokumen'])->name('admin.ppdb.dokumen');
+            Route::get('/cash-biayas', [AdminPPDBController::class, 'getCashBiayas'])->name('admin.ppdb.cashBiayas');
         });
         Route::post('/admin/ppdb/toggle', [AdminPPDBController::class, 'toggleStatus'])->name('admin.ppdb.toggle');
         Route::get('/admin/ppdb/status', [AdminPPDBController::class, 'getStatus'])->name('admin.ppdb.status');

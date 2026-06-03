@@ -18,6 +18,7 @@
     </style>
 </head>
 <body>
+    @include('loading')
     <div class="success-card">
         <div class="icon-box">
             <i class="bi bi-check-circle-fill"></i>

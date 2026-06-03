@@ -143,6 +143,7 @@
     </style>
 </head>
 <body>
+    @include('loading')
 
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">

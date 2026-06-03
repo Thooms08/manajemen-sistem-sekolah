@@ -1,18 +1,19 @@
 <?php
-namespace App\Models;
 
+namespace App\Models\Dokumen;
+
+use App\Models\Murid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class DokumenMurid extends Model
+class DokumenPpdb extends Model
 {
-    // Note: To use separate dokumen_db connection, add DOKUMEN_DB_CONNECTION=sqlite to .env
-    // and uncomment the line below
-    // protected $connection = 'dokumen_db';
-    protected $table = 'dokumen_murid';
+    protected $connection = 'dokumen_db';
+    protected $table      = 'dokumen_ppdb';
 
     protected $fillable = [
         'id_murid',
+        'pasfoto',
         'ktp_ayah',
         'ktp_ibu',
         'ktp_wali',

@@ -5,6 +5,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+use App\Models\Dokumen\DokumenPpdb;
+
 class Murid extends Model
 {
     protected $table = 'murid';
@@ -14,6 +16,8 @@ class Murid extends Model
         'jenis_kelamin',
         'nisn',
         'nik',
+        'nis_lama',
+        'nis_baru',
         'tempat_lahir',
         'tgl_lahir',
         'rt_rw',
@@ -31,6 +35,7 @@ class Murid extends Model
         'jlm_saudara',
         'jumlah_kakak',
         'jumlah_adik',
+        'status',
     ];
 
     public function ortu(): HasOne
@@ -45,7 +50,7 @@ class Murid extends Model
 
     public function dokumen(): HasOne
     {
-        return $this->hasOne(DokumenMurid::class, 'id_murid');
+        return $this->hasOne(DokumenPpdb::class, 'id_murid');
     }
 
     public function kelas(): BelongsToMany

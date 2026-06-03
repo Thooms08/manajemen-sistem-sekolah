@@ -231,16 +231,20 @@
                         <h5 class="fw-bold text-success mb-3"><i class="bi bi-cash-stack me-2"></i>Biaya Pendaftaran</h5>
                         @if($biayas->count() > 0)
                             @foreach($biayas as $biaya)
-                                <div class="field-item">
+                                <div class="field-item {{ $biaya->is_active ? '' : 'inactive' }}">
                                     <div>
                                         <strong>{{ $biaya->name }}</strong>
                                         <span class="text-success fw-bold ms-2">Rp {{ number_format($biaya->amount, 0, ',', '.') }}</span>
+                                        @if(!$biaya->is_active && $biaya->disabled_reason)
+                                            <small class="text-danger d-block mt-1"><i class="bi bi-exclamation-circle"></i> {{ $biaya->disabled_reason }}</small>
+                                        @endif
                                     </div>
-                                    <button type="button" class="toggle-btn active" 
+                                    <button type="button" class="toggle-btn {{ $biaya->is_active ? 'active' : 'inactive' }}"
                                             onclick="toggleBiaya(this, '{{ $biaya->id }}')">
-                                        -
+                                        {{ $biaya->is_active ? '-' : '+' }}
                                     </button>
-                                    <input type="hidden" name="biaya_settings[{{ $biaya->id }}][is_active]" value="1" class="biaya-active-input">
+                                    <input type="hidden" name="biaya_settings[{{ $biaya->id }}][is_active]" value="{{ $biaya->is_active ? '1' : '0' }}" class="biaya-active-input">
+                                    <input type="hidden" name="biaya_settings[{{ $biaya->id }}][disabled_reason]" value="{{ $biaya->disabled_reason ?? '' }}" class="biaya-disabled-reason-input">
                                 </div>
                             @endforeach
                         @else
@@ -259,6 +263,31 @@
             </div>
         </div>
     </div>
+
+    <!-- DISABLED REASON MODALS FOR BIAYA -->
+    @foreach($biayas as $biaya)
+    <div class="modal fade" id="modalDisabledReason{{ $biaya->id }}" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-warning text-white">
+                    <h5 class="modal-title fw-bold">Alasan Dinonaktifkan</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Alasan Dinonaktifkan <span class="text-danger">*</span></label>
+                        <textarea id="disabledReasonInput{{ $biaya->id }}" class="form-control" rows="3" placeholder="Contoh: Pembayaran dilakukan mulai bulan depan">{{ $biaya->disabled_reason ?? '' }}</textarea>
+                        <small class="text-muted">Wajib diisi jika pembayaran dinonaktifkan</small>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" onclick="cancelDisableBiaya('{{ $biaya->id }}')">Batal</button>
+                    <button type="button" class="btn btn-warning" onclick="confirmDisableBiaya('{{ $biaya->id }}')">Konfirmasi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endforeach
 
     <script>
         function toggleField(btn, fieldName, type) {
@@ -305,21 +334,78 @@
         function toggleBiaya(btn, biayaId) {
             const fieldItem = btn.closest('.field-item');
             const activeInput = fieldItem.querySelector('.biaya-active-input');
-            
+            const reasonInput = fieldItem.querySelector('.biaya-disabled-reason-input');
+
             const isActive = activeInput.value === '1';
-            activeInput.value = isActive ? '0' : '1';
-            
+
             if (isActive) {
-                btn.classList.remove('active');
-                btn.classList.add('inactive');
-                btn.textContent = '+';
-                fieldItem.classList.add('inactive');
+                // Admin is trying to disable - show modal for reason
+                showDisabledReasonModal(biayaId);
             } else {
+                // Admin is enabling - clear reason and update UI
+                activeInput.value = '1';
+                reasonInput.value = '';
                 btn.classList.remove('inactive');
                 btn.classList.add('active');
                 btn.textContent = '-';
                 fieldItem.classList.remove('inactive');
             }
+        }
+
+        function showDisabledReasonModal(biayaId) {
+            const modal = document.getElementById('modalDisabledReason' + biayaId);
+            if (modal) {
+                const bootstrapModal = new bootstrap.Modal(modal);
+                bootstrapModal.show();
+            }
+        }
+
+        function confirmDisableBiaya(biayaId) {
+            const reasonInput = document.getElementById('disabledReasonInput' + biayaId);
+            const fieldItem = document.querySelector(`input[name="biaya_settings[${biayaId}][is_active]"]`)?.closest('.field-item');
+            const activeInput = fieldItem?.querySelector('.biaya-active-input');
+            const reasonHiddenInput = fieldItem?.querySelector('.biaya-disabled-reason-input');
+            const btn = fieldItem?.querySelector('.toggle-btn');
+
+            if (!reasonInput.value.trim()) {
+                alert('Harap isi alasan mengapa pembayaran ini dinonaktifkan.');
+                return;
+            }
+
+            // Update hidden inputs
+            if (activeInput) activeInput.value = '0';
+            if (reasonHiddenInput) reasonHiddenInput.value = reasonInput.value.trim();
+
+            // Update UI
+            if (btn) {
+                btn.classList.remove('active');
+                btn.classList.add('inactive');
+                btn.textContent = '+';
+            }
+            if (fieldItem) {
+                fieldItem.classList.add('inactive');
+                // Add reason display
+                const nameDiv = fieldItem.querySelector('div');
+                let reasonDisplay = nameDiv.querySelector('.text-danger');
+                if (!reasonDisplay) {
+                    reasonDisplay = document.createElement('small');
+                    reasonDisplay.className = 'text-danger d-block mt-1';
+                    reasonDisplay.innerHTML = '<i class="bi bi-exclamation-circle"></i> ' + reasonInput.value.trim();
+                    nameDiv.appendChild(reasonDisplay);
+                } else {
+                    reasonDisplay.innerHTML = '<i class="bi bi-exclamation-circle"></i> ' + reasonInput.value.trim();
+                }
+            }
+
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalDisabledReason' + biayaId));
+            if (modal) modal.hide();
+        }
+
+        function cancelDisableBiaya(biayaId) {
+            // Close modal without changes
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalDisabledReason' + biayaId));
+            if (modal) modal.hide();
         }
     </script>
 </body>

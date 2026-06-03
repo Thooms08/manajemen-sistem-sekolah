@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ isset($murid) ? 'Edit Data Murid' : 'Form PPDB | Tambah Murid' }}</title>
     @if(isset($sekolah->logo))
     <link rel="icon" type="image/png" href="{{ asset($sekolah->logo) }}">
@@ -55,20 +56,25 @@
                     </div>
                 @endif
 
-                <form action="{{ isset($murid) ? route('murid.update', $murid->id) : route('murid.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ isset($murid) ? route('murid.update', $murid->id) : route('murid.store') }}" method="POST" enctype="multipart/form-data" id="ppdbForm" data-form-settings="{{ json_encode($formSettings) }}">
                     @csrf
                     @if(isset($murid)) @method('PUT') @endif
 
-                    <!-- Step Indicator -->
                     <div class="step-indicator">
-                        <div class="step active" id="indicator1" onclick="goToStep(1)">1</div>
-                        <div class="step inactive" id="indicator2" onclick="goToStep(2)">2</div>
-                        <div class="step inactive" id="indicator3" onclick="goToStep(3)">3</div>
-                        <div class="step inactive" id="indicator4" onclick="goToStep(4)">4</div>
+                    <div class="step active" id="indicator1" onclick="goToStep(1)">1</div>
+                    <div class="step inactive" id="indicator2" onclick="goToStep(2)">2</div>
+                    <div class="step inactive" id="indicator3" onclick="goToStep(3)">3</div>
+                    <div class="step inactive" id="indicator4" onclick="goToStep(4)">4</div>
+
+                    @if(isset($murid))
+                        {{-- MODE EDIT: Cuma sampai angka 5, tapi kalau diklik mengarah ke step 6 (Konfirmasi) --}}
+                        <div class="step inactive" id="indicator5" onclick="goToStep(6)">5</div>
+                    @else
+                        {{-- MODE TAMBAH (NORMAL): Ada step 5 (Biaya) dan step 6 (Konfirmasi) --}}
                         <div class="step inactive" id="indicator5" onclick="goToStep(5)">5</div>
                         <div class="step inactive" id="indicator6" onclick="goToStep(6)">6</div>
-                    </div>
-
+                    @endif
+                </div>
                     <!-- Step 1: Data Murid -->
                     <div id="step1" class="card p-4">
                         <h5 class="step-header text-success fw-bold"><i class="bi bi-1-circle-fill me-2"></i>Data Murid</h5>
@@ -96,10 +102,42 @@
                                 <div id="nisn-alert" class="form-text mt-1"></div>
                             </div>
                             @endif
+                            {{-- NIS Lama: tampil saat create; NIS Baru: tampil saat edit --}}
+                            @if(!isset($murid))
+                                @if(isset($formSettings['nis_lama']) && $formSettings['nis_lama']->is_active)
+                                <div class="col-md-3">
+                                    <label class="form-label">NIS Lama <small class="text-muted">(Sekolah Asal)</small></label>
+                                    <input type="text" name="nis_lama" class="form-control" maxlength="20"
+                                           value="{{ old('nis_lama') }}"
+                                           {{ $formSettings['nis_lama']->is_required ? 'required' : '' }}
+                                           placeholder="NIS dari sekolah asal">
+                                </div>
+                                @endif
+                            @else
+                               {{-- Mode edit: tampil nis_lama (readonly) dan nis_baru (editable) --}}
+                                <div class="col-md-3">
+                                    <label class="form-label">NIS Lama <small class="text-muted">(Sekolah Asal)</small></label>
+                                    <input type="text" name="nis_lama" class="form-control" value="{{ $murid->nis_lama ?? '-' }}" readonly>
+                                    <small class="text-muted">Tidak dapat diubah</small>
+                                </div>
+                                @if(isset($formSettings['nis_baru']) && $formSettings['nis_baru']->is_active)
+                                <div class="col-md-3">
+                                    <label class="form-label">NIS Baru <span class="text-danger">*</span> <small class="text-muted">(Diberikan Sekolah Ini)</small></label>
+                                    <input type="text" name="nis_baru" id="nis_baru" class="form-control" maxlength="20"
+                                           value="{{ old('nis_baru', $murid->nis_baru ?? '') }}"
+                                           {{ $formSettings['nis_baru']->is_required ? 'required' : '' }}
+                                           data-murid-id="{{ $murid->id ?? '' }}"
+                                           oninput="validateNisBaru(this)"
+                                           placeholder="NIS yang diberikan sekolah ini">
+                                    <div id="nis_baru-alert" class="form-text mt-1"></div>
+                                </div>
+                                @endif
+                            @endif
                             @if(isset($formSettings['nik']) && $formSettings['nik']->is_active)
                             <div class="col-md-4">
-                                <label class="form-label">NIK</label>
-                                <input type="text" name="nik" class="form-control" value="{{ old('nik', $murid->nik ?? '') }}" {{ $formSettings['nik']->is_required ? 'required' : '' }}>
+                                <label class="form-label">NIK (16 Digit)</label>
+                                <input type="text" name="nik" id="nik" class="form-control" maxlength="16" value="{{ old('nik', $murid->nik ?? '') }}" {{ $formSettings['nik']->is_required ? 'required' : '' }} oninput="validateNIK(this)" data-murid-id="{{ $murid->id ?? '' }}">
+                                <div id="nik-alert" class="form-text mt-1"></div>
                             </div>
                             @endif
                             @if(isset($formSettings['tempat_lahir']) && $formSettings['tempat_lahir']->is_active)
@@ -280,13 +318,24 @@
                         </div>
                     </div>
 
-                    <!-- Step 4: Dokumen Murid -->
+                    <!-- Step 4: Dokumen PPDB -->
                     <div id="step4" class="card p-4 hidden">
-                        <h5 class="step-header text-success fw-bold"><i class="bi bi-4-circle-fill me-2"></i>Dokumen Murid (Opsional)</h5>
+                        <h5 class="step-header text-success fw-bold"><i class="bi bi-4-circle-fill me-2"></i>Dokumen PPDB (Opsional)</h5>
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle me-2"></i>Upload dokumen bersifat opsional. Format yang diterima: JPG, PNG, PDF (Max 2MB).
                         </div>
                         <div class="row g-3">
+                            @if(isset($formSettings['pasfoto']) && $formSettings['pasfoto']->is_active)
+                            <div class="col-md-6">
+                                <label class="form-label">Pasfoto</label>
+                                <input type="file" name="pasfoto" id="pasfoto" class="form-control" accept=".jpg,.jpeg,.png" {{ $formSettings['pasfoto']->is_required ? 'required' : '' }} onchange="previewFile(this, 'pasfoto-preview', 'pasfoto-alert')">
+                                <div id="pasfoto-alert" class="form-text mt-1"></div>
+                                <div id="pasfoto-preview" class="mt-2"></div>
+                                @if($murid && $murid->dokumen && $murid->dokumen->pasfoto)
+                                    <small class="text-success"><i class="bi bi-check-circle"></i> Sudah ada</small>
+                                @endif
+                            </div>
+                            @endif
                             @if(isset($formSettings['ktp_ayah']) && $formSettings['ktp_ayah']->is_active)
                             <div class="col-md-6">
                                 <label class="form-label">KTP Ayah</label>
@@ -411,11 +460,16 @@
                         </div>
                         <div class="d-flex justify-content-between mt-4">
                             <button type="button" class="btn btn-outline-secondary px-4" onclick="showStep3()"><i class="bi bi-arrow-left"></i> Kembali</button>
-                            <button type="button" class="btn btn-success px-5" onclick="showStep5()">Selanjutnya <i class="bi bi-arrow-right"></i></button>
+                            @if(isset($murid))
+                                <button type="button" class="btn btn-success px-5" onclick="showStep5()">Selanjutnya <i class="bi bi-arrow-right"></i></button>
+                            @else
+                                <button type="button" class="btn btn-success px-5" onclick="showStep5()">Selanjutnya <i class="bi bi-arrow-right"></i></button>
+                            @endif
                         </div>
                     </div>
 
-                    <!-- Step 5: Biaya Pendaftaran -->
+                    <!-- Step 5: Biaya Pendaftaran — disembunyikan saat edit murid -->
+                    @if(!isset($murid))
                     <div id="step5" class="card p-4 hidden">
                         <h5 class="step-header text-success fw-bold"><i class="bi bi-5-circle-fill me-2"></i>Biaya Pendaftaran</h5>
                         <div class="alert alert-info">
@@ -423,35 +477,41 @@
                         </div>
                         @if($biayas->count() > 0)
                             @foreach($biayas as $biaya)
-                                @if($biaya->is_active)
-                                <div class="payment-card @if($biaya->account) @if($biaya->account->is_qris)qris_payment @else transfer_payment @endif @else cash_payment @endif">
+                                <div class="payment-card @if($biaya->account) @if($biaya->account->is_qris)qris_payment @else transfer_payment @endif @else cash_payment @endif @if(!$biaya->is_active)disabled @endif" @if(!$biaya->is_active)style="opacity: 0.6;"@endif>
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <h6 class="fw-bold mb-1">{{ $biaya->name }}</h6>
                                             <p class="text-success fw-bold mb-0">Rp {{ number_format($biaya->amount, 0, ',', '.') }}</p>
+                                            @if(!$biaya->is_active && $biaya->disabled_reason)
+                                                <small class="text-danger"><i class="bi bi-exclamation-circle"></i> {{ $biaya->disabled_reason }}</small>
+                                            @endif
                                         </div>
                                         <div class="text-end">
-                                            @if($biaya->account)
-                                                @if($biaya->account->is_qris)
-                                                    <span class="badge bg-primary">QRIS</span>
-                                                    @if($biaya->account->qris_image)
-                                                        <img src="{{ asset($biaya->account->qris_image) }}" class="qris-image mt-2" alt="QRIS">
+                                            @if($biaya->is_active)
+                                                @if($biaya->account)
+                                                    @if($biaya->account->is_qris)
+                                                        <span class="badge bg-primary">QRIS</span>
+                                                        @if($biaya->account->qris_image)
+                                                            <img src="{{ asset($biaya->account->qris_image) }}" class="qris-image mt-2" alt="QRIS">
+                                                        @endif
+                                                    @else
+                                                        <span class="badge bg-info">Transfer</span>
+                                                        <small class="d-block">{{ $biaya->account->bank_name }}</small>
+                                                        <small class="d-block">{{ $biaya->account->account_number }}</small>
+                                                        <small class="d-block">a.n {{ $biaya->account->account_holder }}</small>
                                                     @endif
                                                 @else
-                                                    <span class="badge bg-info">Transfer</span>
-                                                    <small class="d-block">{{ $biaya->account->bank_name }}</small>
-                                                    <small class="d-block">{{ $biaya->account->account_number }}</small>
-                                                    <small class="d-block">a.n {{ $biaya->account->account_holder }}</small>
+                                                    <span class="badge bg-success">Cash</span>
+                                                    <input type="number" class="form-control mt-2 cash-input" data-amount="{{ $biaya->amount }}" placeholder="Uang Diterima" oninput="calculateCash(this)">
+                                                    <div class="cash-result mt-2"></div>
                                                 @endif
                                             @else
-                                                <span class="badge bg-success">Cash</span>
-                                                <input type="number" class="form-control mt-2 cash-input" data-amount="{{ $biaya->amount }}" placeholder="Uang Diterima" oninput="calculateCash(this)">
-                                                <div class="cash-result mt-2"></div>
+                                                <span class="badge bg-secondary">Dinonaktifkan</span>
+                                                <small class="d-block text-muted">Pembayaran ini tidak tersedia saat ini</small>
                                             @endif
                                         </div>
                                     </div>
                                 </div>
-                                @endif
                             @endforeach
                         @else
                             <div class="alert alert-warning">
@@ -463,6 +523,7 @@
                             <button type="button" class="btn btn-success px-5" onclick="showStep6()">Selanjutnya <i class="bi bi-arrow-right"></i></button>
                         </div>
                     </div>
+                    @endif {{-- !isset($murid) --}}
 
                     <!-- Step 6: Konfirmasi Pendaftaran -->
                     <div id="step6" class="card p-4 hidden">
@@ -475,7 +536,7 @@
                         <div id="confirmationSummary"></div>
                         
                         <div class="d-flex justify-content-between mt-4">
-                            <button type="button" class="btn btn-outline-secondary px-3" onclick="showStep5()"><i class="bi bi-arrow-left"></i> Kembali</button>
+                            <button type="button" class="btn btn-outline-secondary px-3" onclick="{{ isset($murid) ? 'showStep4()' : 'showStep5()' }}"><i class="bi bi-arrow-left"></i> Kembali</button>
                             <button type="submit" class="btn btn-success px-3">
                                 {{ isset($murid) ? 'Simpan Perubahan' : 'Kirim Pendaftaran' }} <i class="bi bi-check-circle"></i>
                             </button>
@@ -487,32 +548,56 @@
     </div>
 
     <script>
+        // Saat mode edit murid: hanya 5 step (tanpa step biaya)
+        const isEditMode = "{{ isset($murid) ? 'true' : 'false' }}" === 'true';
         let currentStep = 1;
-        const totalSteps = 6;
+        const totalSteps = isEditMode ? 5 : 6;
+
+        // Saat edit, step 5 = konfirmasi (step 6 di mode tambah)
+        // Remap agar step 5 edit = step 6 normal
+        function realStepId(step) {
+            if (isEditMode && step === 5) return 6;
+            return step;
+        }
 
         function updateIndicators() {
-            for (let i = 1; i <= totalSteps; i++) {
+            // Daftar indicator yang ada di DOM
+            const indicatorIds = isEditMode ? [1,2,3,4,5] : [1,2,3,4,5,6];
+            // Di edit mode: indicator5 = step konfirmasi (DOM id "indicator5" mengarah ke step 6)
+            indicatorIds.forEach((i, idx) => {
                 const indicator = document.getElementById('indicator' + i);
+                if (!indicator) return;
+                const logicalStep = idx + 1; // posisi urutan tampilan
                 indicator.classList.remove('active', 'completed', 'inactive');
-                if (i < currentStep) {
+                if (logicalStep < currentStep) {
                     indicator.classList.add('completed');
-                } else if (i === currentStep) {
+                } else if (logicalStep === currentStep) {
                     indicator.classList.add('active');
                 } else {
                     indicator.classList.add('inactive');
                 }
-            }
+            });
         }
 
         function showStep(step) {
-            for (let i = 1; i <= totalSteps; i++) {
+            // Buat list step ID yang benar-benar ada di DOM
+            const allStepIds = isEditMode ? [1,2,3,4,6] : [1,2,3,4,5,6];
+
+            allStepIds.forEach(i => {
                 const stepEl = document.getElementById('step' + i);
+                if (!stepEl) return;
                 if (i === step) {
                     stepEl.classList.remove('hidden');
+                    stepEl.querySelectorAll('input, select, textarea').forEach(el => {
+                        el.disabled = false;
+                    });
                 } else {
                     stepEl.classList.add('hidden');
+                    stepEl.querySelectorAll('input, select, textarea').forEach(el => {
+                        el.disabled = true;
+                    });
                 }
-            }
+            });
             currentStep = step;
             updateIndicators();
             window.scrollTo(0, 0);
@@ -524,13 +609,97 @@
             }
         }
 
-        function showStep2() { showStep(2); }
-        function showStep3() { showStep(3); }
-        function showStep4() { showStep(4); }
-        function showStep5() { showStep(5); }
-        function showStep6() { 
-            generateConfirmationSummary();
-            showStep(6); 
+        // ── Validasi field required di step aktif ──────────────────────────
+        function validateStep(stepNum) {
+            const stepEl = document.getElementById('step' + stepNum);
+            // Hapus semua error sebelumnya di step ini
+            stepEl.querySelectorAll('.field-required-alert').forEach(el => el.remove());
+            stepEl.querySelectorAll('.is-invalid-required').forEach(el => {
+                el.classList.remove('is-invalid-required');
+                el.style.borderColor = '';
+            });
+
+            let firstInvalid = null;
+            let hasError = false;
+
+            // Cek semua input/select/textarea yang punya atribut required dan tidak disabled
+            stepEl.querySelectorAll('input[required]:not([disabled]), select[required]:not([disabled]), textarea[required]:not([disabled])').forEach(field => {
+                const isEmpty = (field.type === 'file')
+                    ? (!field.files || field.files.length === 0)
+                    : (field.value.trim() === '');
+
+                // Hapus error lama spesifik field ini dulu
+                const existingAlert = field.parentElement.querySelector('.field-required-alert');
+                if (existingAlert) existingAlert.remove();
+
+                if (isEmpty) {
+                    hasError = true;
+                    // Beri border merah pada field
+                    field.style.borderColor = '#dc3545';
+                    field.classList.add('is-invalid-required');
+
+                    // Ambil label untuk pesan
+                    const labelEl = field.closest('.col-md-3, .col-md-4, .col-md-6, .col-12, .col')
+                                  ?.querySelector('label');
+                    const labelText = labelEl ? labelEl.textContent.trim() : 'Field ini';
+
+                    // Buat elemen alert di bawah field
+                    const alert = document.createElement('div');
+                    alert.className = 'field-required-alert text-danger mt-1';
+                    alert.style.fontSize = '0.8rem';
+                    alert.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i>' + labelText + ' wajib diisi.';
+                    field.insertAdjacentElement('afterend', alert);
+
+                    if (!firstInvalid) firstInvalid = field;
+                } else {
+                    // Reset border jika sudah diisi
+                    field.style.borderColor = '';
+                    field.classList.remove('is-invalid-required');
+                }
+            });
+
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalid.focus();
+            }
+
+            return !hasError;
+        }
+
+        // Hapus error pada field saat user mulai mengetik/memilih
+        document.addEventListener('input', function(e) {
+            if (e.target.classList.contains('is-invalid-required')) {
+                e.target.style.borderColor = '';
+                e.target.classList.remove('is-invalid-required');
+                const alert = e.target.parentElement.querySelector('.field-required-alert');
+                if (alert) alert.remove();
+            }
+        });
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('is-invalid-required')) {
+                e.target.style.borderColor = '';
+                e.target.classList.remove('is-invalid-required');
+                const alert = e.target.parentElement.querySelector('.field-required-alert');
+                if (alert) alert.remove();
+            }
+        });
+
+        function showStep2() { if (validateStep(1)) showStep(2); }
+        function showStep3() { if (validateStep(2)) showStep(3); }
+        function showStep4() { if (validateStep(3)) showStep(4); }
+        function showStep5() {
+            // Edit mode: step4 → langsung konfirmasi (step6), tidak ada step5
+            if (isEditMode) {
+                if (validateStep(4)) { generateConfirmationSummary(); showStep(6); }
+            } else {
+                if (validateStep(4)) showStep(5);
+            }
+        }
+        function showStep6() {
+            if (validateStep(isEditMode ? 4 : 5)) {
+                generateConfirmationSummary();
+                showStep(6);
+            }
         }
         function showStep1() { showStep(1); }
 
@@ -553,51 +722,104 @@
         }
 
         function generateConfirmationSummary() {
-            const form = document.querySelector('form');
-            const formData = new FormData(form);
+            // Baca langsung dari elemen DOM — .value tetap tersedia meski input di-disabled
+            const form = document.getElementById('ppdbForm');
+
+            function getFieldValue(fieldName) {
+                const el = form.querySelector('[name="' + fieldName + '"]');
+                if (!el) return '';
+                return el.value || '';
+            }
+
             let summary = '<div class="row">';
-            
-            // Data Murid
-            summary += '<div class="col-md-6 mb-3"><h6 class="fw-bold text-success">Data Murid</h6><ul class="list-unstyled">';
-            summary += '<li><strong>Nama:</strong> ' + (formData.get('nama_lengkap') || '-') + '</li>';
-            summary += '<li><strong>NISN:</strong> ' + (formData.get('nisn') || '-') + '</li>';
-            summary += '<li><strong>NIK:</strong> ' + (formData.get('nik') || '-') + '</li>';
-            summary += '<li><strong>Email:</strong> ' + (formData.get('alamat_email') || '-') + '</li>';
-            summary += '</ul></div>';
-            
-            // Data Orang Tua
-            summary += '<div class="col-md-6 mb-3"><h6 class="fw-bold text-success">Data Orang Tua</h6><ul class="list-unstyled">';
-            summary += '<li><strong>Nama Ayah:</strong> ' + (formData.get('nama_ayah') || '-') + '</li>';
-            summary += '<li><strong>Nama Ibu:</strong> ' + (formData.get('nama_ibu') || '-') + '</li>';
-            summary += '</ul></div>';
-            
-            // Data Wali
-            if (formData.get('nama_wali')) {
-                summary += '<div class="col-md-6 mb-3"><h6 class="fw-bold text-success">Data Wali</h6><ul class="list-unstyled">';
-                summary += '<li><strong>Nama Wali:</strong> ' + formData.get('nama_wali') + '</li>';
-                summary += '<li><strong>Hubungan:</strong> ' + (formData.get('hubungan_wali') || '-') + '</li>';
-                summary += '</ul></div>';
-            }
-            
-            // Dokumen
-            let hasDocuments = false;
-            const documentFields = ['ktp_ayah', 'ktp_ibu', 'ktp_wali', 'kartu_keluarga', 'akte_kelahiran', 'ijazah_terakhir', 'transkip_nilai', 'surat_kelulusan', 'surat_keterangan_hasil_ujian', 'surat_pindahan', 'formulir_fisik'];
-            documentFields.forEach(field => {
-                if (formData.get(field)) {
-                    hasDocuments = true;
+
+            // ── Data Murid ──────────────────────────────────────────────────
+            const muridFields = Object.keys(formSettings).filter(
+                key => formSettings[key] && formSettings[key].field_category === 'murid' && formSettings[key].is_active
+            );
+            if (muridFields.length > 0) {
+                summary += '<div class="col-md-6 mb-4"><div class="card border-success"><div class="card-header bg-success text-white"><h6 class="mb-0"><i class="bi bi-person me-2"></i>Data Murid</h6></div><div class="card-body"><ul class="list-unstyled mb-0">';
+                
+                // Tambahan: Pastikan NIS Lama ditangkap secara eksplisit
+                if (document.querySelector('[name="nis_lama"]') && !muridFields.includes('nis_lama')) {
+                    summary += '<li class="mb-2"><strong>NIS Lama:</strong> ' + (getFieldValue('nis_lama') || '-') + '</li>';
                 }
-            });
-            
-            if (hasDocuments) {
-                summary += '<div class="col-md-6 mb-3"><h6 class="fw-bold text-success">Dokumen</h6><ul class="list-unstyled">';
-                documentFields.forEach(field => {
-                    if (formData.get(field)) {
-                        summary += '<li><i class="bi bi-check-circle text-success"></i> ' + field.replace(/_/g, ' ').toUpperCase() + '</li>';
-                    }
+
+                muridFields.forEach(fieldName => {
+                    const fieldLabel = formSettings[fieldName].field_label;
+                    const value = getFieldValue(fieldName) || '-';
+                    summary += '<li class="mb-2"><strong>' + fieldLabel + ':</strong> ' + value + '</li>';
                 });
-                summary += '</ul></div>';
+
+                // Tambahan: Pastikan NIS Baru ditangkap secara eksplisit
+                if (document.querySelector('[name="nis_baru"]') && !muridFields.includes('nis_baru')) {
+                    summary += '<li class="mb-2"><strong>NIS Baru:</strong> ' + (getFieldValue('nis_baru') || '-') + '</li>';
+                }
+
+                summary += '</ul></div></div></div>';
             }
-            
+
+            // ── Data Orang Tua ───────────────────────────────────────────────
+            const ortuFields = Object.keys(formSettings).filter(
+                key => formSettings[key] && formSettings[key].field_category === 'ortu' && formSettings[key].is_active
+            );
+            if (ortuFields.length > 0) {
+                summary += '<div class="col-md-6 mb-4"><div class="card border-info"><div class="card-header bg-info text-white"><h6 class="mb-0"><i class="bi bi-people me-2"></i>Data Orang Tua</h6></div><div class="card-body"><ul class="list-unstyled mb-0">';
+                const ayahFields = ortuFields.filter(f => f.includes('ayah'));
+                const ibuFields  = ortuFields.filter(f => f.includes('ibu'));
+                if (ayahFields.length > 0) {
+                    summary += '<li class="mb-3"><strong class="text-primary">Data Ayah:</strong></li>';
+                    ayahFields.forEach(fieldName => {
+                        const fieldLabel = formSettings[fieldName].field_label;
+                        const value = getFieldValue(fieldName) || '-';
+                        summary += '<li class="mb-2 ps-3"><strong>' + fieldLabel + ':</strong> ' + value + '</li>';
+                    });
+                }
+                if (ibuFields.length > 0) {
+                    summary += '<li class="mb-3 mt-2"><strong class="text-primary">Data Ibu:</strong></li>';
+                    ibuFields.forEach(fieldName => {
+                        const fieldLabel = formSettings[fieldName].field_label;
+                        const value = getFieldValue(fieldName) || '-';
+                        summary += '<li class="mb-2 ps-3"><strong>' + fieldLabel + ':</strong> ' + value + '</li>';
+                    });
+                }
+                summary += '</ul></div></div></div>';
+            }
+
+            // ── Data Wali ────────────────────────────────────────────────────
+            const waliFields = Object.keys(formSettings).filter(
+                key => formSettings[key] && formSettings[key].field_category === 'wali' && formSettings[key].is_active
+            );
+            const namaWali = getFieldValue('nama_wali');
+            if (waliFields.length > 0 && namaWali) {
+                summary += '<div class="col-md-6 mb-4"><div class="card border-warning"><div class="card-header bg-warning text-dark"><h6 class="mb-0"><i class="bi bi-person-badge me-2"></i>Data Wali</h6></div><div class="card-body"><ul class="list-unstyled mb-0">';
+                waliFields.forEach(fieldName => {
+                    const fieldLabel = formSettings[fieldName].field_label;
+                    const value = getFieldValue(fieldName) || '-';
+                    summary += '<li class="mb-2"><strong>' + fieldLabel + ':</strong> ' + value + '</li>';
+                });
+                summary += '</ul></div></div></div>';
+            }
+
+            // ── Dokumen ──────────────────────────────────────────────────────
+            const dokumenFields = Object.keys(formSettings).filter(
+                key => formSettings[key] && formSettings[key].field_category === 'dokumen' && formSettings[key].is_active
+            );
+            if (dokumenFields.length > 0) {
+                const uploadedDocs = dokumenFields.filter(field => {
+                    const el = form.querySelector('[name="' + field + '"]');
+                    return el && el.files && el.files.length > 0;
+                });
+                if (uploadedDocs.length > 0) {
+                    summary += '<div class="col-md-6 mb-4"><div class="card border-secondary"><div class="card-header bg-secondary text-white"><h6 class="mb-0"><i class="bi bi-file-earmark me-2"></i>Dokumen</h6></div><div class="card-body"><ul class="list-unstyled mb-0">';
+                    uploadedDocs.forEach(field => {
+                        const fieldLabel = formSettings[field].field_label;
+                        summary += '<li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>' + fieldLabel + '</li>';
+                    });
+                    summary += '</ul></div></div></div>';
+                }
+            }
+
             summary += '</div>';
             document.getElementById('confirmationSummary').innerHTML = summary;
         }
@@ -630,6 +852,38 @@
                     .catch(error => {
                         console.error('Error checking NISN:', error);
                         alertDiv.innerHTML = '<span class="text-warning"><i class="bi bi-exclamation-triangle"></i> Gagal memvalidasi NISN</span>';
+                    });
+            }
+        }
+
+        function validateNIK(input) {
+            const value = input.value.replace(/\D/g, '');
+            const alertDiv = document.getElementById('nik-alert');
+            const muridId = input.dataset.muridId || '';
+            
+            // Clear previous alerts
+            alertDiv.innerHTML = '';
+            input.classList.remove('is-invalid', 'is-valid');
+            
+            if (value.length > 0 && value.length !== 16) {
+                alertDiv.innerHTML = '<span class="text-danger"><i class="bi bi-exclamation-circle"></i> NIK harus tepat 16 digit</span>';
+                input.classList.add('is-invalid');
+            } else if (value.length === 16) {
+                // Check if NIK exists in database via AJAX
+                fetch(`/murid/check-nik?nik=${value}&exclude_id=${muridId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.exists) {
+                            alertDiv.innerHTML = '<span class="text-danger"><i class="bi bi-exclamation-circle"></i> ' + data.message + '</span>';
+                            input.classList.add('is-invalid');
+                        } else {
+                            alertDiv.innerHTML = '<span class="text-success"><i class="bi bi-check-circle"></i> NIK valid dan tersedia</span>';
+                            input.classList.add('is-valid');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error checking NIK:', error);
+                        alertDiv.innerHTML = '<span class="text-warning"><i class="bi bi-exclamation-triangle"></i> Gagal memvalidasi NIK</span>';
                     });
             }
         }
@@ -671,14 +925,99 @@
             }
         }
 
-        // Initialize
-        updateIndicators();
+        // Auto-save functionality with debouncing
+        let autoSaveTimeout;
+        const formSettings = JSON.parse(document.getElementById('ppdbForm').dataset.formSettings);
+
+        function autoSaveForm() {
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => {
+                const form = document.getElementById('ppdbForm');
+                const formData = new FormData(form);
+                
+                fetch('/murid/auto-save', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('Data tersimpan otomatis');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error auto-saving:', error);
+                });
+            }, 1000); // Debounce for 1 second
+        }
+
+        // Load draft data on page load
+        function loadDraftData() {
+            fetch('/murid/get-draft')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data) {
+                        const draft = data.data;
+                        const form = document.getElementById('ppdbForm');
+                        
+                        // Fill form fields with draft data
+                        Object.keys(draft).forEach(key => {
+                            if (key !== 'id' && key !== 'session_id' && key !== 'ip_address' && key !== 'created_at' && key !== 'updated_at' && key !== 'dokumen_paths') {
+                                const input = form.querySelector(`[name="${key}"]`);
+                                if (input && draft[key]) {
+                                    input.value = draft[key];
+                                }
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading draft data:', error);
+                });
+        }
+
+        // Add event listeners to all form inputs for auto-save
+        function setupAutoSave() {
+            const form = document.getElementById('ppdbForm');
+            const inputs = form.querySelectorAll('input:not([type="file"]), select, textarea');
+            
+            inputs.forEach(input => {
+                input.addEventListener('input', autoSaveForm);
+                input.addEventListener('change', autoSaveForm);
+            });
+        }
+
+        // Re-enable semua input sebelum form disubmit agar data terkirim
+        document.getElementById('ppdbForm').addEventListener('submit', function() {
+            this.querySelectorAll('input, select, textarea').forEach(el => {
+                el.disabled = false;
+            });
+        });
+
+        // Initialize - tampilkan step 1, dan disable input di semua step lainnya
+        showStep(1);
         
         // Initialize NISN validation on page load
         const nisnInput = document.getElementById('nisn');
         if (nisnInput && nisnInput.value) {
             validateNISN(nisnInput);
         }
+        
+        // Initialize NIK validation on page load
+        const nikInput = document.getElementById('nik');
+        if (nikInput && nikInput.value) {
+            validateNIK(nikInput);
+        }
+        
+        // Setup auto-save functionality
+        setupAutoSave();
+        
+        // Load draft data on page load
+        loadDraftData();
     </script>
 </body>
 </html>

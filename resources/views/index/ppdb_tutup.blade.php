@@ -50,6 +50,7 @@
     </style>
 </head>
 <body>
+    @include('loading')
 
     <div class="close-card">
         <div class="icon-box">
