@@ -29,7 +29,7 @@ class PelanggaranController extends Controller
         $murids = DB::table('murid')->get();
         $aturans = DB::table('aturan_pelanggaran')->get();
 
-        return view('dashboard_admin.pelanggaran', compact('pelanggaranMurid', 'murids', 'aturans', 'akumulasiSkor'));
+        return view('admin.pelanggaran', compact('pelanggaranMurid', 'murids', 'aturans', 'akumulasiSkor'));
     }
 
     public function storeAturan(Request $request)

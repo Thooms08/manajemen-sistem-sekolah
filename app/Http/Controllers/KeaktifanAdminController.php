@@ -36,6 +36,6 @@ class KeaktifanAdminController extends Controller
                 ->get();
         }
 
-        return view('dashboard_admin.keaktifan_murid', compact('kelas', 'dataKeaktifan', 'kelasId', 'tanggal'));
+        return view('admin.keaktifan_murid', compact('kelas', 'dataKeaktifan', 'kelasId', 'tanggal'));
     }
 }

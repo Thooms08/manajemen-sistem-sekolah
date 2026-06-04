@@ -17,7 +17,7 @@ class AkunGuruController extends Controller
             ->select('guru.id as id_guru', 'guru.nama_guru', 'users.id as id_user', 'users.username')
             ->get();
 
-        return view('dashboard_admin.akun_guru', compact('gurus'));
+        return view('admin.akun_guru', compact('gurus'));
     }
 
     public function store(Request $request)

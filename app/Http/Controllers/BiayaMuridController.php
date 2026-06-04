@@ -13,7 +13,7 @@ class BiayaMuridController extends Controller
         $sekolah = ProfileSekolah::first();
         $accounts = AkunPembayaran::orderBy('bank_name')->get();
         $biayas = BiayaMurid::orderBy('id')->get();
-        return view('dashboard_admin.biaya-murid', compact('sekolah','accounts','biayas'));
+        return view('admin.keuangan.biaya-murid', compact('sekolah','accounts','biayas'));
     }
 
     public function store(Request $request)

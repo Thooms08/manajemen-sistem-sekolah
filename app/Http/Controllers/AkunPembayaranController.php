@@ -13,7 +13,7 @@ class AkunPembayaranController extends Controller
     {
         $sekolah = ProfileSekolah::first();
         $accounts = AkunPembayaran::orderBy('id','desc')->get();
-        return view('dashboard_admin.akun-pembayaran', compact('sekolah','accounts'));
+        return view('admin.keuangan.akun-pembayaran', compact('sekolah','accounts'));
     }
 
     public function store(Request $request)

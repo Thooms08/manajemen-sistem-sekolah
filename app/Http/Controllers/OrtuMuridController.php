@@ -12,7 +12,7 @@ class OrtuMuridController extends Controller
     {
         // Load data murid beserta ortu muridnya
         $data = Murid::with('ortu')->has('ortu')->get();
-        return view('dashboard_admin.ortu_murid', compact('data'));
+        return view('admin.data_master.ortu_murid', compact('data'));
     }
 
     public function search(Request $request)

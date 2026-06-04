@@ -5,6 +5,7 @@ namespace App\Models\Dokumen;
 use App\Models\Murid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class Kelulusan extends Model
 {
@@ -14,6 +15,7 @@ class Kelulusan extends Model
     protected $table = 'kelulusan';
 
     protected $fillable = [
+        'uuid',
         'id_murid',
         'status',
         'tahun_lulus',
@@ -21,6 +23,20 @@ class Kelulusan extends Model
         'raport',
         'surat_kelulusan',
     ];
+
+    /**
+     * Auto-generate UUID saat create (via Model Event)
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->uuid)) {
+                $model->uuid = (string) Str::uuid();
+            }
+        });
+    }
 
     /**
      * Hubungan balik ke model Murid (lintas database)

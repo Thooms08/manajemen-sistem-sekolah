@@ -11,7 +11,7 @@ class AdminAbsensiController extends Controller
     public function index()
     {
         $kelas = DB::table('kelas')->get();
-        return view('dashboard_admin.arsip_absen', compact('kelas'));
+        return view('admin.arsip_absen', compact('kelas'));
     }
 
     public function getMurid(Request $request)

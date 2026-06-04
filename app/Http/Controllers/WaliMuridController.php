@@ -12,7 +12,7 @@ class WaliMuridController extends Controller
     {
         // Load murid yang memiliki data wali
         $data = Murid::with('wali')->has('wali')->get();
-        return view('dashboard_admin.wali_murid', compact('data'));
+        return view('admin.data_master.wali_murid', compact('data'));
     }
 
     public function search(Request $request)

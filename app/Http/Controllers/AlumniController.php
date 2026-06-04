@@ -28,7 +28,7 @@ class AlumniController extends Controller
             ->with(['kelas', 'kelulusan'])
             ->get();
 
-        return view('dashboard_admin.alumni', compact('alumnis', 'years'));
+        return view('admin.data_master.alumni', compact('alumnis', 'years'));
     }
 
     /**

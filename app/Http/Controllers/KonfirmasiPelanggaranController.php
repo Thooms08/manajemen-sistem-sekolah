@@ -23,7 +23,7 @@ class KonfirmasiPelanggaranController extends Controller
             ->orderBy('pelanggaran_murid.created_at', 'desc')
             ->get();
 
-        return view('dashboard_admin.konfirmasi_pelanggaran', compact('pendingPelanggaran'));
+        return view('admin.konfirmasi_pelanggaran', compact('pendingPelanggaran'));
     }
 
     public function approve($id)

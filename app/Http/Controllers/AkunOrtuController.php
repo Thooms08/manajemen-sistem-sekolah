@@ -28,7 +28,7 @@ class AkunOrtuController extends Controller
             )
             ->get();
 
-        return view('dashboard_admin.akun_ortu', compact('ortus'));
+        return view('admin.akun_ortu', compact('ortus'));
     }
 
     public function store(Request $request)

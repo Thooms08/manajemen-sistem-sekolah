@@ -10,7 +10,7 @@ class AdminAktifitasGuruController extends Controller
 {
     public function index()
     {
-        return view('dashboard_admin.aktifitas_guru');
+        return view('admin.aktifitas_guru');
     }
 
     public function getChartData(Request $request)

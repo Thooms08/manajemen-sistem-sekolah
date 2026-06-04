@@ -14,8 +14,7 @@ class StaffController extends Controller
     public function index()
     {
         $staffs = Staff::all();
-        // Mengarahkan ke folder views/dashboard_admin/staff.blade.php sesuai struktur guru
-        return view('dashboard_admin.staff', compact('staffs'));
+        return view('admin.data_master.staff', compact('staffs'));
     }
 
     /**

@@ -37,7 +37,7 @@ class MuridController extends Controller
             ->with(['ortu', 'wali', 'dokumen'])
             ->get();
 
-        return view('dashboard_admin.murid', compact('murids'));
+        return view('admin.data_master.murid', compact('murids'));
     }
 
     public function create()
@@ -46,7 +46,7 @@ class MuridController extends Controller
         $biayas = BiayaMurid::with('account')->orderBy('id')->get();
         $accounts = AkunPembayaran::orderBy('bank_name')->get();
         $formSettings = \App\Models\PpdbFormSetting::all()->keyBy('field_name');
-        return view('dashboard_admin.ppdb', compact('murid', 'biayas', 'accounts', 'formSettings'));
+        return view('admin.ppdb', compact('murid', 'biayas', 'accounts', 'formSettings'));
     }
 
     public function store(PPDBRequest $request)
@@ -341,7 +341,7 @@ class MuridController extends Controller
         $biayas = BiayaMurid::with('account')->orderBy('id')->get();
         $accounts = AkunPembayaran::orderBy('bank_name')->get();
         $formSettings = \App\Models\PpdbFormSetting::all()->keyBy('field_name');
-        return view('dashboard_admin.ppdb', compact('murid', 'biayas', 'accounts', 'formSettings'));
+        return view('admin.ppdb', compact('murid', 'biayas', 'accounts', 'formSettings'));
     }
 
     public function update(PPDBRequest $request, $id)

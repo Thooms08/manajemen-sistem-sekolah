@@ -12,7 +12,7 @@ class AdminPPDBController extends Controller
 {
     public function index()
     {
-        return view('dashboard_admin.notif_ppdb');
+        return view('admin.notif_ppdb');
     }
 
     // Ambil data murid status pending + flag apakah ada biaya cash aktif

@@ -21,7 +21,7 @@ class KelasController extends Controller
               ->whereRaw('murid_kelas.id_murid = murid.id');
     })->get();
 
-    return view('dashboard_admin.kelas', compact('kelas', 'muridTersedia'));
+    return view('admin.data_master.kelas', compact('kelas', 'muridTersedia'));
 }
 
     // HALAMAN BARU: Menampilkan detail kelas dan daftar murid di dalamnya
@@ -36,7 +36,7 @@ class KelasController extends Controller
                   ->whereRaw('murid_kelas.id_murid = murid.id');
         })->get();
 
-        return view('dashboard_admin.detail_kelas', compact('kelas', 'muridTersedia'));
+        return view('admin.data_master.detail_kelas', compact('kelas', 'muridTersedia'));
     }
 
     public function store(Request $request)

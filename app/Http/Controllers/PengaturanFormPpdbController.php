@@ -5,31 +5,28 @@ namespace App\Http\Controllers;
 use App\Models\PpdbFormSetting;
 use App\Models\BiayaMurid;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class PengaturanFormPpdbController extends Controller
 {
     public function index()
     {
-        $muridFields = PpdbFormSetting::where('field_category', 'murid')->orderBy('sort_order')->get();
-        $ortuFields = PpdbFormSetting::where('field_category', 'ortu')->orderBy('sort_order')->get();
-        $waliFields = PpdbFormSetting::where('field_category', 'wali')->orderBy('sort_order')->get();
+        $muridFields   = PpdbFormSetting::where('field_category', 'murid')->orderBy('sort_order')->get();
+        $ortuFields    = PpdbFormSetting::where('field_category', 'ortu')->orderBy('sort_order')->get();
+        $waliFields    = PpdbFormSetting::where('field_category', 'wali')->orderBy('sort_order')->get();
         $dokumenFields = PpdbFormSetting::where('field_category', 'dokumen')->orderBy('sort_order')->get();
-        $biayas = BiayaMurid::with('account')->orderBy('id')->get();
+        $biayas        = BiayaMurid::with('account')->orderBy('id')->get();
 
-        return view('dashboard_admin.pengaturan_form_ppdb', compact(
-            'muridFields',
-            'ortuFields',
-            'waliFields',
-            'dokumenFields',
-            'biayas'
+        return view('admin.pengaturan.pengaturan_form_ppdb', compact(
+            'muridFields', 'ortuFields', 'waliFields', 'dokumenFields', 'biayas'
         ));
     }
 
     public function update(Request $request)
     {
         $request->validate([
-            'settings' => 'required|array',
-            'settings.*.is_active' => 'boolean',
+            'settings'             => 'required|array',
+            'settings.*.is_active'   => 'boolean',
             'settings.*.is_required' => 'boolean',
         ]);
 
@@ -37,7 +34,7 @@ class PengaturanFormPpdbController extends Controller
             $formSetting = PpdbFormSetting::where('field_name', $fieldName)->first();
             if ($formSetting) {
                 $formSetting->update([
-                    'is_active' => $setting['is_active'] ?? false,
+                    'is_active'   => $setting['is_active']   ?? false,
                     'is_required' => $setting['is_required'] ?? false,
                 ]);
             }
@@ -49,12 +46,16 @@ class PengaturanFormPpdbController extends Controller
                 $biaya = BiayaMurid::find($biayaId);
                 if ($biaya) {
                     $biaya->update([
-                        'is_active' => $setting['is_active'] ?? true,
+                        'is_active'       => $setting['is_active']       ?? true,
                         'disabled_reason' => $setting['disabled_reason'] ?? null,
                     ]);
                 }
             }
         }
+
+        // Hapus cache form settings & biaya agar perubahan langsung aktif di halaman PPDB
+        Cache::forget('ppdb_form_settings');
+        Cache::forget('ppdb_biayas');
 
         return back()->with('success', 'Pengaturan form PPDB berhasil disimpan');
     }

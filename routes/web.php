@@ -14,26 +14,31 @@ use App\Http\Controllers\PPDBController;
 // =========================================================
 // CONTROLLER: ROLE ADMIN
 // =========================================================
-use App\Http\Controllers\InformasiController;
-use App\Http\Controllers\KelasController;
-use App\Http\Controllers\OrtuMuridController;
-use App\Http\Controllers\WaliMuridController;
-use App\Http\Controllers\MuridController;
-use App\Http\Controllers\ProfileSekolahController;
-use App\Http\Controllers\AkunGuruController;
-use App\Http\Controllers\AkunOrtuController;
-use App\Http\Controllers\AkunPembayaranController;
-use App\Http\Controllers\BiayaMuridController;
+
+//Use: informasi_sekolah
+use App\Http\Controllers\{InformasiController, ProfileSekolahController};
+
+//Use: Data Master
+use App\Http\Controllers\{KelasController, OrtuMuridController, WaliMuridController, MuridController, 
+KelulusanController, AlumniController, StaffController};
+
+//Use: Keuangan
+use App\Http\Controllers\{AkunPembayaranController, BiayaMuridController};
+
+//Use: Index
+use App\Http\Controllers\AdminPPDBController;
+
+//Use: Pengaturan
+use App\Http\Controllers\PengaturanFormPpdbController;
+
 use App\Http\Controllers\PelanggaranController;
 use App\Http\Controllers\KonfirmasiPelanggaranController;
 use App\Http\Controllers\KeaktifanAdminController;
 use App\Http\Controllers\AdminAbsensiController;
 use App\Http\Controllers\AdminAktifitasGuruController;
-use App\Http\Controllers\AdminPPDBController;
-use App\Http\Controllers\PengaturanFormPpdbController;
-use App\Http\Controllers\KelulusanController;
-use App\Http\Controllers\AlumniController;
-use App\Http\Controllers\StaffController;
+use App\Http\Controllers\AkunGuruController;
+use App\Http\Controllers\AkunOrtuController;
+
 
 // =========================================================
 // CONTROLLER: ROLE GURU
@@ -84,7 +89,7 @@ Route::middleware('auth')->group(function () {
     // ROLE: ADMIN
     // -----------------------------------------------------
     Route::middleware('role:admin')->group(function () {
-        Route::get('/dashboard_admin', fn() => view('dashboard_admin.index'))->name('admin.home');
+        Route::get('/admin', fn() => view('admin.index'))->name('admin.home');
         
         // Informasi Sekolah
         // ========== INFORMASI ==========

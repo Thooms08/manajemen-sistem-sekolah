@@ -13,7 +13,7 @@ class ProfileSekolahController extends Controller
     public function index()
     {
         $profiles = ProfileSekolah::all();
-        return view('dashboard_admin.profile_sekolah', compact('profiles'));
+        return view('admin.informasi_sekolah.profile_sekolah', compact('profiles'));
     }
 
     public function store(Request $request)

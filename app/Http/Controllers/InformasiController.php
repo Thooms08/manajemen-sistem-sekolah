@@ -63,7 +63,7 @@ class InformasiController extends Controller
         $studiList = StudiSekolah::all();
         $infoSekolah = InfoSekolah::first();
 
-        return view('dashboard_admin.informasi', compact(
+        return view('admin.informasi_sekolah.informasi', compact(
             'kegiatan', 'programs', 'prestasi', 'artikels', 'studiList', 'infoSekolah'
         ));
     }

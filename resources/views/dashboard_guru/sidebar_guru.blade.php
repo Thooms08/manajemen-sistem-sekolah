@@ -148,7 +148,7 @@
     </div>
 
     <ul class="list-unstyled components">
-        <li class="{{ Request::is('dashboard_admin') ? 'active' : '' }}">
+        <li class="{{ Request::is('dashboard_guru') ? 'active' : '' }}">
             <a href="{{ route('guru.home') }}">
                 <i class="bi bi-speedometer2"></i> Dashboard
             </a>
