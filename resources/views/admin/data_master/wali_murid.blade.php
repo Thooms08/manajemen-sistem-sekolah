@@ -24,6 +24,10 @@
         .search-box:focus { border-color: #198754; box-shadow: 0 0 0 0.25rem rgba(25,135,84,0.1); outline: none; }
         .table thead { background-color: #f8f9fa; border-bottom: 2px solid #198754; }
         .table th { font-weight: 600; color: #444; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; }
+        .nav-tabs .nav-link { color: #6c757d; font-weight: 500; border-radius: 8px 8px 0 0; }
+        .nav-tabs .nav-link.active { color: #198754; border-bottom-color: #fff; font-weight: 600; }
+        .nav-tabs .nav-link:hover { color: #198754; }
+        .row-hidden { display: none; }
         @media (max-width: 768px) { #content { padding: 15px; } }
     </style>
 </head>
@@ -70,55 +74,153 @@
                     </div>
                 </div>
 
-                {{-- Tabel Data --}}
+                {{-- Tab + Tabel --}}
                 <div class="card p-4">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <span class="text-muted small">
-                            Total: <strong>{{ $data->count() }}</strong> murid memiliki data wali
-                        </span>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Nama Murid</th>
-                                    <th>Nama Wali</th>
-                                    <th>Hubungan</th>
-                                    <th>Pekerjaan Wali</th>
-                                    <th>No. HP Murid</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-body">
-                                @forelse($data as $row)
-                                <tr>
-                                    <td class="fw-bold text-dark">{{ $row->nama_lengkap }}</td>
-                                    <td>{{ $row->wali->nama_wali ?? '-' }}</td>
-                                    <td>
-                                        @if($row->wali->hubungan_wali ?? null)
-                                            <span class="badge bg-warning bg-opacity-15 text-warning-emphasis px-2">
-                                                {{ $row->wali->hubungan_wali }}
-                                            </span>
-                                        @else
-                                            <span class="text-muted">-</span>
-                                        @endif
-                                    </td>
-                                    <td>{{ $row->wali->pekerjaan_wali ?? '-' }}</td>
-                                    <td>
-                                        <span class="badge bg-success bg-opacity-10 text-success px-3">
-                                            {{ $row->no_hp ?? '-' }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="5" class="text-center py-5 text-muted">
-                                        <i class="bi bi-person-badge fs-3 d-block mb-2 text-secondary"></i>
-                                        Belum ada data wali murid
-                                    </td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+
+                    {{-- Tab Nav --}}
+                    <ul class="nav nav-tabs mb-3" id="waliTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="tab-aktif-btn" data-bs-toggle="tab"
+                                    data-bs-target="#tab-aktif" type="button" role="tab"
+                                    data-tab="aktif">
+                                <i class="bi bi-person-check me-1"></i>
+                                Aktif
+                                <span class="badge bg-success ms-1">{{ $dataAktif->count() }}</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="tab-nonaktif-btn" data-bs-toggle="tab"
+                                    data-bs-target="#tab-nonaktif" type="button" role="tab"
+                                    data-tab="nonaktif">
+                                <i class="bi bi-person-dash me-1"></i>
+                                Nonaktif
+                                <span class="badge bg-danger ms-1">{{ $dataNonaktif->count() }}</span>
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+
+                        {{-- Tab Aktif --}}
+                        <div class="tab-pane fade show active" id="tab-aktif" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama Murid</th>
+                                            <th>Nama Wali</th>
+                                            <th>Hubungan</th>
+                                            <th>Pekerjaan Wali</th>
+                                            <th>No. HP Murid</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-body-aktif">
+                                        @forelse($dataAktif as $index => $row)
+                                        <tr class="{{ $index >= 10 ? 'row-extra-wali-aktif row-hidden' : '' }}">
+                                            <td class="fw-bold text-dark">{{ $row->nama_lengkap }}</td>
+                                            <td>{{ $row->wali->nama_wali ?? '-' }}</td>
+                                            <td>
+                                                @if($row->wali->hubungan_wali ?? null)
+                                                    <span class="badge bg-warning bg-opacity-15 text-warning-emphasis px-2">
+                                                        {{ $row->wali->hubungan_wali }}
+                                                    </span>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                            <td>{{ $row->wali->pekerjaan_wali ?? '-' }}</td>
+                                            <td>
+                                                <span class="badge bg-success bg-opacity-10 text-success px-3">
+                                                    {{ $row->no_hp ?? '-' }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center py-5 text-muted">
+                                                <i class="bi bi-person-badge fs-3 d-block mb-2 text-secondary"></i>
+                                                Belum ada data wali murid aktif
+                                            </td>
+                                        </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                            {{-- Tombol Lihat Semua (Aktif) --}}
+                            @if($dataAktif->count() > 10)
+                            <div class="text-center mt-2" id="btn-lihat-semua-wali-aktif">
+                                <button class="btn btn-outline-success btn-sm px-4"
+                                        onclick="lihatSemua('wali-aktif', this)">
+                                    <i class="bi bi-chevron-down me-1"></i>Lihat Semua Data
+                                    ({{ $dataAktif->count() - 10 }} data lainnya)
+                                </button>
+                            </div>
+                            @endif
+                        </div>
+
+                        {{-- Tab Nonaktif --}}
+                        <div class="tab-pane fade" id="tab-nonaktif" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama Murid</th>
+                                            <th>Nama Wali</th>
+                                            <th>Hubungan</th>
+                                            <th>Pekerjaan Wali</th>
+                                            <th>No. HP Murid</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-body-nonaktif">
+                                        @forelse($dataNonaktif as $index => $row)
+                                        <tr class="{{ $index >= 10 ? 'row-extra-wali-nonaktif row-hidden' : '' }}">
+                                            <td class="fw-bold text-dark">{{ $row->nama_lengkap }}</td>
+                                            <td>{{ $row->wali->nama_wali ?? '-' }}</td>
+                                            <td>
+                                                @if($row->wali->hubungan_wali ?? null)
+                                                    <span class="badge bg-warning bg-opacity-15 text-warning-emphasis px-2">
+                                                        {{ $row->wali->hubungan_wali }}
+                                                    </span>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                            <td>{{ $row->wali->pekerjaan_wali ?? '-' }}</td>
+                                            <td>
+                                                <span class="badge bg-secondary bg-opacity-10 text-secondary px-3">
+                                                    {{ $row->no_hp ?? '-' }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-danger bg-opacity-10 text-danger px-2">
+                                                    <i class="bi bi-slash-circle me-1"></i>Nonaktif
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center py-5 text-muted">
+                                                <i class="bi bi-person-x fs-3 d-block mb-2 text-secondary"></i>
+                                                Tidak ada data wali murid nonaktif
+                                            </td>
+                                        </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                            {{-- Tombol Lihat Semua (Nonaktif) --}}
+                            @if($dataNonaktif->count() > 10)
+                            <div class="text-center mt-2" id="btn-lihat-semua-wali-nonaktif">
+                                <button class="btn btn-outline-danger btn-sm px-4"
+                                        onclick="lihatSemua('wali-nonaktif', this)">
+                                    <i class="bi bi-chevron-down me-1"></i>Lihat Semua Data
+                                    ({{ $dataNonaktif->count() - 10 }} data lainnya)
+                                </button>
+                            </div>
+                            @endif
+                        </div>
+
                     </div>
                 </div>
 
@@ -145,18 +247,42 @@
 
             $('#sidebarCollapse, #close-sidebar, #overlay').on('click', toggleSidebar);
 
+            // Lacak tab aktif saat ini
+            let currentTab = 'aktif';
+            $('[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
+                currentTab = $(this).data('tab');
+                // Jalankan ulang pencarian dengan tab baru
+                doSearch($('#search-input').val());
+            });
+
             // AJAX Search
-            $('#search-input').on('keyup', function () {
+            function doSearch(keyword) {
+                const targetBody = currentTab === 'nonaktif' ? '#table-body-nonaktif' : '#table-body-aktif';
                 $.ajax({
                     type: 'GET',
                     url: "{{ route('wali-murid.search') }}",
-                    data: { search: $(this).val() },
+                    data: { search: keyword, tab: currentTab },
                     success: function (data) {
-                        $('#table-body').html(data);
+                        $(targetBody).html(data);
+                        // Sembunyikan tombol lihat semua saat sedang mencari
+                        if (keyword.length > 0) {
+                            $('#btn-lihat-semua-wali-aktif, #btn-lihat-semua-wali-nonaktif').hide();
+                        } else {
+                            $('#btn-lihat-semua-wali-aktif, #btn-lihat-semua-wali-nonaktif').show();
+                        }
                     }
                 });
+            }
+
+            $('#search-input').on('keyup', function () {
+                doSearch($(this).val());
             });
         });
+
+        function lihatSemua(key, btn) {
+            $('.row-extra-' + key).removeClass('row-hidden');
+            $(btn).closest('div').hide();
+        }
     </script>
 </body>
 </html>

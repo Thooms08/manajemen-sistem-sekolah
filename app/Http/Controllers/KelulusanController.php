@@ -16,9 +16,8 @@ class KelulusanController extends Controller
      */
     public function index()
     {
-        // Ambil murid dengan status konfirmasi saja (yang sudah terdaftar aktif)
-        // Eager load kelulusan sekaligus agar tidak N+1 query
-        $murids = Murid::where('status', 'konfirmasi')
+        // Ambil murid aktif (konfirmasi) dan yang sudah lulus — eager load kelulusan
+        $murids = Murid::whereIn('status', ['konfirmasi', 'lulus'])
             ->with(['kelas:id,nama_kelas', 'kelulusan:id,uuid,id_murid,status,tahun_lulus,ijazah,raport,surat_kelulusan'])
             ->orderBy('nama_lengkap')
             ->get();
@@ -72,7 +71,7 @@ class KelulusanController extends Controller
     {
         $search = $request->get('search');
 
-        $murids = Murid::where('status', 'konfirmasi')
+        $murids = Murid::whereIn('status', ['konfirmasi', 'lulus'])
             ->with(['kelas:id,nama_kelas', 'kelulusan:id,uuid,id_murid,status,tahun_lulus,ijazah,raport,surat_kelulusan'])
             ->where(function ($query) use ($search) {
                 $query->where('nama_lengkap', 'LIKE', "%{$search}%")
@@ -220,6 +219,13 @@ class KelulusanController extends Controller
         }
 
         $kelulusan->save();
+
+        // ── Sinkronkan kolom status di tabel murid (data mutlak) ────────────
+        // Jika status kelulusan = 'lulus' → update status murid menjadi 'lulus'
+        // Jika status kelulusan = 'tidak lulus' → kembalikan status murid ke 'konfirmasi'
+        $muridStatus = ($kelulusan->status === 'lulus') ? 'lulus' : 'konfirmasi';
+        \App\Models\Murid::where('id', $kelulusan->id_murid)
+            ->update(['status' => $muridStatus]);
 
         return response()->json([
             'success' => true,

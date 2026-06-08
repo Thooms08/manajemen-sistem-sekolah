@@ -13,18 +13,14 @@ class AlumniController extends Controller
      */
     public function index()
     {
-        // Ambil daftar tahun lulus unik langsung dari tabel kelulusan dokumen_db
-        $years = Kelulusan::where('status', 'lulus')
-            ->whereNotNull('tahun_lulus')
+        // Ambil daftar tahun lulus unik dari tabel kelulusan (dokumen_db)
+        $years = Kelulusan::whereNotNull('tahun_lulus')
             ->distinct()
             ->orderBy('tahun_lulus', 'desc')
             ->pluck('tahun_lulus');
 
-        // Ambil kumpulan id_murid yang berstatus lulus langsung dari model Kelulusan (Aman dari bentrokan DB)
-        $graduatedIds = Kelulusan::where('status', 'lulus')->pluck('id_murid');
-
-        // Tampilkan data murid berdasarkan id siswa yang lulus tersebut
-        $alumnis = Murid::whereIn('id', $graduatedIds)
+        // Cukup query langsung dari status='lulus' di tabel murid — data mutlak
+        $alumnis = Murid::where('status', 'lulus')
             ->with(['kelas', 'kelulusan'])
             ->get();
 
@@ -37,28 +33,27 @@ class AlumniController extends Controller
     public function search(Request $request)
     {
         $search = $request->get('search');
-        $tahun = $request->get('tahun');
+        $tahun  = $request->get('tahun');
 
-        // Filter awal dari sisi model Kelulusan (dokumen_db)
-        $kelulusanQuery = Kelulusan::where('status', 'lulus');
-        
+        // Query langsung ke murid dengan status lulus — data mutlak
+        $muridQuery = Murid::where('status', 'lulus')
+            ->with(['kelas', 'kelulusan']);
+
+        // Filter per tahun lulus — perlu cross-DB karena tahun_lulus ada di dokumen_db
         if (!empty($tahun)) {
-            $kelulusanQuery->where('tahun_lulus', $tahun);
+            $idsByTahun = Kelulusan::where('tahun_lulus', $tahun)->pluck('id_murid');
+            $muridQuery->whereIn('id', $idsByTahun);
         }
-        
-        $graduatedIds = $kelulusanQuery->pluck('id_murid');
 
-        // Query ke model Murid menggunakan hasil filter id_murid di atas dan keyword pencarian
-        $alumnis = Murid::whereIn('id', $graduatedIds)
-            ->with(['kelas', 'kelulusan'])
-            ->where(function($query) use ($search) {
-                if (!empty($search)) {
-                    $query->where('nama_lengkap', 'LIKE', "%{$search}%")
-                          ->orWhere('nisn', 'LIKE', "%{$search}%")
-                          ->orWhere('nis_baru', 'LIKE', "%{$search}%");
-                }
-            })
-            ->get();
+        if (!empty($search)) {
+            $muridQuery->where(function ($q) use ($search) {
+                $q->where('nama_lengkap', 'LIKE', "%{$search}%")
+                  ->orWhere('nisn', 'LIKE', "%{$search}%")
+                  ->orWhere('nis_baru', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $alumnis = $muridQuery->get();
 
         $html = '';
         if ($alumnis->isEmpty()) {

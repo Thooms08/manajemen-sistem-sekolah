@@ -4,7 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-
+use Illuminate\Support\Str;
 use App\Models\Dokumen\DokumenPpdb;
 
 class Murid extends Model
@@ -12,6 +12,7 @@ class Murid extends Model
     protected $table = 'murid';
 
     protected $fillable = [
+        'uuid',
         'nama_lengkap',
         'jenis_kelamin',
         'nisn',
@@ -36,7 +37,28 @@ class Murid extends Model
         'jumlah_kakak',
         'jumlah_adik',
         'status',
+        'alasan_nonaktif',
+        'surat_pernyataan',
+        'tanggal_nonaktif',
     ];
+
+    protected $casts = [
+        'tanggal_nonaktif' => 'datetime',
+    ];
+
+    /**
+     * Auto-generate UUID saat create.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->uuid)) {
+                $model->uuid = (string) Str::uuid();
+            }
+        });
+    }
 
     public function ortu(): HasOne
     {

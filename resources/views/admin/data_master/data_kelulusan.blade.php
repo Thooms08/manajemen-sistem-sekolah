@@ -21,6 +21,7 @@
         #sidebarCollapse { width: 40px; height: 40px; background: #198754; border: none; color: white; border-radius: 8px; }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
+        input:focus, textarea:focus, select:focus { border-color: #198754 !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;}
     </style>
 </head>
 <body>
@@ -425,6 +426,8 @@
             const $btn = $(this).find('button[type="submit"]');
             $btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...');
 
+            $('#global-loading-overlay').fadeIn();
+
             $.ajax({
                 type: 'POST',
                 url: `{{ url('data-kelulusan') }}/${id}/update`,
@@ -452,6 +455,8 @@
                 complete: function() {
                     // Re-enable tombol simpan
                     $btn.prop('disabled', false).html('Simpan Perubahan');
+
+                    $('#global-loading-overlay').fadeOut();
                 }
             });
         });

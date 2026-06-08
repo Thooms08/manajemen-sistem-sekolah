@@ -20,13 +20,16 @@ use App\Http\Controllers\{InformasiController, ProfileSekolahController};
 
 //Use: Data Master
 use App\Http\Controllers\{KelasController, OrtuMuridController, WaliMuridController, MuridController, 
-KelulusanController, AlumniController, StaffController};
+KelulusanController, AlumniController, StaffController, MapelController};
 
 //Use: Keuangan
 use App\Http\Controllers\{AkunPembayaranController, BiayaMuridController};
 
 //Use: Index
 use App\Http\Controllers\AdminPPDBController;
+
+//Use: Dokumen
+use App\Http\Controllers\DokumenController;
 
 //Use: Pengaturan
 use App\Http\Controllers\PengaturanFormPpdbController;
@@ -66,6 +69,12 @@ Route::post('/ppdb/auto-save', [PPDBController::class, 'autoSaveDraft'])->name('
 Route::get('/ppdb/get-draft', [PPDBController::class, 'getDraftData'])->name('ppdb.get-draft');
 
 Route::get('/artikel/{slug}', [InformasiController::class, 'showArtikel'])->name('artikel.show');
+
+// Dokumen View: menggunakan signed URL agar aman tanpa perlu session cookie
+// (diperlukan karena iframe/img/video tidak mengirim session cookie secara reliable)
+Route::get('/dokumen/view/{uuid}', [DokumenController::class, 'viewFile'])
+    ->name('dokumen.view')
+    ->middleware('signed');
 
 
 // =========================================================
@@ -129,6 +138,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('kelas', KelasController::class);
         Route::post('/kelas/tambah-murid', [KelasController::class, 'addStudent'])->name('kelas.addStudent');
         Route::delete('/kelas/hapus-murid/{id_murid}', [KelasController::class, 'removeStudent'])->name('kelas.removeStudent');
+        Route::post('/kelas/{id}/wali-kelas', [KelasController::class, 'setWaliKelas'])->name('kelas.setWaliKelas');
+        Route::delete('/kelas/{id}/wali-kelas', [KelasController::class, 'removeWaliKelas'])->name('kelas.removeWaliKelas');
 
         // Master Data: Ortu Murid
         Route::get('/ortu-murid/search', [OrtuMuridController::class, 'search'])->name('ortu-murid.search');
@@ -140,7 +151,13 @@ Route::middleware('auth')->group(function () {
 
         // Master Data: Guru
         Route::get('/guru/search', [GuruController::class, 'search'])->name('guru.search');
+        Route::post('/guru/{id}/restore', [GuruController::class, 'restore'])->name('guru.restore');
+        Route::get('/guru/{id}/download-surat', [GuruController::class, 'downloadSurat'])->name('guru.download-surat');
         Route::resource('guru', GuruController::class);
+
+        // Master Data: Mapel
+        Route::get('/mapel/search', [MapelController::class, 'search'])->name('mapel.search');
+        Route::resource('mapel', MapelController::class);
 
         // Master Data: Murid
         Route::get('/murid/search', [MuridController::class, 'search'])->name('murid.search');
@@ -150,9 +167,16 @@ Route::middleware('auth')->group(function () {
         Route::post('/murid/auto-save', [MuridController::class, 'autoSaveDraft'])->name('murid.auto-save');
         Route::get('/murid/get-draft', [MuridController::class, 'getDraftData'])->name('murid.get-draft');
         Route::get('/murid/dokumen', [MuridController::class, 'serveDokumen'])->name('murid.dokumen');
-        Route::get('/murid/{id}/detail', [MuridController::class, 'detail'])->name('murid.detail');
-        Route::get('/murid/{id}/pdf', [MuridController::class, 'downloadPdf'])->name('murid.pdf');
-        Route::resource('murid', MuridController::class);
+        Route::get('/murid/{uuid}/detail', [MuridController::class, 'detail'])->name('murid.detail');
+        Route::get('/murid/{uuid}/pdf', [MuridController::class, 'downloadPdf'])->name('murid.pdf');
+        Route::post('/murid/{uuid}/restore', [MuridController::class, 'restore'])->name('murid.restore');
+        Route::get('/murid/{uuid}/download-surat', [MuridController::class, 'downloadSurat'])->name('murid.download-surat');
+        Route::get('/murid/{uuid}/edit', [MuridController::class, 'edit'])->name('murid.edit');
+        Route::put('/murid/{uuid}', [MuridController::class, 'update'])->name('murid.update');
+        Route::delete('/murid/{uuid}', [MuridController::class, 'destroy'])->name('murid.destroy');
+        Route::get('/murid', [MuridController::class, 'index'])->name('murid.index');
+        Route::get('/murid/create', [MuridController::class, 'create'])->name('murid.create');
+        Route::post('/murid', [MuridController::class, 'store'])->name('murid.store');
 
         //Master Data: Kelulusan
         Route::get('/data-kelulusan', [KelulusanController::class, 'index'])->name('kelulusan.index');
@@ -198,6 +222,16 @@ Route::middleware('auth')->group(function () {
         Route::put('/biaya-murid/{id}', [BiayaMuridController::class, 'update'])->name('biaya-murid.update');
         Route::delete('/biaya-murid/{id}', [BiayaMuridController::class, 'destroy'])->name('biaya-murid.destroy');
 
+        // Manajemen Dokumen
+        Route::get('/dokumen', [DokumenController::class, 'index'])->name('dokumen.index');
+        Route::get('/dokumen/folder/{uuid}', [DokumenController::class, 'detailFolder'])->name('dokumen.folder.detail');
+        Route::post('/dokumen/folder/store', [DokumenController::class, 'storeFolder'])->name('dokumen.folder.store');
+        Route::post('/dokumen/file/store', [DokumenController::class, 'storeFile'])->name('dokumen.file.store');
+        Route::put('/dokumen/rename/{uuid}', [DokumenController::class, 'rename'])->name('dokumen.rename');
+        Route::delete('/dokumen/destroy/{uuid}', [DokumenController::class, 'destroy'])->name('dokumen.destroy');
+        Route::get('/dokumen/download/{uuid}', [DokumenController::class, 'download'])->name('dokumen.download');
+        Route::get('/dokumen/search', [DokumenController::class, 'search'])->name('dokumen.search');
+
         // Manajemen Pelanggaran
         Route::get('/pelanggaran', [PelanggaranController::class, 'index'])->name('pelanggaran.index');
         Route::get('/pelanggaran/ajax-search', [PelanggaranController::class, 'ajaxSearch'])->name('pelanggaran.ajaxSearch');
@@ -208,6 +242,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/pelanggaran/{id}', [PelanggaranController::class, 'destroy'])->name('pelanggaran.destroy');
 
         Route::get('staff/search', [StaffController::class, 'search'])->name('staff.search');
+        Route::post('staff/{id}/restore', [StaffController::class, 'restore'])->name('staff.restore');
+        Route::get('staff/{id}/download-surat', [StaffController::class, 'downloadSurat'])->name('staff.download-surat');
         Route::resource('staff', StaffController::class);
 
         // Konfirmasi Pelanggaran

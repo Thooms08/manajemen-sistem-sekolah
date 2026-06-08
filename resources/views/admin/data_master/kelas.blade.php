@@ -68,6 +68,36 @@
             box-shadow: 0 12px 25px rgba(0,0,0,0.1) !important;
         }
 
+        /* Kondisi warning: ada wali tapi tidak ada murid → oranye */
+        .class-card.warn-no-murid {
+            border-bottom-color: #fd7e14;
+            box-shadow: 0 4px 15px rgba(253,126,20,0.25) !important;
+            outline: 2px solid #fd7e14;
+        }
+        .class-card.warn-no-murid:hover {
+            box-shadow: 0 12px 25px rgba(253,126,20,0.35) !important;
+        }
+
+        /* Kondisi warning: ada murid tapi tidak ada wali kelas → kuning */
+        .class-card.warn-no-wali {
+            border-bottom-color: #ffc107;
+            box-shadow: 0 4px 15px rgba(255,193,7,0.3) !important;
+            outline: 2px solid #ffc107;
+        }
+        .class-card.warn-no-wali:hover {
+            box-shadow: 0 12px 25px rgba(255,193,7,0.45) !important;
+        }
+
+        /* Kondisi kritis: tidak ada murid DAN tidak ada wali kelas → merah */
+        .class-card.warn-empty {
+            border-bottom-color: #dc3545;
+            box-shadow: 0 4px 15px rgba(220,53,69,0.25) !important;
+            outline: 2px solid #dc3545;
+        }
+        .class-card.warn-empty:hover {
+            box-shadow: 0 12px 25px rgba(220,53,69,0.35) !important;
+        }
+
         .card-body-link {
             text-decoration: none;
             color: inherit;
@@ -135,21 +165,63 @@
 
                 <div class="row g-4">
                     @forelse($kelas as $k)
+                    @php
+                            $punyaMurid = $k->murid_count > 0;
+                            $punyaWali  = !is_null($k->waliKelas);
+
+                            if (!$punyaMurid && $punyaWali) {
+                                // Ada wali tapi tidak ada murid
+                                $cardClass  = 'warn-no-murid';
+                                $labelBadge = '<div class="mt-3">
+                                                <span class="badge text-wrap lh-base px-3 py-2" style="background-color:#fd7e14!important;color:#fff!important;">
+                                                    <i class="bi bi-exclamation-triangle me-1"></i> Kelas belum memiliki murid
+                                                </span>
+                                            </div>';
+                            } elseif ($punyaMurid && !$punyaWali) {
+                                // Ada murid tapi tidak ada wali kelas
+                                $cardClass  = 'warn-no-wali';
+                                $labelBadge = '<div class="mt-3">
+                                                <span class="badge bg-warning text-dark text-wrap lh-base px-3 py-2">
+                                                    <i class="bi bi-person-x me-1"></i> Kelas belum memiliki wali kelas
+                                                </span>
+                                            </div>';
+                            } elseif (!$punyaMurid && !$punyaWali) {
+                                // Tidak ada murid dan tidak ada wali kelas
+                                $cardClass  = 'warn-empty';
+                                $labelBadge = '<div class="mt-3">
+                                                <span class="badge bg-danger text-wrap lh-base px-3 py-2">
+                                                    <i class="bi bi-x-circle me-1"></i> Kelas belum memiliki murid dan wali kelas
+                                                </span>
+                                            </div>';
+                            } else {
+                                // Lengkap: ada murid dan ada wali kelas
+                                $cardClass  = '';
+                                $labelBadge = '';
+                            }
+                        @endphp
                     <div class="col-md-4 col-lg-3">
-                        <div class="card class-card shadow-sm h-100">
+                        <div class="card class-card shadow-sm h-100 {{ $cardClass }}">
                             <a href="{{ route('kelas.show', $k->id) }}" class="card-body-link">
                                 <div class="card-body p-4 text-center">
                                     <div class="icon-box">
                                         <i class="bi bi-door-open-fill"></i>
                                     </div>
                                     <h5 class="fw-bold mb-1">{{ $k->nama_kelas }}</h5>
-                                    <p class="text-muted small mb-0">
-                                        <i class="bi bi-people me-1"></i> {{ $k->murid_count }} Murid Terdaftar
+                                    <p class="text-muted small mb-1">
+                                        <i class="bi bi-people me-1"></i>{{ $k->murid_count }} Murid Terdaftar
                                     </p>
+                                    @if($punyaWali)
+                                    <p class="text-muted small mb-0">
+                                        <i class="bi bi-person-badge me-1"></i>{{ $k->waliKelas->nama_guru }}
+                                    </p>
+                                    @endif
+                                    @if($labelBadge)
+                                        {!! $labelBadge !!}
+                                    @endif
                                 </div>
                             </a>
                             <div class="card-footer bg-white border-0 pb-3 text-center">
-                                <button class="btn btn-sm btn-outline-success border-0" 
+                                <button class="btn btn-sm btn-outline-success border-0"
                                     onclick="openEditModal('{{ $k->id }}', '{{ $k->nama_kelas }}')">
                                     <i class="bi bi-pencil-square"></i> Edit Kelas
                                 </button>

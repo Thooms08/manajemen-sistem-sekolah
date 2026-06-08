@@ -17,27 +17,21 @@ use Illuminate\Support\Facades\Log;
 
 class MuridController extends Controller
 {
-    /**
-     * Ambil ID murid yang sudah lulus dari database dokumen_db.
-     * Cross-database — tidak bisa pakai JOIN/whereHas, jadi ambil dulu ID-nya.
-     */
-    private function getIdMuridLulus(): array
-    {
-        return \App\Models\Dokumen\Kelulusan::where('status', 'lulus')
-            ->pluck('id_murid')
-            ->toArray();
-    }
-
     public function index()
     {
-        $idLulus = $this->getIdMuridLulus();
-
-        $murids = Murid::where('status', 'konfirmasi')
-            ->whereNotIn('id', $idLulus)
+        // Tab Aktif: status konfirmasi
+        $muridsAktif = Murid::where('status', 'konfirmasi')
             ->with(['ortu', 'wali', 'dokumen'])
+            ->latest()
             ->get();
 
-        return view('admin.data_master.murid', compact('murids'));
+        // Tab Nonaktif: status nonaktif
+        $muridsNonaktif = Murid::where('status', 'nonaktif')
+            ->with(['ortu', 'wali', 'dokumen'])
+            ->latest('tanggal_nonaktif')
+            ->get();
+
+        return view('admin.data_master.murid', compact('muridsAktif', 'muridsNonaktif'));
     }
 
     public function create()
@@ -155,9 +149,9 @@ class MuridController extends Controller
         }
     }
 
-    public function show($id)
+    public function show($uuid)
     {
-        $murid = Murid::with(['ortu', 'wali', 'dokumen'])->findOrFail($id);
+        $murid = Murid::where('uuid', $uuid)->with(['ortu', 'wali', 'dokumen'])->firstOrFail();
         return response()->json($murid);
     }
 
@@ -165,9 +159,9 @@ class MuridController extends Controller
      * Kembalikan data lengkap murid untuk modal detail (JSON).
      * Reuse struktur yang sama dengan AdminPPDBController@getDetail.
      */
-    public function detail($id)
+    public function detail($uuid)
     {
-        $murid = Murid::with(['ortu', 'wali', 'dokumen'])->findOrFail($id);
+        $murid = Murid::where('uuid', $uuid)->with(['ortu', 'wali', 'dokumen'])->firstOrFail();
 
         $formSettings = \App\Models\PpdbFormSetting::where('is_active', true)
             ->orderBy('sort_order')
@@ -232,10 +226,10 @@ class MuridController extends Controller
     /**
      * Generate & download PDF formulir lengkap murid.
      */
-    public function downloadPdf($id)
+    public function downloadPdf($uuid)
     {
         try {
-            $murid   = Murid::with(['ortu', 'wali', 'dokumen', 'kelas'])->findOrFail($id);
+            $murid   = Murid::where('uuid', $uuid)->with(['ortu', 'wali', 'dokumen', 'kelas'])->firstOrFail();
             $biayas  = BiayaMurid::with('account')->orderBy('id')->get();
             $sekolah = DB::table('profile_sekolah')->first();
 
@@ -291,70 +285,98 @@ class MuridController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy($uuid)
     {
         DB::beginTransaction();
         try {
-            $murid = Murid::findOrFail($id);
-            
-            // Delete related documents
-            if ($murid->dokumen) {
-                $documentFields = [
-                    'pasfoto', 'ktp_ayah', 'ktp_ibu', 'ktp_wali', 'kartu_keluarga',
-                    'akte_kelahiran', 'ijazah_terakhir', 'transkip_nilai', 'surat_kelulusan',
-                    'surat_keterangan_hasil_ujian', 'surat_pindahan', 'formulir_fisik',
-                ];
-                
-                foreach ($documentFields as $field) {
-                    if ($murid->dokumen->$field) {
-                        Storage::delete($murid->dokumen->$field);
-                    }
-                }
-                $murid->dokumen()->delete();
+            $murid = Murid::where('uuid', $uuid)->firstOrFail();
+
+            $alasan = request('alasan_nonaktif');
+            $suratPath = null;
+
+            // Simpan file surat pernyataan jika ada
+            if (request()->hasFile('surat_pernyataan')) {
+                $file = request()->file('surat_pernyataan');
+                $fileName = time() . '_surat_' . $murid->id . '.' . $file->getClientOriginalExtension();
+                $suratPath = $file->storeAs('nonaktif', $fileName, 'local');
             }
-            
-            // Delete wali if exists
-            if ($murid->wali) {
-                $murid->wali()->delete();
-            }
-            
-            // Delete ortu
-            if ($murid->ortu) {
-                $murid->ortu()->delete();
-            }
-            
-            // Delete murid
-            $murid->delete();
-            
+
+            // Nonaktifkan murid (bukan delete permanen) + tandai status sebagai data mutlak
+            $murid->update([
+                'status'           => 'nonaktif',
+                'alasan_nonaktif'  => $alasan,
+                'surat_pernyataan' => $suratPath,
+                'tanggal_nonaktif' => now(),
+            ]);
+
             DB::commit();
-            return redirect()->back()->with('success', 'Data murid berhasil dihapus');
+            return redirect()->back()->with('success', 'Murid berhasil dipindahkan ke data nonaktif.');
         } catch (\Exception $e) {
             DB::rollback();
-            Log::error('Murid Destroy Error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat menghapus data.');
+            Log::error('Murid Nonaktif Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan. Silakan coba lagi.');
         }
     }
 
-    public function edit($id)
+    /**
+     * Pulihkan murid nonaktif kembali ke aktif.
+     */
+    public function restore($uuid)
     {
-        $murid = Murid::with(['ortu', 'wali', 'dokumen'])->findOrFail($id);
+        $murid = Murid::where('uuid', $uuid)->firstOrFail();
+
+        // Hapus file surat pernyataan jika ada
+        if ($murid->surat_pernyataan && Storage::disk('local')->exists($murid->surat_pernyataan)) {
+            Storage::disk('local')->delete($murid->surat_pernyataan);
+        }
+
+        $murid->update([
+            'status'           => 'konfirmasi',
+            'alasan_nonaktif'  => null,
+            'surat_pernyataan' => null,
+            'tanggal_nonaktif' => null,
+        ]);
+
+        return redirect()->back()->with('success', 'Murid berhasil dipulihkan ke data aktif.');
+    }
+
+    /**
+     * Download surat pernyataan nonaktif.
+     */
+    public function downloadSurat($uuid)
+    {
+        $murid = Murid::where('uuid', $uuid)->firstOrFail();
+
+        if (!$murid->surat_pernyataan || !Storage::disk('local')->exists($murid->surat_pernyataan)) {
+            abort(404, 'File surat tidak ditemukan.');
+        }
+
+        return Storage::disk('local')->download(
+            $murid->surat_pernyataan,
+            'Surat_Pernyataan_' . str_replace(' ', '_', $murid->nama_lengkap) . '.' . pathinfo($murid->surat_pernyataan, PATHINFO_EXTENSION)
+        );
+    }
+
+    public function edit($uuid)
+    {
+        $murid = Murid::where('uuid', $uuid)->with(['ortu', 'wali', 'dokumen'])->firstOrFail();
         $biayas = BiayaMurid::with('account')->orderBy('id')->get();
         $accounts = AkunPembayaran::orderBy('bank_name')->get();
         $formSettings = \App\Models\PpdbFormSetting::all()->keyBy('field_name');
         return view('admin.ppdb', compact('murid', 'biayas', 'accounts', 'formSettings'));
     }
 
-    public function update(PPDBRequest $request, $id)
+    public function update(PPDBRequest $request, $uuid)
     {
         DB::beginTransaction();
         try {
-            $murid = Murid::findOrFail($id);
-            
+            $murid = Murid::where('uuid', $uuid)->firstOrFail();
+
             // 1. Update Data Murid
             // Validasi nis_baru harus unik (kecuali milik murid ini sendiri)
             if ($request->filled('nis_baru')) {
                 $nisBaru = $request->nis_baru;
-                $exists  = Murid::where('nis_baru', $nisBaru)->where('id', '!=', $id)->exists();
+                $exists  = Murid::where('nis_baru', $nisBaru)->where('id', '!=', $murid->id)->exists();
                 if ($exists) {
                     DB::rollback();
                     return back()->withErrors(['nis_baru' => 'NIS Baru sudah digunakan oleh murid lain.'])->withInput();
@@ -449,11 +471,13 @@ class MuridController extends Controller
     {
         $query    = $request->get('query') ?? $request->get('search');
         $kelas_id = $request->get('kelas_id');
+        $tab      = $request->get('tab', 'aktif');
 
-        // Exclude murid yang sudah lulus (cross-database)
-        $idLulus = $this->getIdMuridLulus();
-
-        $muridQuery = Murid::query()->whereNotIn('id', $idLulus);
+        if ($tab === 'nonaktif') {
+            $muridQuery = Murid::where('status', 'nonaktif');
+        } else {
+            $muridQuery = Murid::where('status', 'konfirmasi');
+        }
 
         if ($kelas_id) {
             $muridQuery->where('id_kelas', $kelas_id);
@@ -476,40 +500,64 @@ class MuridController extends Controller
         $output = "";
         if ($murids->count() > 0) {
             foreach ($murids as $m) {
-                $output .= '
-                <tr>
-                    <td class="fw-bold">' . $m->nama_lengkap . '</td>
-                    <td>' . $m->nisn . '</td>
-                    <td>' . $m->no_hp . '</td>
-                    <td class="text-center">
-                        <button class="btn btn-sm btn-outline-danger"
-                                title="Download PDF Formulir Lengkap"
-                                onclick="downloadPdf(' . $m->id . ', \'' . addslashes($m->nama_lengkap) . '\', this)">
-                            <i class="bi bi-file-earmark-pdf-fill"></i>
-                        </button>
-                    </td>
-                    <td class="text-center">
-                        <button class="btn btn-sm btn-outline-info"
-                                title="Lihat Detail Berkas"
-                                onclick="viewDetail(' . $m->id . ')">
-                            <i class="bi bi-person-vcard"></i>
-                        </button>
-                        <a href="' . route('murid.edit', $m->id) . '" class="btn btn-sm btn-outline-success" title="Edit">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <form action="' . route('murid.destroy', $m->id) . '" method="POST" class="d-inline">
-                            ' . csrf_field() . '
-                            ' . method_field('DELETE') . '
-                            <button class="btn btn-sm btn-outline-danger" title="Hapus"
-                                    onclick="return confirm(\'Hapus murid ini?\')">
+                if ($tab === 'nonaktif') {
+                    $output .= '
+                    <tr>
+                        <td class="fw-bold">' . e($m->nama_lengkap) . '</td>
+                        <td>' . e($m->nisn) . '</td>
+                        <td>' . e($m->no_hp) . '</td>
+                        <td><span class="badge bg-secondary">' . e($m->alasan_nonaktif) . '</span></td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-info"
+                                    title="Lihat Detail Berkas"
+                                    onclick="viewDetail(\'' . $m->uuid . '\')">
+                                <i class="bi bi-person-vcard"></i>
+                            </button>
+                            ' . ($m->surat_pernyataan ? '
+                            <a href="' . route('murid.download-surat', $m->uuid) . '" class="btn btn-sm btn-outline-secondary" title="Download Surat">
+                                <i class="bi bi-file-earmark-arrow-down"></i>
+                            </a>' : '') . '
+                            <form action="' . route('murid.restore', $m->uuid) . '" method="POST" class="d-inline">
+                                ' . csrf_field() . '
+                                <button class="btn btn-sm btn-outline-success" title="Pulihkan" onclick="return confirm(\'Pulihkan murid ini ke data aktif?\')">
+                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>';
+                } else {
+                    $output .= '
+                    <tr>
+                        <td class="fw-bold">' . e($m->nama_lengkap) . '</td>
+                        <td>' . e($m->nisn) . '</td>
+                        <td>' . e($m->no_hp) . '</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-danger"
+                                    title="Download PDF Formulir Lengkap"
+                                    onclick="downloadPdf(\'' . $m->uuid . '\', \'' . addslashes($m->nama_lengkap) . '\', this)">
+                                <i class="bi bi-file-earmark-pdf-fill"></i>
+                            </button>
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-info"
+                                    title="Lihat Detail Berkas"
+                                    onclick="viewDetail(\'' . $m->uuid . '\')">
+                                <i class="bi bi-person-vcard"></i>
+                            </button>
+                            <a href="' . route('murid.edit', $m->uuid) . '" class="btn btn-sm btn-outline-success" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button class="btn btn-sm btn-outline-danger" title="Nonaktifkan"
+                                    onclick="bukaModalHapus(\'' . $m->uuid . '\', \'' . addslashes($m->nama_lengkap) . '\')">
                                 <i class="bi bi-trash"></i>
                             </button>
-                        </form>
-                    </td>
-                </tr>';
+                        </td>
+                    </tr>';
+                }
             }
         } else {
-            $output = '<tr><td colspan="5" class="text-center py-4 text-muted">Data tidak ditemukan</td></tr>';
+            $cols = ($tab === 'nonaktif') ? 5 : 5;
+            $output = '<tr><td colspan="' . $cols . '" class="text-center py-4 text-muted">Data tidak ditemukan</td></tr>';
         }
 
         return response($output);

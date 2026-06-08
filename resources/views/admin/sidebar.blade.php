@@ -222,6 +222,11 @@
                 <i class="bi bi-person-badge"></i> Data Guru
             </a>
         </li>
+        <li class="{{ Request::is('mapel*') ? 'active' : '' }}">
+            <a href="{{ route('mapel.index') }}">
+                <i class="bi bi-person-badge"></i> Data Mapel
+            </a>
+        </li>
         <li class="{{ Request::is('staff*') ? 'active' : '' }}">
             <a href="{{ route('staff.index') }}">
                 <i class="bi bi-person-badge"></i> Data Staff
@@ -250,6 +255,11 @@
         <li class="{{ request()->routeIs('alumni.*') ? 'active' : '' }}">
             <a href="{{ route('alumni.index') }}">
                 <i class="bi bi-people-fill"></i> Data Alumni
+            </a>
+        </li>
+         <li class="{{ request()->routeIs('dokumen.*') ? 'active' : '' }}">
+            <a href="{{ route('dokumen.index') }}">
+                <i class="bi bi-people-fill"></i> Manajemen Dokumen
             </a>
         </li>
         <li class="{{ request()->routeIs('admin.pengaturan-form-ppdb.*') ? 'active' : '' }}">
