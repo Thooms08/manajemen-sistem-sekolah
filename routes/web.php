@@ -24,6 +24,7 @@ KelulusanController, AlumniController, StaffController, MapelController};
 
 //Use: Keuangan
 use App\Http\Controllers\{AkunPembayaranController, BiayaMuridController};
+use App\Http\Controllers\Keuangan\PemasukanController;
 
 //Use: Index
 use App\Http\Controllers\AdminPPDBController;
@@ -221,6 +222,17 @@ Route::middleware('auth')->group(function () {
         Route::post('/biaya-murid/check-name', [BiayaMuridController::class, 'checkFeeName'])->name('biaya-murid.check-name');
         Route::put('/biaya-murid/{id}', [BiayaMuridController::class, 'update'])->name('biaya-murid.update');
         Route::delete('/biaya-murid/{id}', [BiayaMuridController::class, 'destroy'])->name('biaya-murid.destroy');
+
+        // Keuangan: Pemasukan
+        Route::prefix('keuangan')->name('keuangan.')->group(function () {
+            Route::get('/pemasukan', [PemasukanController::class, 'index'])->name('pemasukan.index');
+            Route::post('/pemasukan', [PemasukanController::class, 'store'])->name('pemasukan.store');
+            Route::delete('/pemasukan/{id}', [PemasukanController::class, 'destroy'])->name('pemasukan.destroy');
+            Route::post('/pemasukan/{id}/restore', [PemasukanController::class, 'restore'])->name('pemasukan.restore');
+            Route::get('/pemasukan/search-murid', [PemasukanController::class, 'searchMurid'])->name('pemasukan.search-murid');
+            Route::get('/pemasukan/export-excel', [PemasukanController::class, 'exportExcel'])->name('pemasukan.export-excel');
+            Route::get('/pemasukan/biaya-detail', [PemasukanController::class, 'getBiayaDetail'])->name('pemasukan.biaya-detail');
+        });
 
         // Manajemen Dokumen
         Route::get('/dokumen', [DokumenController::class, 'index'])->name('dokumen.index');

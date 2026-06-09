@@ -2,7 +2,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\AkunPembayaran;
+use App\Models\Keuangan\AkunPembayaran;
 use App\Models\ProfileSekolah;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
@@ -27,7 +27,7 @@ class AkunPembayaranController extends Controller
         if ($isQris) {
             $rules['qris_image'] = 'required|image|max:2048';
         } else {
-            $rules['account_number'] = 'required|string|max:100|unique:akun_pembayaran,account_number';
+            $rules['account_number'] = 'required|string|max:100|unique:keuangan_db.akun_pembayaran,account_number';
             $rules['account_holder'] = 'required|string|max:191';
         }
 
@@ -73,7 +73,7 @@ class AkunPembayaranController extends Controller
         if ($isQris) {
             $rules['qris_image'] = 'nullable|image|max:2048';
         } else {
-            $rules['account_number'] = 'required|string|max:100|unique:akun_pembayaran,account_number,' . $id . ',id';
+            $rules['account_number'] = 'required|string|max:100|unique:keuangan_db.akun_pembayaran,account_number,' . $id . ',id';
             $rules['account_holder'] = 'required|string|max:191';
         }
 

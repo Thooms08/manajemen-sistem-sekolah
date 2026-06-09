@@ -126,6 +126,23 @@ return [
             'engine'    => null,
         ],
 
+        'keuangan_db' => [
+            'driver'    => 'mysql',
+            'host'      => env('KEUANGAN_DB_HOST', '127.0.0.1'),
+            'port'      => env('KEUANGAN_DB_PORT', '3306'),
+            'database'  => env('KEUANGAN_DB_DATABASE', 'keuangan_db'),
+            'username'  => env('KEUANGAN_DB_USERNAME', 'root'),
+            'password'  => env('KEUANGAN_DB_PASSWORD', ''),
+            'charset'   => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix'    => '',
+            'strict'    => true,
+            'engine'    => null,
+            'options'   => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
     ],
 
     /*

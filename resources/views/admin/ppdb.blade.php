@@ -56,7 +56,7 @@
                     </div>
                 @endif
 
-                <form action="{{ isset($murid) ? route('murid.update', $murid->id) : route('murid.store') }}" method="POST" enctype="multipart/form-data" id="ppdbForm" data-form-settings="{{ json_encode($formSettings) }}">
+                <form action="{{ isset($murid) ? route('murid.update', $murid->uuid) : route('murid.store') }}" method="POST" enctype="multipart/form-data" id="ppdbForm" data-form-settings="{{ json_encode($formSettings) }}">
                     @csrf
                     @if(isset($murid)) @method('PUT') @endif
 
@@ -199,6 +199,11 @@
                             @endif
                         </div>
                         <div class="text-end mt-4">
+                            @if(isset($murid))
+                                <button type="button" class="btn btn-outline-success me-2 px-4" onclick="submitFromStep(1)">
+                                    <i class="bi bi-save me-1"></i>Simpan
+                                </button>
+                            @endif
                             <button type="button" class="btn btn-success px-3 py-2" onclick="showStep2()">Selanjutnya <i class="bi bi-arrow-right"></i></button>
                         </div>
                     </div>
@@ -269,7 +274,14 @@
                         </div>
                         <div class="d-flex justify-content-between mt-4">
                             <button type="button" class="btn btn-outline-secondary px-3" onclick="showStep1()"><i class="bi bi-arrow-left"></i> Kembali</button>
-                            <button type="button" class="btn btn-success px-3" onclick="showStep3()">Selanjutnya <i class="bi bi-arrow-right"></i></button>
+                            <div class="d-flex gap-2">
+                                @if(isset($murid))
+                                    <button type="button" class="btn btn-outline-success px-4" onclick="submitFromStep(2)">
+                                        <i class="bi bi-save me-1"></i>Simpan
+                                    </button>
+                                @endif
+                                <button type="button" class="btn btn-success px-3" onclick="showStep3()">Selanjutnya <i class="bi bi-arrow-right"></i></button>
+                            </div>
                         </div>
                     </div>
 
@@ -314,7 +326,14 @@
                         </div>
                         <div class="d-flex justify-content-between mt-4">
                             <button type="button" class="btn btn-outline-secondary px-4" onclick="showStep2()"><i class="bi bi-arrow-left"></i> Kembali</button>
-                            <button type="button" class="btn btn-success px-5" onclick="showStep4()">Selanjutnya <i class="bi bi-arrow-right"></i></button>
+                            <div class="d-flex gap-2">
+                                @if(isset($murid))
+                                    <button type="button" class="btn btn-outline-success px-4" onclick="submitFromStep(3)">
+                                        <i class="bi bi-save me-1"></i>Simpan
+                                    </button>
+                                @endif
+                                <button type="button" class="btn btn-success px-5" onclick="showStep4()">Selanjutnya <i class="bi bi-arrow-right"></i></button>
+                            </div>
                         </div>
                     </div>
 
@@ -460,11 +479,18 @@
                         </div>
                         <div class="d-flex justify-content-between mt-4">
                             <button type="button" class="btn btn-outline-secondary px-4" onclick="showStep3()"><i class="bi bi-arrow-left"></i> Kembali</button>
-                            @if(isset($murid))
-                                <button type="button" class="btn btn-success px-5" onclick="showStep5()">Selanjutnya <i class="bi bi-arrow-right"></i></button>
-                            @else
-                                <button type="button" class="btn btn-success px-5" onclick="showStep5()">Selanjutnya <i class="bi bi-arrow-right"></i></button>
-                            @endif
+                            <div class="d-flex gap-2">
+                                @if(isset($murid))
+                                    <button type="button" class="btn btn-outline-success px-4" onclick="submitFromStep(4)">
+                                        <i class="bi bi-save me-1"></i>Simpan
+                                    </button>
+                                @endif
+                                @if(isset($murid))
+                                    <button type="button" class="btn btn-success px-5" onclick="showStep5()">Selanjutnya <i class="bi bi-arrow-right"></i></button>
+                                @else
+                                    <button type="button" class="btn btn-success px-5" onclick="showStep5()">Selanjutnya <i class="bi bi-arrow-right"></i></button>
+                                @endif
+                            </div>
                         </div>
                     </div>
 
@@ -986,6 +1012,20 @@
                 el.disabled = false;
             });
         });
+
+        /**
+         * Simpan langsung dari step tertentu (mode edit).
+         * Re-enable semua input → submit form tanpa harus ke step konfirmasi.
+         */
+        function submitFromStep(stepNum) {
+            if (!validateStep(stepNum)) return; // validasi basic field required di step ini
+            const form = document.getElementById('ppdbForm');
+            // Re-enable semua input (termasuk step lain) agar semua data terkirim
+            form.querySelectorAll('input, select, textarea').forEach(el => {
+                el.disabled = false;
+            });
+            form.submit();
+        }
 
         // Initialize - tampilkan step 1, dan disable input di semua step lainnya
         showStep(1);

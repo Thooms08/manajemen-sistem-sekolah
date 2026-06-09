@@ -1,10 +1,13 @@
 <?php
-namespace App\Models;
+
+namespace App\Models\Keuangan;
 
 use Illuminate\Database\Eloquent\Model;
 
 class AkunPembayaran extends Model
 {
+    protected $connection = 'keuangan_db';
+
     protected $table = 'akun_pembayaran';
 
     protected $fillable = [

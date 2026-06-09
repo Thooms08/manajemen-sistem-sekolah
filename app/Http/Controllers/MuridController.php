@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\PPDBRequest;
+use App\Http\Requests\PPDBStoreRequest;
+use App\Http\Requests\PPDBUpdateRequest;
 use App\Models\Murid;
 use App\Models\OrtuMurid;
 use App\Models\WaliMurid;
 use App\Models\Dokumen\DokumenPpdb;
-use App\Models\BiayaMurid;
-use App\Models\AkunPembayaran;
+use App\Models\Keuangan\BiayaMurid;
+use App\Models\Keuangan\AkunPembayaran;
 use App\Models\PpdbDraft;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -43,7 +44,7 @@ class MuridController extends Controller
         return view('admin.ppdb', compact('murid', 'biayas', 'accounts', 'formSettings'));
     }
 
-    public function store(PPDBRequest $request)
+    public function store(PPDBStoreRequest $request)
     {
         DB::beginTransaction();
         try {
@@ -366,61 +367,85 @@ class MuridController extends Controller
         return view('admin.ppdb', compact('murid', 'biayas', 'accounts', 'formSettings'));
     }
 
-    public function update(PPDBRequest $request, $uuid)
+    public function update(PPDBUpdateRequest $request, $uuid)
     {
         DB::beginTransaction();
         try {
             $murid = Murid::where('uuid', $uuid)->firstOrFail();
 
-            // 1. Update Data Murid
-            // Validasi nis_baru harus unik (kecuali milik murid ini sendiri)
-            if ($request->filled('nis_baru')) {
-                $nisBaru = $request->nis_baru;
-                $exists  = Murid::where('nis_baru', $nisBaru)->where('id', '!=', $murid->id)->exists();
-                if ($exists) {
-                    DB::rollback();
-                    return back()->withErrors(['nis_baru' => 'NIS Baru sudah digunakan oleh murid lain.'])->withInput();
+            // ── 1. Update Data Murid ─────────────────────────────────────────
+            // Hanya update field yang benar-benar dikirim dalam request
+            // (input di-disable oleh JS saat step lain aktif, tapi di-enable sebelum submit)
+            $muridFields = [
+                'nama_lengkap', 'jenis_kelamin', 'nisn', 'nik', 'tempat_lahir', 'tgl_lahir',
+                'rt_rw', 'desa_kelurahan', 'kota_kabupaten', 'provinsi', 'alamat_detail',
+                'transportasi', 'no_hp', 'alamat_email', 'sekolah_asal', 'tinggi_badan',
+                'berat_badan', 'anak_ke', 'jlm_saudara', 'jumlah_kakak', 'jumlah_adik',
+                'nis_lama',
+            ];
+
+            // Kumpulkan hanya field yang ada dan tidak kosong (biarkan null dari DB)
+            $muridData = [];
+            foreach ($muridFields as $field) {
+                if ($request->has($field)) {
+                    $muridData[$field] = $request->input($field);
                 }
             }
 
-            $murid->update(array_merge(
-                $request->only([
-                    'nama_lengkap', 'jenis_kelamin', 'nisn', 'nik', 'tempat_lahir', 'tgl_lahir',
-                    'rt_rw', 'desa_kelurahan', 'kota_kabupaten', 'provinsi', 'alamat_detail',
-                    'transportasi', 'no_hp', 'alamat_email', 'sekolah_asal', 'tinggi_badan',
-                    'berat_badan', 'anak_ke', 'jml_saudara', 'jumlah_kakak', 'jumlah_adik',
-                    'nis_lama',
-                ]),
-                // nis_baru hanya diupdate jika diisi (null tidak menimpa nilai lama)
-                $request->filled('nis_baru') ? ['nis_baru' => $request->nis_baru] : []
-            ));
+            // nis_baru: hanya update jika dikirim dan tidak kosong
+            if ($request->filled('nis_baru')) {
+                $muridData['nis_baru'] = $request->nis_baru;
+            }
 
-            // 2. Update Data Orang Tua
-            $murid->ortu()->update($request->only([
-                'nama_ayah', 'tempat_lahir_ayah', 'tgl_lahir_ayah', 'pendidikan_ayah', 'pekerjaan_ayah', 'penghasilan_ayah', 'status_ayah',
-                'nama_ibu', 'tempat_lahir_ibu', 'tgl_lahir_ibu', 'pendidikan_ibu', 'pekerjaan_ibu', 'penghasilan_ibu', 'status_ibu'
-            ]));
+            if (!empty($muridData)) {
+                $murid->update($muridData);
+            }
 
-            // 3. Update Data Wali (jika ada)
-            if ($request->filled('nama_wali')) {
-                if ($murid->wali) {
-                    $murid->wali()->update($request->only([
-                        'nama_wali', 'tempat_lahir_wali', 'tgl_lahir_wali', 'pendidikan_wali', 'pekerjaan_wali', 'penghasilan_wali', 'status_wali', 'hubungan_wali'
-                    ]));
-                } else {
-                    WaliMurid::create(array_merge(
-                        $request->only([
-                            'nama_wali', 'tempat_lahir_wali', 'tgl_lahir_wali', 'pendidikan_wali', 'pekerjaan_wali', 'penghasilan_wali', 'status_wali', 'hubungan_wali'
-                        ]),
-                        ['id_murid' => $murid->id]
-                    ));
+            // ── 2. Update Data Orang Tua ─────────────────────────────────────
+            $ortuFields = [
+                'nama_ayah', 'tempat_lahir_ayah', 'tgl_lahir_ayah', 'pendidikan_ayah',
+                'pekerjaan_ayah', 'penghasilan_ayah', 'status_ayah',
+                'nama_ibu', 'tempat_lahir_ibu', 'tgl_lahir_ibu', 'pendidikan_ibu',
+                'pekerjaan_ibu', 'penghasilan_ibu', 'status_ibu',
+            ];
+
+            $ortuData = [];
+            foreach ($ortuFields as $field) {
+                if ($request->has($field)) {
+                    $ortuData[$field] = $request->input($field);
                 }
-            } elseif ($murid->wali) {
+            }
+
+            if (!empty($ortuData) && $murid->ortu) {
+                $murid->ortu()->update($ortuData);
+            }
+
+            // ── 3. Update Data Wali ──────────────────────────────────────────
+            $waliFields = [
+                'nama_wali', 'tempat_lahir_wali', 'tgl_lahir_wali', 'pendidikan_wali',
+                'pekerjaan_wali', 'penghasilan_wali', 'status_wali', 'hubungan_wali',
+            ];
+
+            $waliData = [];
+            foreach ($waliFields as $field) {
+                if ($request->has($field)) {
+                    $waliData[$field] = $request->input($field);
+                }
+            }
+
+            if ($request->filled('nama_wali')) {
+                // Ada nama wali → simpan/update
+                if ($murid->wali) {
+                    $murid->wali()->update($waliData);
+                } else {
+                    WaliMurid::create(array_merge($waliData, ['id_murid' => $murid->id]));
+                }
+            } elseif ($request->has('nama_wali') && empty($request->nama_wali) && $murid->wali) {
+                // Field nama_wali dikirim tapi dikosongkan → hapus data wali
                 $murid->wali()->delete();
             }
 
-            // 4. Update Dokumen (jika ada)
-            $dokumenData = [];
+            // ── 4. Update Dokumen ────────────────────────────────────────────
             $documentFields = [
                 'pasfoto'                      => 'pasfoto',
                 'ktp_ayah'                     => 'ktp-ayah',
@@ -436,10 +461,10 @@ class MuridController extends Controller
                 'formulir_fisik'               => 'fs',
             ];
 
+            $dokumenData = [];
             foreach ($documentFields as $field => $folder) {
                 if ($request->hasFile($field)) {
                     $file = $request->file($field);
-                    // Hapus file lama jika ada
                     if ($murid->dokumen && $murid->dokumen->$field) {
                         Storage::delete($murid->dokumen->$field);
                     }
@@ -460,6 +485,7 @@ class MuridController extends Controller
 
             DB::commit();
             return redirect()->route('murid.index')->with('success', 'Data Murid Berhasil Diperbarui');
+
         } catch (\Exception $e) {
             DB::rollback();
             Log::error('Murid Update Error: ' . $e->getMessage());

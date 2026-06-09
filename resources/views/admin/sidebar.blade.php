@@ -273,6 +273,16 @@
             </a>
         </li>
 
+        <li class="px-3 mt-4 mb-2">
+            <small class="text-uppercase fw-bold" style="font-size: 1rem; letter-spacing: 1px; color:white;">Keuangan</small>
+        </li>
+
+        <li class="{{ request()->routeIs('keuangan.pemasukan.*') ? 'active' : '' }}">
+            <a href="{{ route('keuangan.pemasukan.index') }}">
+                <i class="bi bi-arrow-down-circle"></i> Pemasukan
+            </a>
+        </li>
+
         <li>
         <a href="#submenuMurid" data-bs-toggle="collapse" 
         aria-expanded="{{ request()->routeIs('pelanggaran.*') ? 'true' : 'false' }}" 

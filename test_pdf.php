@@ -5,7 +5,7 @@ $app = require __DIR__.'/bootstrap/app.php';
 $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
 use App\Models\Murid;
-use App\Models\BiayaMurid;
+use App\Models\Keuangan\BiayaMurid;
 use Illuminate\Support\Facades\DB;
 
 try {

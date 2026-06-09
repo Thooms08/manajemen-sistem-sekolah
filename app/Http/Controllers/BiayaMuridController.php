@@ -1,102 +1,100 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\BiayaMurid;
+use App\Models\Keuangan\BiayaMurid;
+use App\Models\Keuangan\AkunPembayaran;
 use App\Models\ProfileSekolah;
-use App\Models\AkunPembayaran;
 
 class BiayaMuridController extends Controller
 {
     public function index()
     {
-        $sekolah = ProfileSekolah::first();
+        $sekolah  = ProfileSekolah::first();
         $accounts = AkunPembayaran::orderBy('bank_name')->get();
-        $biayas = BiayaMurid::orderBy('id')->get();
-        return view('admin.keuangan.biaya-murid', compact('sekolah','accounts','biayas'));
+        $biayas   = BiayaMurid::with('account')->orderBy('id')->get();
+
+        return view('admin.keuangan.biaya-murid', compact('sekolah', 'accounts', 'biayas'));
     }
 
+    /**
+     * Simpan satu biaya baru.
+     * Input: name, amount, account_id (nullable = cash/tunai)
+     */
     public function store(Request $request)
     {
-        // Expect arrays: fee_name[], fee_amount[], fee_account[]
-        $names = $request->input('fee_name', []);
-        $amounts = $request->input('fee_amount', []);
-        $accounts = $request->input('fee_account', []);
+        $validated = $request->validate([
+            'name'       => 'required|string|max:191|unique:keuangan_db.biaya_murid,name',
+            'amount'     => 'required|numeric|min:1',
+            'account_id' => 'nullable|integer|exists:keuangan_db.akun_pembayaran,id',
+        ], [
+            'name.unique' => 'Nama biaya ini sudah terdaftar.',
+            'amount.min'  => 'Nominal harus lebih dari 0.',
+        ]);
 
-        // Get existing fee names to check for duplicates
-        $existingFeeNames = BiayaMurid::pluck('name')->toArray();
+        BiayaMurid::create([
+            'name'       => $validated['name'],
+            'amount'     => $validated['amount'],
+            'account_id' => $validated['account_id'] ?? null,
+            'is_active'  => true,
+        ]);
 
-        $savedCount = 0;
-        $duplicateCount = 0;
-        
-        foreach ($names as $i => $n) {
-            $n = trim($n);
-            $amount = isset($amounts[$i]) ? $amounts[$i] : 0;
-            
-            // Only save if name is not empty AND amount is not zero/empty
-            if ($n !== '' && $amount !== '' && $amount !== '0' && $amount > 0) {
-                // Check if fee name already exists
-                if (in_array($n, $existingFeeNames)) {
-                    $duplicateCount++;
-                    continue; // Skip this fee, don't save
-                }
-                
-                BiayaMurid::create([
-                    'name' => $n,
-                    'amount' => $amount,
-                    'account_id' => isset($accounts[$i]) && $accounts[$i] ? $accounts[$i] : null,
-                ]);
-                $savedCount++;
-            }
-        }
-
-        if ($savedCount > 0) {
-            $message = 'Nominal biaya berhasil disimpan';
-            if ($duplicateCount > 0) {
-                $message .= ". {$duplicateCount} biaya dilewati karena sudah ada sebelumnya.";
-            }
-            return redirect()->route('biaya-murid.index')->with('success', $message);
-        } else if ($duplicateCount > 0) {
-            return redirect()->route('biaya-murid.index')->with('error', 'Semua biaya yang Anda input sudah ada sebelumnya. Silakan hapus biaya yang sudah ada atau input nama biaya lain.');
-        } else {
-            return redirect()->route('biaya-murid.index')->with('error', 'Tidak ada biaya yang disimpan. Pastikan Anda mengisi nama dan nominal biaya.');
-        }
+        return redirect()->route('biaya-murid.index')
+            ->with('success', 'Biaya "' . $validated['name'] . '" berhasil ditambahkan.');
     }
 
-    public function checkFeeName(Request $request)
-    {
-        $name = $request->input('name');
-        $exists = BiayaMurid::where('name', $name)->exists();
-        return response()->json(['exists' => $exists]);
-    }
-
+    /**
+     * Update biaya yang sudah ada.
+     */
     public function update(Request $request, $id)
     {
-        $b = BiayaMurid::findOrFail($id);
-        
+        $biaya = BiayaMurid::findOrFail($id);
+
         $validated = $request->validate([
-            'name' => 'required|string|max:191',
-            'amount' => 'required|numeric|min:0',
-            'account_id' => 'nullable|integer',
-            'is_cash' => 'nullable',
+            'name'       => 'required|string|max:191|unique:keuangan_db.biaya_murid,name,' . $id . ',id',
+            'amount'     => 'required|numeric|min:0',
+            'account_id' => 'nullable|integer|exists:keuangan_db.akun_pembayaran,id',
+        ], [
+            'name.unique' => 'Nama biaya ini sudah digunakan oleh biaya lain.',
         ]);
-        
-        // If is_cash is checked, set account_id to null
-        if (isset($validated['is_cash'])) {
-            $validated['account_id'] = null;
-        }
-        
-        // Remove is_cash from validated array as it's not a column in the database
-        unset($validated['is_cash']);
-        
-        $b->update($validated);
-        return redirect()->route('biaya-murid.index')->with('success', 'Biaya berhasil diperbarui');
+
+        $biaya->update([
+            'name'       => $validated['name'],
+            'amount'     => $validated['amount'],
+            'account_id' => $validated['account_id'] ?? null,
+        ]);
+
+        return redirect()->route('biaya-murid.index')
+            ->with('success', 'Biaya "' . $validated['name'] . '" berhasil diperbarui.');
     }
 
+    /**
+     * Hapus biaya.
+     */
     public function destroy($id)
     {
-        $b = BiayaMurid::findOrFail($id);
-        $b->delete();
-        return redirect()->route('biaya-murid.index')->with('success', 'Biaya berhasil dihapus');
+        $biaya = BiayaMurid::findOrFail($id);
+        $nama  = $biaya->name;
+        $biaya->delete();
+
+        return redirect()->route('biaya-murid.index')
+            ->with('success', 'Biaya "' . $nama . '" berhasil dihapus.');
+    }
+
+    /**
+     * AJAX: cek apakah nama biaya sudah ada (untuk validasi realtime di form tambah).
+     */
+    public function checkFeeName(Request $request)
+    {
+        $name      = trim($request->input('name', ''));
+        $excludeId = $request->input('exclude_id'); // untuk mode edit
+
+        $query = BiayaMurid::where('name', $name);
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        return response()->json(['exists' => $query->exists()]);
     }
 }

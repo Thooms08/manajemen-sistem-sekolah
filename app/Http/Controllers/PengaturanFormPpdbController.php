@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PpdbFormSetting;
-use App\Models\BiayaMurid;
+use App\Models\Keuangan\BiayaMurid;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 

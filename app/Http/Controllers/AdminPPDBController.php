@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Murid;
 use App\Models\PpdbFormSetting;
+use App\Models\Keuangan\BiayaMurid;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -23,9 +24,8 @@ class AdminPPDBController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Cek apakah ada biaya cash aktif (tidak punya akun bank/QRIS)
-        $hasCashBiaya = DB::table('biaya_murid')
-            ->whereNull('account_id')
+        // Cek apakah ada biaya cash aktif — gunakan Model agar koneksi keuangan_db dipakai
+        $hasCashBiaya = BiayaMurid::whereNull('account_id')
             ->where('is_active', true)
             ->exists();
 
@@ -35,11 +35,10 @@ class AdminPPDBController extends Controller
         ]);
     }
 
-    // Ambil daftar biaya cash aktif untuk modal konfirmasi
+    // Ambil daftar biaya cash aktif untuk modal konfirmasi — gunakan Model agar koneksi keuangan_db dipakai
     public function getCashBiayas()
     {
-        $biayas = DB::table('biaya_murid')
-            ->whereNull('account_id')
+        $biayas = BiayaMurid::whereNull('account_id')
             ->where('is_active', true)
             ->orderBy('id')
             ->get(['id', 'name', 'amount']);

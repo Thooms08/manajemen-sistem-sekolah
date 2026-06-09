@@ -1,10 +1,13 @@
 <?php
-namespace App\Models;
+
+namespace App\Models\Keuangan;
 
 use Illuminate\Database\Eloquent\Model;
 
 class BiayaMurid extends Model
 {
+    protected $connection = 'keuangan_db';
+
     protected $table = 'biaya_murid';
 
     protected $fillable = [
@@ -12,7 +15,7 @@ class BiayaMurid extends Model
         'amount',
         'account_id',
         'is_active',
-        'disabled_reason'
+        'disabled_reason',
     ];
 
     public function account()

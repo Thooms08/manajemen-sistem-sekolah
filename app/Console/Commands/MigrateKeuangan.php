@@ -5,18 +5,18 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 
-class MigrateDokumen extends Command
+class MigrateKeuangan extends Command
 {
-    protected $signature   = 'migrate:dokumen {--fresh : Drop all tables and re-run migrations} {--seed : Run seeders after migration}';
-    protected $description = 'Run migrations for the dokumen_db database';
+    protected $signature   = 'migrate:keuangan {--fresh : Drop all tables and re-run migrations} {--seed : Run seeders after migration}';
+    protected $description = 'Run migrations for the keuangan_db database';
 
     public function handle(): int
     {
-        $this->info('Running migrations for dokumen_db...');
+        $this->info('Running migrations for keuangan_db...');
 
         $options = [
-            '--database' => 'dokumen_db',
-            '--path'     => 'database/migrations/dokumen',
+            '--database' => 'keuangan_db',
+            '--path'     => 'database/migrations/keuangan',
             '--force'    => true,
         ];
 
