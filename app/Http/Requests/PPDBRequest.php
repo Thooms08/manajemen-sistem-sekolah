@@ -133,6 +133,11 @@ class PPDBRequest extends FormRequest
         $rules['amount_paid']      = 'nullable|array';
         $rules['amount_paid.*']    = 'nullable|numeric|min:0';
 
+        // Bukti pembayaran PPDB — nullable dari backend agar tidak error
+        // (frontend sudah handle required jika metode non-cash)
+        $rules['bukti_pembayaran']   = 'nullable|array';
+        $rules['bukti_pembayaran.*'] = 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048';
+
         return $rules;
     }
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Dokumen\Dokumen;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Controller;
 
 class DokumenController extends Controller
 {

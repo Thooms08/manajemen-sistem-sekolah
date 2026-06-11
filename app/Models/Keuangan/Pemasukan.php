@@ -18,14 +18,16 @@ class Pemasukan extends Model
         'nominal',
         'qty',
         'total',
+        'edited_at',
         'status',   // 'tersedia' | 'dihapus'
     ];
 
     protected $casts = [
-        'nominal'  => 'integer',
-        'qty'      => 'integer',
-        'total'    => 'integer',
-        'id_murid' => 'integer',
+        'nominal'   => 'integer',
+        'qty'       => 'integer',
+        'total'     => 'integer',
+        'id_murid'  => 'integer',
+        'edited_at' => 'datetime',
     ];
 
     // ── Scope helper ──────────────────────────────────────────────────

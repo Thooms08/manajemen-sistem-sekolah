@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Guru;
-use App\Models\Mapel;
-use App\Models\Kelas;
-use App\Models\Pengajar;
+use App\Models\DataMaster\Guru;
+use App\Models\DataMaster\Mapel;
+use App\Models\DataMaster\Kelas;
+use App\Models\DataMaster\Pengajar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 
 class GuruController extends Controller
 {

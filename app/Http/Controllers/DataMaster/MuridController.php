@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PPDBStoreRequest;
 use App\Http\Requests\PPDBUpdateRequest;
-use App\Models\Murid;
-use App\Models\OrtuMurid;
-use App\Models\WaliMurid;
+use App\Models\DataMaster\Murid;
+use App\Models\DataMaster\OrtuMurid;
+use App\Models\DataMaster\WaliMurid;
 use App\Models\Dokumen\DokumenPpdb;
 use App\Models\Keuangan\BiayaMurid;
 use App\Models\Keuangan\AkunPembayaran;
@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 
 class MuridController extends Controller
 {

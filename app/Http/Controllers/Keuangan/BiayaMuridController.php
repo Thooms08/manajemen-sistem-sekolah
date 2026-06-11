@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Keuangan\BiayaMurid;
 use App\Models\Keuangan\AkunPembayaran;
-use App\Models\ProfileSekolah;
+use App\Models\Informasi\ProfileSekolah;
 
 class BiayaMuridController extends Controller
 {

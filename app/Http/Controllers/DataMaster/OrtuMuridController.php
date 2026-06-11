@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\OrtuMurid;
-use App\Models\Murid;
+use App\Models\DataMaster\OrtuMurid;
+use App\Models\DataMaster\Murid;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class OrtuMuridController extends Controller
 {

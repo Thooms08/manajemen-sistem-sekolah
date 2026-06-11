@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Murid;
+use App\Models\DataMaster\Murid;
 use App\Models\Dokumen\Kelulusan;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class AlumniController extends Controller
 {

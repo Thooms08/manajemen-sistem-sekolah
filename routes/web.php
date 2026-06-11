@@ -19,18 +19,18 @@ use App\Http\Controllers\PPDBController;
 use App\Http\Controllers\{InformasiController, ProfileSekolahController};
 
 //Use: Data Master
-use App\Http\Controllers\{KelasController, OrtuMuridController, WaliMuridController, MuridController, 
-KelulusanController, AlumniController, StaffController, MapelController};
+use App\Http\Controllers\DataMaster\{KelasController, OrtuMuridController, WaliMuridController, MuridController, 
+KelulusanController, AlumniController, StaffController, MapelController, GuruController};
 
 //Use: Keuangan
-use App\Http\Controllers\{AkunPembayaranController, BiayaMuridController};
-use App\Http\Controllers\Keuangan\PemasukanController;
+use App\Http\Controllers\Keuangan\{AkunPembayaranController, BiayaMuridController, PemasukanController,
+PengeluaranController, LaporanKeuanganController};
 
 //Use: Index
 use App\Http\Controllers\AdminPPDBController;
 
 //Use: Dokumen
-use App\Http\Controllers\DokumenController;
+use App\Http\Controllers\Dokumen\DokumenController;
 
 //Use: Pengaturan
 use App\Http\Controllers\PengaturanFormPpdbController;
@@ -50,10 +50,7 @@ use App\Http\Controllers\AkunOrtuController;
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\KeaktifanController;
 
-// =========================================================
-// CONTROLLER: SHARED (Digunakan di lebih dari 1 role)
-// =========================================================
-use App\Http\Controllers\GuruController;
+
 
 
 // =========================================================
@@ -223,15 +220,32 @@ Route::middleware('auth')->group(function () {
         Route::put('/biaya-murid/{id}', [BiayaMuridController::class, 'update'])->name('biaya-murid.update');
         Route::delete('/biaya-murid/{id}', [BiayaMuridController::class, 'destroy'])->name('biaya-murid.destroy');
 
-        // Keuangan: Pemasukan
+        // Keuangan: Pemasukan & Pengeluaran
         Route::prefix('keuangan')->name('keuangan.')->group(function () {
+            // Laporan Keuangan
+            Route::get('/laporan', [LaporanKeuanganController::class, 'index'])->name('laporan.index');
+            Route::get('/laporan/export-excel', [LaporanKeuanganController::class, 'exportExcel'])->name('laporan.export-excel');
+
+            // Pemasukan
             Route::get('/pemasukan', [PemasukanController::class, 'index'])->name('pemasukan.index');
             Route::post('/pemasukan', [PemasukanController::class, 'store'])->name('pemasukan.store');
+            Route::get('/pemasukan/{id}/edit-data', [PemasukanController::class, 'getEditData'])->name('pemasukan.edit-data');
+            Route::post('/pemasukan/{id}/update', [PemasukanController::class, 'update'])->name('pemasukan.update');
             Route::delete('/pemasukan/{id}', [PemasukanController::class, 'destroy'])->name('pemasukan.destroy');
             Route::post('/pemasukan/{id}/restore', [PemasukanController::class, 'restore'])->name('pemasukan.restore');
             Route::get('/pemasukan/search-murid', [PemasukanController::class, 'searchMurid'])->name('pemasukan.search-murid');
             Route::get('/pemasukan/export-excel', [PemasukanController::class, 'exportExcel'])->name('pemasukan.export-excel');
             Route::get('/pemasukan/biaya-detail', [PemasukanController::class, 'getBiayaDetail'])->name('pemasukan.biaya-detail');
+
+            // Pengeluaran
+            Route::get('/pengeluaran', [PengeluaranController::class, 'index'])->name('pengeluaran.index');
+            Route::post('/pengeluaran', [PengeluaranController::class, 'store'])->name('pengeluaran.store');
+            Route::get('/pengeluaran/{id}/edit-data', [PengeluaranController::class, 'getEditData'])->name('pengeluaran.edit-data');
+            Route::post('/pengeluaran/{id}/update', [PengeluaranController::class, 'update'])->name('pengeluaran.update');
+            Route::delete('/pengeluaran/{id}', [PengeluaranController::class, 'destroy'])->name('pengeluaran.destroy');
+            Route::post('/pengeluaran/{id}/restore', [PengeluaranController::class, 'restore'])->name('pengeluaran.restore');
+            Route::get('/pengeluaran/export-excel', [PengeluaranController::class, 'exportExcel'])->name('pengeluaran.export-excel');
+            Route::get('/pengeluaran/bukti/{id}', [PengeluaranController::class, 'viewBukti'])->name('pengeluaran.bukti');
         });
 
         // Manajemen Dokumen

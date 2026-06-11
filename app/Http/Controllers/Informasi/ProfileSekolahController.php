@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ProfileSekolah;
+use App\Models\Informasi\ProfileSekolah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use App\Models\Guru;
-use App\Models\Murid;
+use App\Models\DataMaster\Guru;
+use App\Models\DataMaster\Murid;
+use App\Http\Controllers\Controller;
 
 class ProfileSekolahController extends Controller
 {

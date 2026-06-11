@@ -3,9 +3,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Keuangan\AkunPembayaran;
-use App\Models\ProfileSekolah;
+use App\Models\Informasi\ProfileSekolah;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
+use App\Http\Controllers\Controller;
 
 class AkunPembayaranController extends Controller
 {

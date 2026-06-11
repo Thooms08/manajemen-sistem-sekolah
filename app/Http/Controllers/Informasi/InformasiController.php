@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Dokumentasi;
-use App\Models\ProgramSekolah;
-use App\Models\Prestasi;
-use App\Models\Artikel;
-use App\Models\StudiSekolah;
-use App\Models\InfoSekolah;
+use App\Models\Informasi\Dokumentasi;
+use App\Models\Informasi\ProgramSekolah;
+use App\Models\Informasi\Prestasi;
+use App\Models\Informasi\Artikel;
+use App\Models\Informasi\StudiSekolah;
+use App\Models\Informasi\InfoSekolah;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use App\Http\Controllers\Controller;
 
 class InformasiController extends Controller
 {

@@ -6,6 +6,7 @@ use App\Models\PpdbFormSetting;
 use App\Models\Keuangan\BiayaMurid;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use App\Http\Controllers\Controller;
 
 class PengaturanFormPpdbController extends Controller
 {

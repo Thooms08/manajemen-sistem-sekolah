@@ -282,68 +282,21 @@
                 <i class="bi bi-arrow-down-circle"></i> Pemasukan
             </a>
         </li>
-
-        <li>
-        <a href="#submenuMurid" data-bs-toggle="collapse" 
-        aria-expanded="{{ request()->routeIs('pelanggaran.*') ? 'true' : 'false' }}" 
-        class="dropdown-toggle {{ request()->routeIs('pelanggaran.*') ? 'active' : '' }}">
-            <i class="bi bi-graph-up"></i> Aktifitas Murid
-        </a>
-        <div class="collapse {{ request()->routeIs('pelanggaran.*') ? 'show' : '' }}" id="submenuMurid">
-            <div class="collapse-inner">
-
-                <a href="{{ route('admin.keaktifan.index') }}" 
-                    class="d-block {{ request()->routeIs('keaktifan-admin.*') ? 'active-sub' : '' }}">
-                    Keaktifan
-                </a>
-                
-                <a href="{{ route('pelanggaran.index') }}" 
-                class="d-block {{ request()->routeIs('pelanggaran.*') ? 'active-sub' : '' }}">
-                Pelanggaran
-                </a>
-                
-                <a href="{{ route('admin.arsip.index') }}" 
-                    class="d-block {{ request()->routeIs('admin.arsip.*') ? 'active-sub' : '' }}">
-                    Arsip Absensi
-                    </a>
-            </div>
-    </div>
-</li>
-
-        <li class="{{ request()->routeIs('admin.aktifitas.*') ? 'active' : '' }}">
-            <a href="{{ route('admin.aktifitas.index') }}">
-                <i class="bi bi-journal-check"></i> Aktifitas Guru
+        <li class="{{ request()->routeIs('keuangan.pengeluaran.*') ? 'active' : '' }}">
+            <a href="{{ route('keuangan.pengeluaran.index') }}">
+                <i class="bi bi-arrow-up-circle"></i> Pengeluaran
             </a>
         </li>
-
-        <li class="{{ request()->routeIs('akun-guru.*', 'akun-ortu.*') ? 'active' : '' }}">
-            <a href="#submenuAkun" 
-            data-bs-toggle="collapse" 
-            aria-expanded="{{ request()->routeIs('akun-guru.*', 'akun-ortu.*') ? 'true' : 'false' }}" 
-            class="dropdown-toggle {{ request()->routeIs('akun-guru.*', 'akun-ortu.*') ? 'active' : '' }}">
-                <i class="bi bi-shield-lock"></i> Kelola Akun
+        <li class="{{ request()->routeIs('keuangan.laporan.*') ? 'active' : '' }}">
+            <a href="{{ route('keuangan.laporan.index') }}">
+                <i class="bi bi-bar-chart-line"></i> Laporan Keuangan
             </a>
-
-            <div class="collapse {{ request()->routeIs('akun-guru.*', 'akun-ortu.*') ? 'show' : '' }}" id="submenuAkun">
-                <div class="collapse-inner">
-                    <a href="{{ route('akun-guru.index') }}" 
-                    class="d-block {{ request()->routeIs('akun-guru.*') ? 'active-sub' : '' }}">
-                    <i class="bi bi-person-badge-fill me-2" style="font-size: 0.8rem;"></i> Akun Guru
-                    </a>
-
-                    <a href="{{ route('akun-ortu.index') }}" 
-                    class="d-block {{ request()->routeIs('akun-ortu.*') ? 'active-sub' : '' }}">
-                    <i class="bi bi-person-hearts me-2" style="font-size: 0.8rem;"></i> Akun Ortu Murid
-                    </a>
-                    
-                    <a href="{{ route('akun-pembayaran.index') }}" 
-                    class="d-block {{ request()->routeIs('akun-pembayaran.*') ? 'active-sub' : '' }}">
-                    <i class="bi bi-wallet2 me-2" style="font-size: 0.8rem;"></i> Akun Pembayaran
-                    </a>
-                </div>
-            </div>
         </li>
-    </ul>
+        <li class="{{ request()->routeIs('keuangan.laporan.*') ? 'active' : '' }}">
+            <a href="{{ route('keuangan.laporan.index') }}">
+                <i class="bi bi-bar-chart-line"></i> Kelola Akun Monitoring
+            </a>
+        </li>
 
     <div class="logout-section">
         <form action="{{ route('logout') }}" method="POST" id="logout-form">

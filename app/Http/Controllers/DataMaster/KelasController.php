@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Kelas;
-use App\Models\Murid;
-use App\Models\Guru;
+use App\Models\DataMaster\Kelas;
+use App\Models\DataMaster\Murid;
+use App\Models\DataMaster\Guru;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 
 class KelasController extends Controller
 {

@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Keuangan\Pemasukan;
 use App\Models\Keuangan\BiayaMurid;
 use App\Models\Keuangan\AkunPembayaran;
-use App\Models\Murid;
-use App\Models\ProfileSekolah;
+use App\Models\DataMaster\Murid;
+use App\Models\Informasi\ProfileSekolah;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Rap2hpoutre\FastExcel\FastExcel;
@@ -135,6 +135,82 @@ class PemasukanController extends Controller
 
         return redirect()->route('keuangan.pemasukan.index')
             ->with('success', 'Data pemasukan berhasil disimpan.');
+    }
+
+    /**
+     * AJAX: Ambil data pemasukan untuk form edit.
+     */
+    public function getEditData($id)
+    {
+        $p = Pemasukan::findOrFail($id);
+
+        // Ambil data murid jika ada
+        $murid = null;
+        if ($p->id_murid) {
+            $murid = Murid::select('id', 'nis_baru', 'nisn', 'nama_lengkap')
+                ->find($p->id_murid);
+        }
+
+        return response()->json([
+            'id'                 => $p->id,
+            'jenis_pemasukan'    => $p->jenis_pemasukan,
+            'jenis_biaya_ppdb'   => $p->jenis_biaya_ppdb,
+            'keterangan_lainnya' => $p->keterangan_lainnya,
+            'keterangan_biaya'   => $p->keterangan_biaya,
+            'nominal'            => $p->nominal,
+            'qty'                => $p->qty,
+            'total'              => $p->total,
+            'id_murid'           => $p->id_murid,
+            'murid'              => $murid ? [
+                'id'           => $murid->id,
+                'nama_lengkap' => $murid->nama_lengkap,
+                'nis_baru'     => $murid->nis_baru,
+                'nisn'         => $murid->nisn,
+            ] : null,
+        ]);
+    }
+
+    /**
+     * Update data pemasukan yang sudah ada.
+     */
+    public function update(Request $request, $id)
+    {
+        $pemasukan = Pemasukan::findOrFail($id);
+
+        $request->validate([
+            'jenis_pemasukan' => 'required|string',
+            'nominal'         => 'required|integer|min:1',
+            'qty'             => 'required|integer|min:1',
+            'total'           => 'required|integer|min:1',
+        ]);
+
+        if ($request->jenis_pemasukan === 'biaya_ppdb') {
+            $request->validate([
+                'jenis_biaya_ppdb' => 'required|string',
+                'id_murid'         => 'required|integer',
+            ]);
+        } elseif ($request->jenis_pemasukan === 'lainnya') {
+            $request->validate([
+                'keterangan_lainnya' => 'required|string|max:255',
+            ]);
+        }
+
+        $total = (int) $request->nominal * (int) $request->qty;
+
+        $pemasukan->update([
+            'id_murid'           => $request->jenis_pemasukan === 'biaya_ppdb' ? (int) $request->id_murid : null,
+            'jenis_pemasukan'    => $request->jenis_pemasukan,
+            'jenis_biaya_ppdb'   => $request->jenis_pemasukan === 'biaya_ppdb' ? $request->jenis_biaya_ppdb : null,
+            'keterangan_lainnya' => $request->jenis_pemasukan === 'lainnya'    ? $request->keterangan_lainnya : null,
+            'keterangan_biaya'   => $request->keterangan_biaya ?? null,
+            'nominal'            => (int) $request->nominal,
+            'qty'                => (int) $request->qty,
+            'total'              => $total,
+            'edited_at'          => Carbon::now(),
+        ]);
+
+        return redirect()->route('keuangan.pemasukan.index', ['tab' => 'tersedia'])
+            ->with('success', 'Data pemasukan berhasil diperbarui.');
     }
 
     /**

@@ -9,6 +9,7 @@ use App\Models\WaliMurid;
 use App\Models\Dokumen\DokumenPpdb;
 use App\Models\Keuangan\BiayaMurid;
 use App\Models\Keuangan\AkunPembayaran;
+use App\Models\Keuangan\BuktiPembayaranPpdb;
 use App\Models\PpdbDraft;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -210,7 +211,40 @@ class PPDBController extends Controller
                 DokumenPpdb::create($dokumenData);
             }
 
-            // 5. Hapus draft session setelah berhasil submit (pembersihan async-safe)
+            // 5. Simpan Bukti Pembayaran (jika ada — non-cash QRIS/Transfer)
+            // Backend tidak mewajibkan agar form admin tidak error
+            if ($request->hasFile('bukti_pembayaran')) {
+                $biayas = BiayaMurid::with('account')->orderBy('id')->get();
+
+                foreach ($request->file('bukti_pembayaran') as $biayaId => $file) {
+                    if ($file && $file->isValid()) {
+                        $namaFile = Str::uuid()->toString() . '_' . $file->getClientOriginalName();
+                        $path = $file->storeAs(
+                            'private/bukti_pembayaran_ppdb',
+                            $namaFile,
+                            'local'
+                        );
+
+                        // Cari nama biaya berdasarkan index/id
+                        $namaBiaya = null;
+                        $biayaData = $biayas->firstWhere('id', $biayaId)
+                            ?? $biayas->get((int) $biayaId);
+                        if ($biayaData) {
+                            $namaBiaya = $biayaData->name;
+                        }
+
+                        BuktiPembayaranPpdb::create([
+                            'id_murid'   => $murid->id,
+                            'nama_biaya' => $namaBiaya,
+                            'file_path'  => $path,
+                            'file_name'  => $file->getClientOriginalName(),
+                            'file_size'  => $file->getSize(),
+                        ]);
+                    }
+                }
+            }
+
+            // 6. Hapus draft session setelah berhasil submit (pembersihan async-safe)
             DB::table('ppdb_drafts')
                 ->where('session_id', $request->session()->getId())
                 ->delete();

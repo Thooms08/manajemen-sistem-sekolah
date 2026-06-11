@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Staff;
+use App\Models\DataMaster\Staff;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use App\Http\Controllers\Controller;
 
 class StaffController extends Controller
 {

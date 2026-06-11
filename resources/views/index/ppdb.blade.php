@@ -35,6 +35,15 @@
         .payment-card { border: 1px solid #dee2e6; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
         .payment-card.active { border-color: #198754; background-color: #f8fff9; }
         .payment-card.disabled { background-color: #f8f9fa; border-color: #dee2e6; }
+
+        /* Upload bukti pembayaran */
+        .bukti-upload-area { border: 2px dashed #198754; border-radius: 10px; padding: 14px 16px; background: #f8fff9; margin-top: 14px; }
+        .bukti-upload-area .upload-label { font-size: 0.83rem; font-weight: 600; color: #198754; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .bukti-upload-area input[type="file"] { font-size: 0.83rem; }
+        .bukti-preview-wrap { margin-top: 10px; display: none; }
+        .bukti-preview-wrap img { max-height: 160px; max-width: 100%; border-radius: 8px; border: 2px solid #198754; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .bukti-preview-wrap .btn-hapus-bukti { font-size: 0.75rem; margin-top: 6px; }
+        .bukti-error { font-size: 0.78rem; color: #dc3545; margin-top: 4px; display: none; }
         .qris-image { max-width: 200px; height: auto; }
         input:focus, textarea:focus, select:focus { border-color: #198754 !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;}
     </style>
@@ -460,6 +469,48 @@
                                     @endif
                                 </div>
                             </div>
+
+                            {{-- ── Upload Bukti Pembayaran: hanya muncul untuk QRIS/Transfer ── --}}
+                            @if($biaya->is_active && $biaya->account)
+                            <div class="bukti-upload-area">
+                                <div class="upload-label">
+                                    <i class="bi bi-upload"></i>
+                                    Upload Bukti Pembayaran
+                                    <span class="badge bg-danger ms-1" style="font-size:0.68rem;">Wajib</span>
+                                </div>
+                                <div style="font-size:0.78rem; color:#6c757d; margin-bottom:8px;">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Setelah melakukan pembayaran via
+                                    {{ $biaya->account->is_qris ? 'QRIS' : 'Transfer ('.$biaya->account->bank_name.')' }},
+                                    upload screenshot / foto bukti transfer di sini.
+                                </div>
+                                <input
+                                    type="file"
+                                    name="bukti_pembayaran[{{ $biaya->id }}]"
+                                    id="bukti_{{ $biaya->id }}"
+                                    class="form-control form-control-sm bukti-input"
+                                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                                    data-biaya-id="{{ $biaya->id }}"
+                                    data-biaya-name="{{ $biaya->name }}"
+                                    onchange="handleBuktiUpload(this)"
+                                >
+                                <div class="bukti-error" id="bukti-error-{{ $biaya->id }}">
+                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                    <span></span>
+                                </div>
+                                {{-- Preview gambar --}}
+                                <div class="bukti-preview-wrap" id="bukti-preview-{{ $biaya->id }}">
+                                    <img src="" alt="Preview Bukti" id="bukti-preview-img-{{ $biaya->id }}">
+                                    <br>
+                                    <button type="button" class="btn btn-sm btn-outline-danger btn-hapus-bukti"
+                                            onclick="hapusBukti('{{ $biaya->id }}')">
+                                        <i class="bi bi-trash me-1"></i>Hapus Foto
+                                    </button>
+                                </div>
+                            </div>
+                            @endif
+                            {{-- ── End Upload Bukti ── --}}
+
                         </div>
                     @endforeach
                 @else
@@ -633,6 +684,8 @@
         function showStep5() { if (validateStep(4)) showStep(5); }
         function showStep6() {
             if (validateStep(5)) {
+                // Cek apakah semua bukti pembayaran non-cash sudah diupload
+                if (!validateBuktiPembayaran()) return;
                 generateConfirmationSummary();
                 showStep(6);
             }
@@ -957,6 +1010,118 @@
         
         // Load draft data on page load
         loadDraftData();
+
+        // ════════════════════════════════════════════════════════════════
+        //  UPLOAD BUKTI PEMBAYARAN — QRIS / Transfer
+        // ════════════════════════════════════════════════════════════════
+
+        /**
+         * Dipanggil saat user memilih file pada input bukti pembayaran.
+         * Validasi realtime: hanya gambar, maks 2MB.
+         * Jika valid → tampilkan preview.
+         * Jika tidak valid → tampilkan pesan error, reset input.
+         */
+        function handleBuktiUpload(input) {
+            const biayaId    = input.dataset.biayaId;
+            const errorEl    = document.getElementById('bukti-error-'   + biayaId);
+            const previewWrap= document.getElementById('bukti-preview-' + biayaId);
+            const previewImg = document.getElementById('bukti-preview-img-' + biayaId);
+
+            // Reset state sebelumnya
+            errorEl.style.display    = 'none';
+            errorEl.querySelector('span').textContent = '';
+            previewWrap.style.display = 'none';
+            previewImg.src = '';
+            input.classList.remove('is-invalid', 'is-valid');
+
+            const file = input.files[0];
+            if (!file) return;
+
+            // ── Validasi tipe ───────────────────────────────────────────
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                errorEl.querySelector('span').textContent =
+                    'Format tidak didukung. Gunakan JPG, PNG, atau WEBP.';
+                errorEl.style.display = 'block';
+                input.classList.add('is-invalid');
+                input.value = '';
+                return;
+            }
+
+            // ── Validasi ukuran (maks 2MB) ──────────────────────────────
+            const maxSize = 2 * 1024 * 1024;
+            if (file.size > maxSize) {
+                const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+                errorEl.querySelector('span').textContent =
+                    'Ukuran file ' + sizeMB + 'MB melebihi batas 2MB. Pilih file yang lebih kecil.';
+                errorEl.style.display = 'block';
+                input.classList.add('is-invalid');
+                input.value = '';
+                return;
+            }
+
+            // ── Lolos validasi → baca & tampilkan preview ───────────────
+            input.classList.add('is-valid');
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                previewImg.src        = e.target.result;
+                previewWrap.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        /**
+         * Hapus pilihan file dan sembunyikan preview.
+         */
+        function hapusBukti(biayaId) {
+            const input      = document.getElementById('bukti_' + biayaId);
+            const errorEl    = document.getElementById('bukti-error-'   + biayaId);
+            const previewWrap= document.getElementById('bukti-preview-' + biayaId);
+            const previewImg = document.getElementById('bukti-preview-img-' + biayaId);
+
+            input.value = '';
+            input.classList.remove('is-invalid', 'is-valid');
+            errorEl.style.display     = 'none';
+            previewWrap.style.display = 'none';
+            previewImg.src = '';
+        }
+
+        /**
+         * Validasi sebelum lanjut ke step 6:
+         * Setiap input bukti yang muncul (non-cash) harus sudah diisi.
+         * Kembalikan true jika semua OK, false jika ada yang kosong/error.
+         */
+        function validateBuktiPembayaran() {
+            const inputs  = document.querySelectorAll('#step5 .bukti-input');
+            let allValid  = true;
+
+            inputs.forEach(function (input) {
+                const biayaId  = input.dataset.biayaId;
+                const errorEl  = document.getElementById('bukti-error-' + biayaId);
+
+                // Cek apakah sudah ada file terpilih dan tidak error
+                if (!input.files || input.files.length === 0) {
+                    errorEl.querySelector('span').textContent =
+                        'Bukti pembayaran wajib diupload untuk metode QRIS / Transfer.';
+                    errorEl.style.display = 'block';
+                    input.classList.add('is-invalid');
+                    allValid = false;
+                } else if (input.classList.contains('is-invalid')) {
+                    // Ada file tapi tidak lolos validasi sebelumnya (ukuran/tipe)
+                    allValid = false;
+                }
+            });
+
+            if (!allValid) {
+                // Scroll ke input pertama yang bermasalah
+                const firstInvalid = document.querySelector('#step5 .bukti-input.is-invalid');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            return allValid;
+        }
     </script>
 </body>
 </html>

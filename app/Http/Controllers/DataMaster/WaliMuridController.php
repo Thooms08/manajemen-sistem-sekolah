@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\WaliMurid;
-use App\Models\Murid;
+use App\Models\DataMaster\WaliMurid;
+use App\Models\MasterData\Murid;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class WaliMuridController extends Controller
 {
