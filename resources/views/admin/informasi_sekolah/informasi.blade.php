@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Informasi Sekolah</title>
     @if(isset($sekolah->logo))
-    <link rel="icon" type="image/png" href="{{ asset($sekolah->logo) }}">
+    <link rel="icon" type="image/png" href="{{ \App\Helpers\ImageHelper::url($sekolah->logo) }}">
     @else
     <link rel="icon" type="image/png" href="{{ asset('assets/img/default-favicon.png') }}">
     @endif
@@ -143,7 +143,7 @@
                                 <tbody>
                                     @foreach($kegiatan as $k)
                                     <tr>
-                                        <td><img src="{{ asset($k->foto_kegiatan) }}" class="img-thumbnail-custom shadow-sm"></td>
+                                        <td><img src="{{ \App\Helpers\ImageHelper::url($k->foto_kegiatan) }}" class="img-thumbnail-custom shadow-sm"></td>
                                         <td>{{ $k->label_foto }}</td>
                                         <td>
                                             <button class="btn btn-sm btn-outline-success me-1"
@@ -248,7 +248,7 @@
                                     <tr>
                                         <td>
                                             @if($pres->foto_prestasi && $pres->foto_prestasi !== '-')
-                                                <img src="{{ asset($pres->foto_prestasi) }}" 
+                                                <img src="{{ \App\Helpers\ImageHelper::url($pres->foto_prestasi) }}" 
                                                     width="80" height="60" 
                                                     class="rounded object-fit-cover shadow-sm" alt="Foto Prestasi">
                                             @else
@@ -327,7 +327,7 @@
                                     <tr>
                                        <td>
                                             @if($art->foto_artikel)
-                                                <img src="{{ asset($art->foto_artikel) }}" 
+                                                <img src="{{ \App\Helpers\ImageHelper::url($art->foto_artikel) }}" 
                                                     class="img-thumbnail-custom shadow-sm" 
                                                     style="width: 120px; height: 80px; object-fit: cover;">
                                             @else
@@ -483,7 +483,7 @@
                             <div class="col-12">
                                 @if($infoSekolah && $infoSekolah->foto_kepala_sekolah)
                                 <div class="d-flex align-items-center gap-3 p-3 border rounded bg-light">
-                                    <img id="preview-kepala" src="{{ asset($infoSekolah->foto_kepala_sekolah) }}"
+                                    <img id="preview-kepala" src="{{ \App\Helpers\ImageHelper::url($infoSekolah->foto_kepala_sekolah) }}"
                                         class="foto-kepala-preview shadow-sm" alt="Foto Kepala Sekolah" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%;">
                                     <div>
                                         <p class="mb-1 fw-semibold">Foto saat ini</p>

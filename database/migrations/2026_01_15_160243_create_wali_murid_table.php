@@ -11,22 +11,14 @@ return new class extends Migration
         Schema::create('wali_murid', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_murid')->constrained('murid')->onDelete('cascade');
-            // Data Ayah
-            $table->string('nama_ayah');
-            $table->string('tempat_lahir_ayah');
-            $table->date('tgl_lahir_ayah');
-            $table->string('pendidikan_ayah');
-            $table->string('pekerjaan_ayah');
-            $table->decimal('penghasilan_ayah', 15, 2);
-            $table->enum('status_ayah', ['hidup', 'meninggal']);
-            // Data Ibu
-            $table->string('nama_ibu');
-            $table->string('tempat_lahir_ibu');
-            $table->date('tgl_lahir_ibu');
-            $table->string('pendidikan_ibu');
-            $table->string('pekerjaan_ibu');
-            $table->decimal('penghasilan_ibu', 15, 2);
-            $table->enum('status_ibu', ['hidup', 'meninggal']);
+            $table->string('nama_wali');
+            $table->string('tempat_lahir_wali')->nullable();
+            $table->date('tgl_lahir_wali')->nullable();
+            $table->string('pendidikan_wali')->nullable();
+            $table->string('pekerjaan_wali')->nullable();
+            $table->decimal('penghasilan_wali', 15, 2)->nullable();
+            $table->enum('status_wali', ['hidup', 'meninggal'])->nullable();
+            $table->string('hubungan_wali')->nullable();
             $table->timestamps();
         });
     }

@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Kelas;
-use App\Models\Prestasi;
-use App\Models\Artikel;
-use App\Models\ProgramSekolah;
-use App\Models\Dokumentasi;
-use App\Models\InfoSekolah;
-use App\Models\Murid;
-use App\Models\Guru;
+use App\Models\DataMaster\Kelas;
+use App\Models\Informasi\Prestasi;
+use App\Models\Informasi\Artikel;
+use App\Models\Informasi\ProgramSekolah;
+use App\Models\Informasi\Dokumentasi;
+use App\Models\Informasi\InfoSekolah;
+use App\Models\DataMaster\Murid;
+use App\Models\DataMaster\Guru;
 use Illuminate\Support\Facades\DB;
 
 class IndexController extends Controller

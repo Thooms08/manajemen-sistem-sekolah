@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $sekolah->nama_sekolah ?? 'Website Sekolah' }}</title>
     
-    <link rel="icon" type="image/png" href="{{ asset($sekolah->logo) }}">
+    <link rel="icon" type="image/png" href="{{ \App\Helpers\ImageHelper::url($sekolah->logo) }}">
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -148,7 +148,7 @@
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="#">
-                <img src="{{ asset($sekolah->logo) }}" alt="Logo" width="40" class="me-2">
+                <img src="{{ \App\Helpers\ImageHelper::url($sekolah->logo) }}" alt="Logo" width="40" class="me-2">
                 <span class="fw-bold text-success" style="font-size: 16px;">{{ $sekolah->nama_sekolah ?? 'SEKOLAH KAMI' }}</span>
             </a>
             <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -170,7 +170,6 @@
                             @php
                                 $dashboardUrl = match(auth()->user()->role) {
                                     'admin' => url('admin'),
-                                    'guru'  => url('dashboard_guru'),
                                     default => url('/'),
                                 };
                             @endphp
@@ -192,7 +191,7 @@
         <div class="carousel-inner">
             @foreach($kegiatan as $key => $item)
             <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
-                <img src="{{ asset($item->foto_kegiatan) }}" class="d-block w-100" alt="Slide">
+                <img src="{{ \App\Helpers\ImageHelper::url($item->foto_kegiatan) }}" class="d-block w-100" alt="Slide">
                 <div class="carousel-caption">
                     <div class="container">
                         <span class="badge bg-success mb-3 px-3 py-2 rounded-pill shadow-sm">Update Kegiatan</span>
@@ -234,7 +233,7 @@
                 </div>
                 <div class="col-lg-6">
                     <div class="position-relative">
-                        <img src="{{ asset($sekolah->foto_sekolah) }}" class="img-fluid rounded-5 shadow-lg" alt="Gedung Sekolah" style="width: 100%; height: 400px; object-fit: cover;">
+                        <img src="{{ \App\Helpers\ImageHelper::url($sekolah->foto_sekolah) }}" class="img-fluid rounded-5 shadow-lg" alt="Gedung Sekolah" style="width: 100%; height: 400px; object-fit: cover;">
                         <div class="bg-success position-absolute bottom-0 start-0 p-4 m-4 rounded-4 text-white d-none d-md-block shadow">
                             <h4 class="fw-bold mb-0">Unggul & Cerdas</h4>
                             <small>Membangun Karakter Bangsa</small>
@@ -313,7 +312,7 @@
                 <div class="col-md-4">
                     <div class="card h-100 shadow-sm border">
                         @if($pres->foto_prestasi && $pres->foto_prestasi !== '-')
-                            <img src="{{ asset($pres->foto_prestasi) }}" class="card-img-top img-card-custom" alt="Prestasi">
+                            <img src="{{ \App\Helpers\ImageHelper::url($pres->foto_prestasi) }}" class="card-img-top img-card-custom" alt="Prestasi">
                         @endif
                         <div class="card-body p-4">
                             <h5 class="fw-bold">{{ $pres->judul_prestasi }}</h5>
@@ -354,7 +353,7 @@
                 <div class="col-md-4">
                     <div class="card h-100 shadow-sm border">
                         @if($art->foto_artikel)
-                            <img src="{{ asset($art->foto_artikel) }}" class="card-img-top img-card-custom" alt="Berita">
+                            <img src="{{ \App\Helpers\ImageHelper::url($art->foto_artikel) }}" class="card-img-top img-card-custom" alt="Berita">
                         @endif
                         <div class="card-body p-4">
                             <small class="text-success fw-bold d-block mb-2">{{ $art->created_at->format('d M Y') }}</small>
@@ -374,7 +373,7 @@
             <div class="row g-5">
                 <div class="col-lg-4">
                     <div class="d-flex align-items-center mb-4">
-                        <img src="{{ asset($sekolah->logo) }}" width="50" class="me-3 bg-white p-1 rounded-circle">
+                        <img src="{{ \App\Helpers\ImageHelper::url($sekolah->logo) }}" width="50" class="me-3 bg-white p-1 rounded-circle">
                         <h5 class="mb-0">{{ $sekolah->nama_sekolah }}</h5>
                     </div>
                     <p class="small lh-lg">{{ $sekolah->deskripsi }}</p>

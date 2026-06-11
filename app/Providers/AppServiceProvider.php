@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
@@ -49,6 +50,11 @@ class AppServiceProvider extends ServiceProvider
                 'akreditasi' => 'Belum diatur',
                 'foto_sekolah' => null,
             ]);
+        });
+
+        // Blade directive: @imgUrl($path) — otomatis resolve path lama (public/assets) dan baru (storage/public)
+        \Illuminate\Support\Facades\Blade::directive('imgUrl', function ($expression) {
+            return "<?php echo \\App\\Helpers\\ImageHelper::url($expression); ?>";
         });
     }
 }

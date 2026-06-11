@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Pengaturan;
 
 use App\Models\PpdbFormSetting;
 use App\Models\Keuangan\BiayaMurid;

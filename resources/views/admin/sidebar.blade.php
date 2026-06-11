@@ -32,7 +32,7 @@
     #sidebar .sidebar-header {
         padding: 20px;
         background: var(--sidebar-header);
-        border-bottom: 1px solid rgba(255,255,255,0.1);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -98,7 +98,7 @@
 
     /* Section Logout di paling bawah */
     .logout-section {
-        border-top: 1px solid rgba(255,255,255,0.1);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
         padding: 15px;
     }
 
@@ -119,21 +119,22 @@
         background: rgba(255, 77, 77, 0.1);
         color: #ff4d4d;
     }
+
     /* Gaya untuk link sub-menu yang aktif */
-.collapse-inner a.active-sub {
-    color: #198754 !important; /* Warna hijau */
-    font-weight: bold;
-    background-color: rgba(25, 135, 84, 0.1);
-    border-radius: 5px;
-    padding-left: 10px;
-}
+    .collapse-inner a.active-sub {
+        color: #198754 !important; /* Warna hijau */
+        font-weight: bold;
+        background-color: rgba(25, 135, 84, 0.1);
+        border-radius: 5px;
+        padding-left: 10px;
+    }
 
-/* Gaya untuk parent dropdown saat aktif */
-.dropdown-toggle.active {
-    background-color: rgba(25, 135, 84, 0.05);
-}
+    /* Gaya untuk parent dropdown saat aktif */
+    .dropdown-toggle.active {
+        background-color: rgba(25, 135, 84, 0.05);
+    }
 
-.badge-notif {
+    .badge-notif {
         background: #ff4d4d;
         color: white;
         padding: 2px 8px;
@@ -188,11 +189,13 @@
                 <i class="bi bi-building"></i> Profile Sekolah
             </a>
         </li>
-       <li class="{{ request()->routeIs('informasi.*') ? 'active' : '' }}">
+
+        <li class="{{ request()->routeIs('informasi.*') ? 'active' : '' }}">
             <a href="{{ route('informasi.index') }}">
                 <i class="bi bi-info-circle"></i> Kelola Informasi
             </a>
         </li>
+
         <li class="{{ request()->routeIs('admin.ppdb.*') ? 'active' : '' }}">
             <a href="{{ route('admin.ppdb.index') }}" class="d-flex align-items-center w-100">
                 <i class="bi bi-bell"></i> 
@@ -200,13 +203,66 @@
                 <span id="ppdb-badge" class="badge-notif" style="display: none;">0</span>
             </a>
         </li>
+
         <li class="{{ request()->routeIs('murid.create') ? 'active' : '' }}">
             <a href="{{ route('murid.create') }}" class="d-flex align-items-center w-100">
-                <i class="bi bi-person-plus"></i> 
+                <i class="bi bi-person-plus"></i>
                 <span>PPDB</span>
-                <span id="ppdb-badge" class="badge-notif" style="display: none;">0</span>
             </a>
         </li>
+
+        <li class="px-3 mt-4 mb-2">
+            <small class="text-uppercase fw-bold" style="font-size: 0.85rem; letter-spacing: 1px; color: rgba(255,255,255,0.6);">Data Master</small>
+        </li>
+
+        <li class="{{ Request::is('guru*') ? 'active' : '' }}">
+            <a href="{{ route('guru.index') }}">
+                <i class="bi bi-person-badge"></i> Data Guru
+            </a>
+        </li>
+
+        <li class="{{ Request::is('mapel*') ? 'active' : '' }}">
+            <a href="{{ route('mapel.index') }}">
+                <i class="bi bi-person-badge"></i> Data Mapel
+            </a>
+        </li>
+
+        <li class="{{ Request::is('staff*') ? 'active' : '' }}">
+            <a href="{{ route('staff.index') }}">
+                <i class="bi bi-person-badge"></i> Data Staff
+            </a>
+        </li>
+
+        <li class="{{ request()->routeIs('murid.*') ? 'active' : '' }}">
+            <a href="{{ route('murid.index') }}">
+                <i class="bi bi-people"></i> Data Murid
+            </a>
+        </li>
+
+        <li class="{{ request()->routeIs('ortu-murid.*') ? 'active' : '' }}">
+            <a href="{{ route('ortu-murid.index') }}">
+                <i class="bi bi-person-hearts"></i> Data Ortu Murid
+            </a>
+        </li>
+
+        <li class="{{ request()->routeIs('wali-murid.*') ? 'active' : '' }}">
+            <a href="{{ route('wali-murid.index') }}">
+                <i class="bi bi-person-hearts"></i> Data Wali Murid
+            </a>
+        </li>
+
+        <li class="{{ request()->routeIs('kelulusan.*') ? 'active' : '' }}">
+            <a href="{{ route('kelulusan.index') }}">
+                <i class="bi bi-people-fill"></i> Data Kelulusan
+            </a>
+        </li>
+
+        <li class="{{ request()->routeIs('alumni.*') ? 'active' : '' }}">
+            <a href="{{ route('alumni.index') }}">
+                <i class="bi bi-people-fill"></i> Data Alumni
+            </a>
+        </li>
+
         <li class="{{ Request::is('kelas*') ? 'active' : '' }}">
             <a href="{{ route('kelas.index') }}">
                 <i class="bi bi-door-open"></i> Kelola Kelas
@@ -214,67 +270,23 @@
         </li>
 
         <li class="px-3 mt-4 mb-2">
-            <small class="text-uppercase fw-bold" style="font-size: 1rem; letter-spacing: 1px; color:white;">Data Master</small>
+            <small class="text-uppercase fw-bold" style="font-size: 0.85rem; letter-spacing: 1px; color: rgba(255,255,255,0.6);">Dokumen</small>
         </li>
 
-       <li class="{{ Request::is('guru*') ? 'active' : '' }}">
-            <a href="{{ route('guru.index') }}">
-                <i class="bi bi-person-badge"></i> Data Guru
-            </a>
-        </li>
-        <li class="{{ Request::is('mapel*') ? 'active' : '' }}">
-            <a href="{{ route('mapel.index') }}">
-                <i class="bi bi-person-badge"></i> Data Mapel
-            </a>
-        </li>
-        <li class="{{ Request::is('staff*') ? 'active' : '' }}">
-            <a href="{{ route('staff.index') }}">
-                <i class="bi bi-person-badge"></i> Data Staff
-            </a>
-        </li>
-        <li class="{{ request()->routeIs('murid.*') ? 'active' : '' }}">
-            <a href="{{ route('murid.index') }}">
-                <i class="bi bi-people"></i> Data Murid
-            </a>
-        </li>
-        <li class="{{ request()->routeIs('ortu-murid.*') ? 'active' : '' }}">
-            <a href="{{ route('ortu-murid.index') }}">
-                <i class="bi bi-person-hearts"></i> Data Ortu Murid
-            </a>
-        </li>
-        <li class="{{ request()->routeIs('wali-murid.*') ? 'active' : '' }}">
-            <a href="{{ route('wali-murid.index') }}">
-                <i class="bi bi-person-hearts"></i> Data Wali Murid
-            </a>
-        </li>
-        <li class="{{ request()->routeIs('kelulusan.*') ? 'active' : '' }}">
-            <a href="{{ route('kelulusan.index') }}">
-                <i class="bi bi-people-fill"></i> Data Kelulusan
-            </a>
-        </li>
-        <li class="{{ request()->routeIs('alumni.*') ? 'active' : '' }}">
-            <a href="{{ route('alumni.index') }}">
-                <i class="bi bi-people-fill"></i> Data Alumni
-            </a>
-        </li>
-         <li class="{{ request()->routeIs('dokumen.*') ? 'active' : '' }}">
+        <li class="{{ request()->routeIs('dokumen.*') ? 'active' : '' }}">
             <a href="{{ route('dokumen.index') }}">
                 <i class="bi bi-people-fill"></i> Manajemen Dokumen
             </a>
         </li>
-        <li class="{{ request()->routeIs('admin.pengaturan-form-ppdb.*') ? 'active' : '' }}">
-            <a href="{{ route('admin.pengaturan-form-ppdb') }}">
-                <i class="bi bi-gear"></i> Pengaturan Form PPDB
-            </a>
+
+        <li class="px-3 mt-4 mb-2">
+            <small class="text-uppercase fw-bold" style="font-size: 0.85rem; letter-spacing: 1px; color: rgba(255,255,255,0.6);">Keuangan</small>
         </li>
+
         <li class="{{ $menu_biaya }}">
             <a href="{{ route('biaya-murid.index') }}">
                 <i class="bi bi-cash-stack"></i> Biaya Murid
             </a>
-        </li>
-
-        <li class="px-3 mt-4 mb-2">
-            <small class="text-uppercase fw-bold" style="font-size: 1rem; letter-spacing: 1px; color:white;">Keuangan</small>
         </li>
 
         <li class="{{ request()->routeIs('keuangan.pemasukan.*') ? 'active' : '' }}">
@@ -282,21 +294,29 @@
                 <i class="bi bi-arrow-down-circle"></i> Pemasukan
             </a>
         </li>
+
         <li class="{{ request()->routeIs('keuangan.pengeluaran.*') ? 'active' : '' }}">
             <a href="{{ route('keuangan.pengeluaran.index') }}">
                 <i class="bi bi-arrow-up-circle"></i> Pengeluaran
             </a>
         </li>
+
         <li class="{{ request()->routeIs('keuangan.laporan.*') ? 'active' : '' }}">
             <a href="{{ route('keuangan.laporan.index') }}">
                 <i class="bi bi-bar-chart-line"></i> Laporan Keuangan
             </a>
         </li>
-        <li class="{{ request()->routeIs('keuangan.laporan.*') ? 'active' : '' }}">
-            <a href="{{ route('keuangan.laporan.index') }}">
-                <i class="bi bi-bar-chart-line"></i> Kelola Akun Monitoring
+
+        <li class="px-3 mt-4 mb-2">
+            <small class="text-uppercase fw-bold" style="font-size: 0.85rem; letter-spacing: 1px; color: rgba(255,255,255,0.6);">Pengaturan</small>
+        </li>
+
+        <li class="{{ request()->routeIs('admin.pengaturan-form-ppdb.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.pengaturan-form-ppdb') }}">
+                <i class="bi bi-gear"></i> Pengaturan Form PPDB
             </a>
         </li>
+    </ul>
 
     <div class="logout-section">
         <form action="{{ route('logout') }}" method="POST" id="logout-form">
@@ -308,29 +328,14 @@
         </form>
     </div>
 </nav>
+
 @include('loading')
+
 <script>
     /**
-     * Fungsi Terpusat untuk Memperbarui Semua Badge Notifikasi
+     * Fungsi Terpusat untuk Memperbarui Badge Notifikasi PPDB
      */
     function updateAllBadges() {
-        // 1. Update Badge Konfirmasi Pelanggaran
-        fetch("{{ route('admin.pelanggaran.count') }}")
-            .then(response => response.json())
-            .then(data => {
-                const badge = document.getElementById('notif-count');
-                if (badge) {
-                    if (data.count > 0) {
-                        badge.innerText = data.count;
-                        badge.style.display = 'block';
-                    } else {
-                        badge.style.display = 'none';
-                    }
-                }
-            })
-            .catch(error => console.error('Error Pelanggaran Badge:', error));
-
-        // 2. Update Badge Notifikasi PPDB
         fetch("{{ route('admin.ppdb.count') }}")
             .then(response => response.json())
             .then(data => {
@@ -366,13 +371,14 @@
             }
         };
 
-        if(closeBtn) {
+        if (closeBtn) {
             closeBtn.addEventListener('click', function() {
                 sidebar.classList.remove('show-mobile');
             });
         }
     });
     
+    // Konfirmasi SweetAlert2 sebelum logout
     function confirmLogout() {
         Swal.fire({
             title: 'Yakin ingin log out?',

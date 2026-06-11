@@ -2,7 +2,7 @@
 
 namespace App\Models\Dokumen;
 
-use App\Models\Murid;
+use App\Models\DataMaster\Murid;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 

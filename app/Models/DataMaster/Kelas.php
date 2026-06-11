@@ -1,5 +1,5 @@
 <?php
-namespace App\Models;
+namespace App\Models\DataMaster;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,6 +22,6 @@ class Kelas extends Model
 
     public function pengajars()
     {
-        return $this->hasMany(\App\Models\Pengajar::class, 'id_kelas');
+        return $this->hasMany(Pengajar::class, 'id_kelas');
     }
 }

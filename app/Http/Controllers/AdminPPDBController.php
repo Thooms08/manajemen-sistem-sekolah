@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Murid;
+use App\Models\DataMaster\Murid;
 use App\Models\PpdbFormSetting;
 use App\Models\Keuangan\BiayaMurid;
 use Illuminate\Http\Request;

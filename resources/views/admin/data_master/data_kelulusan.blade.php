@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Data Kelulusan Murid</title>
     @if(isset($sekolah->logo))
-    <link rel="icon" type="image/png" href="{{ asset($sekolah->logo) }}">
+    <link rel="icon" type="image/png" href="{{ \App\Helpers\ImageHelper::url($sekolah->logo) }}">
     @else
     <link rel="icon" type="image/png" href="{{ asset('assets/img/default-favicon.png') }}">
     @endif

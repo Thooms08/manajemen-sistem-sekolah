@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $artikel->judul }} | {{ $sekolah->nama_sekolah ?? 'Website Sekolah' }}</title>
     
-    <link rel="icon" type="image/png" href="{{ asset($sekolah->logo) }}">
+    <link rel="icon" type="image/png" href="{{ \App\Helpers\ImageHelper::url($sekolah->logo) }}">
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -89,7 +89,7 @@
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="/">
-                <img src="{{ asset($sekolah->logo) }}" alt="Logo" width="40" class="me-2">
+                <img src="{{ \App\Helpers\ImageHelper::url($sekolah->logo) }}" alt="Logo" width="40" class="me-2">
                 <span class="fw-bold text-success" style="font-size: 16px;">{{ $sekolah->nama_sekolah ?? 'SEKOLAH KAMI' }}</span>
             </a>
             <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -111,7 +111,6 @@
                             @php
                                 $dashboardUrl = match(auth()->user()->role) {
                                     'admin' => url('admin'),
-                                    'guru'  => url('dashboard_guru'),
                                     default => url('/'),
                                 };
                             @endphp
@@ -149,7 +148,7 @@
 
                 @if($artikel->foto_artikel)
                     <div class="mb-5 shadow-sm rounded-4 overflow-hidden">
-                        <img src="{{ asset($artikel->foto_artikel) }}" class="img-detail-custom" alt="{{ $artikel->judul }}">
+                        <img src="{{ \App\Helpers\ImageHelper::url($artikel->foto_artikel) }}" class="img-detail-custom" alt="{{ $artikel->judul }}">
                     </div>
                 @endif
 
@@ -165,7 +164,7 @@
             <div class="row g-5">
                 <div class="col-lg-4">
                     <div class="d-flex align-items-center mb-4">
-                        <img src="{{ asset($sekolah->logo) }}" width="50" class="me-3 bg-white p-1 rounded-circle">
+                        <img src="{{ \App\Helpers\ImageHelper::url($sekolah->logo) }}" width="50" class="me-3 bg-white p-1 rounded-circle">
                         <h5 class="mb-0">{{ $sekolah->nama_sekolah }}</h5>
                     </div>
                     <p class="small lh-lg">{{ $sekolah->deskripsi }}</p>

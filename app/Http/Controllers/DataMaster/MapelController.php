@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\DataMaster;
 
 use App\Models\DataMaster\Mapel;
 use Illuminate\Http\Request;

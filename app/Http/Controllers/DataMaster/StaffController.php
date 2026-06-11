@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\DataMaster;
 
 use App\Models\DataMaster\Staff;
 use Illuminate\Http\Request;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Dokumen;
 
 use Illuminate\Http\Request;
 use App\Models\Dokumen\Dokumen;

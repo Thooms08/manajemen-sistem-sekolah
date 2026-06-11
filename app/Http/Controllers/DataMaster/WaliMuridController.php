@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\DataMaster;
 
 use App\Models\DataMaster\WaliMurid;
-use App\Models\MasterData\Murid;
+use App\Models\DataMaster\Murid;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 

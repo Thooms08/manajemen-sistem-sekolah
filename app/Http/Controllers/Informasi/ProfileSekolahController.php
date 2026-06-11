@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Informasi;
 
 use App\Models\Informasi\ProfileSekolah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use App\Models\DataMaster\Guru;
 use App\Models\DataMaster\Murid;
 use App\Http\Controllers\Controller;
@@ -18,75 +19,60 @@ class ProfileSekolahController extends Controller
     }
 
     public function store(Request $request)
-{
-    $request->validate([
-        'nama_sekolah' => 'required|string|max:255',
-        'nis'          => 'required|string|max:50',
-        'logo'         => 'required|image|mimes:jpeg,png,jpg|max:2048',
-        'foto_sekolah' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-        'deskripsi'    => 'required',
-        'email'        => 'required|email',
-        'no_hp'        => 'nullable',
-        'akreditasi'   => 'nullable',
-        'tautan_google_maps' => 'nullable',
-        'alamat'       => 'nullable',
-    ]);
+    {
+        $request->validate([
+            'nama_sekolah' => 'required|string|max:255',
+            'nis'          => 'required|string|max:50',
+            'logo'         => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_sekolah' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'deskripsi'    => 'required',
+            'email'        => 'required|email',
+            'no_hp'        => 'nullable',
+            'akreditasi'   => 'nullable',
+            'tautan_google_maps' => 'nullable',
+            'alamat'       => 'nullable',
+        ]);
 
-    $data = $request->all();
+        $data = $request->except(['logo', 'foto_sekolah']);
 
-    // Pastikan folder exist
-    if (!File::exists(public_path('assets/logos'))) {
-        File::makeDirectory(public_path('assets/logos'), 0755, true);
-    }
-    if (!File::exists(public_path('assets/fotos'))) {
-        File::makeDirectory(public_path('assets/fotos'), 0755, true);
-    }
+        // Upload Logo ke storage/app/public/logos/
+        if ($request->hasFile('logo')) {
+            $logoName = time() . '_logo.' . $request->logo->extension();
+            $data['logo'] = $request->logo->storeAs('logos', $logoName, 'public');
+        }
 
-    // Upload Logo
-    if ($request->hasFile('logo')) {
-        $logoName = time() . '_logo.' . $request->logo->extension();
-        $request->logo->move(public_path('assets/logos'), $logoName);
-        $data['logo'] = 'assets/logos/' . $logoName;
-    }
+        // Upload Foto Sekolah ke storage/app/public/fotos/
+        if ($request->hasFile('foto_sekolah')) {
+            $fotoName = time() . '_foto.' . $request->foto_sekolah->extension();
+            $data['foto_sekolah'] = $request->foto_sekolah->storeAs('fotos', $fotoName, 'public');
+        }
 
-    // Upload Foto Sekolah
-    if ($request->hasFile('foto_sekolah')) {
-        $fotoName = time() . '_foto.' . $request->foto_sekolah->extension();
-        $request->foto_sekolah->move(public_path('assets/fotos'), $fotoName);
-        $data['foto_sekolah'] = 'assets/fotos/' . $fotoName;
+        ProfileSekolah::create($data);
+
+        return redirect()->back()->with('success', 'Data berhasil ditambahkan!');
     }
 
-    ProfileSekolah::create($data);
-
-    return redirect()->back()->with('success', 'Data berhasil ditambahkan!');
-}
     public function update(Request $request, $id)
     {
         $profile = ProfileSekolah::findOrFail($id);
-        
+
         $request->validate([
             'nama_sekolah' => 'required|string|max:255',
-            'nis' => 'required|string|max:50',
+            'nis'          => 'required|string|max:50',
         ]);
 
-        $data = $request->all();
+        $data = $request->except(['logo', 'foto_sekolah']);
 
         if ($request->hasFile('logo')) {
-            if (File::exists(public_path($profile->logo))) {
-                File::delete(public_path($profile->logo));
-            }
+            $this->deleteStorageFile($profile->logo);
             $logoName = time() . '_logo.' . $request->logo->extension();
-            $request->logo->move(public_path('assets/logos'), $logoName);
-            $data['logo'] = 'assets/logos/' . $logoName;
+            $data['logo'] = $request->logo->storeAs('logos', $logoName, 'public');
         }
 
         if ($request->hasFile('foto_sekolah')) {
-            if (File::exists(public_path($profile->foto_sekolah))) {
-                File::delete(public_path($profile->foto_sekolah));
-            }
+            $this->deleteStorageFile($profile->foto_sekolah);
             $fotoName = time() . '_foto.' . $request->foto_sekolah->extension();
-            $request->foto_sekolah->move(public_path('assets/fotos'), $fotoName);
-            $data['foto_sekolah'] = 'assets/fotos/' . $fotoName;
+            $data['foto_sekolah'] = $request->foto_sekolah->storeAs('fotos', $fotoName, 'public');
         }
 
         $profile->update($data);
@@ -97,31 +83,49 @@ class ProfileSekolahController extends Controller
     public function destroy($id)
     {
         $profile = ProfileSekolah::findOrFail($id);
-        
-        if (File::exists(public_path($profile->logo))) File::delete(public_path($profile->logo));
-        if (File::exists(public_path($profile->foto_sekolah))) File::delete(public_path($profile->foto_sekolah));
-        
+
+        $this->deleteStorageFile($profile->logo);
+        $this->deleteStorageFile($profile->foto_sekolah);
+
         $profile->delete();
         return redirect()->back()->with('success', 'Data berhasil dihapus!');
     }
 
-    // Tambahkan method ini di dalam class ProfileSekolahController
-public function deleteImage(Request $request, $id)
-{
-    $profile = ProfileSekolah::findOrFail($id);
-    $type = $request->query('type'); // 'logo' atau 'foto_sekolah'
+    public function deleteImage(Request $request, $id)
+    {
+        $profile = ProfileSekolah::findOrFail($id);
+        $type    = $request->query('type'); // 'logo' atau 'foto_sekolah'
 
-    if (in_array($type, ['logo', 'foto_sekolah'])) {
-        if ($profile->$type && File::exists(public_path($profile->$type))) {
-            File::delete(public_path($profile->$type));
+        if (in_array($type, ['logo', 'foto_sekolah'])) {
+            $this->deleteStorageFile($profile->$type);
+            $profile->$type = null;
+            $profile->save();
+
+            return response()->json(['success' => true, 'message' => ucfirst($type) . ' berhasil dihapus']);
         }
-        
-        $profile->$type = null; // Set kolom jadi null di DB
-        $profile->save();
 
-        return response()->json(['success' => true, 'message' => ucfirst($type) . ' berhasil dihapus']);
+        return response()->json(['success' => false, 'message' => 'Tipe tidak valid'], 400);
     }
 
-    return response()->json(['success' => false, 'message' => 'Tipe tidak valid'], 400);
-}
+    /**
+     * Hapus file dari storage — mendukung path lama (assets/...) maupun path baru.
+     */
+    private function deleteStorageFile(?string $path): void
+    {
+        if (!$path) return;
+
+        if (str_starts_with($path, 'assets/')) {
+            // File lama masih di public/assets/
+            $fullPath = public_path($path);
+            if (File::exists($fullPath)) {
+                File::delete($fullPath);
+            }
+            return;
+        }
+
+        // File baru di storage/app/public/
+        if (Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+        }
+    }
 }

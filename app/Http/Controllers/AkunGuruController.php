@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\Guru;
+use App\Models\DataMaster\Guru;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 

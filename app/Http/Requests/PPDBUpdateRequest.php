@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Murid;
+use App\Models\DataMaster\Murid;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 

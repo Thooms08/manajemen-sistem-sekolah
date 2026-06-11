@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Sekolah</title>
     @if(isset($sekolah->logo))
-    <link rel="icon" type="image/png" href="{{ asset($sekolah->logo) }}">
+    <link rel="icon" type="image/png" href="{{ \App\Helpers\ImageHelper::url($sekolah->logo) }}">
     @else
     <link rel="icon" type="image/png" href="{{ asset('assets/img/default-favicon.png') }}">
     @endif
@@ -380,7 +380,7 @@
                             {{-- Hero --}}
                             <div class="profile-hero">
                                 @if($p->foto_sekolah)
-                                    <img class="hero-foto" src="{{ asset($p->foto_sekolah) }}" alt="Foto Sekolah">
+                                    <img class="hero-foto" src="{{ \App\Helpers\ImageHelper::url($p->foto_sekolah) }}" alt="Foto Sekolah">
                                 @endif
                                 <div class="hero-overlay"></div>
                                 @if($p->akreditasi)
@@ -388,7 +388,7 @@
                                 @endif
                                 <div class="profile-logo-wrap">
                                     @if($p->logo)
-                                        <img src="{{ asset($p->logo) }}" alt="Logo">
+                                        <img src="{{ \App\Helpers\ImageHelper::url($p->logo) }}" alt="Logo">
                                     @else
                                         <span class="logo-placeholder"><i class="bi bi-building"></i></span>
                                     @endif
@@ -461,7 +461,7 @@
                                                         <label class="form-label d-block text-muted small">Logo Sekolah</label>
                                                         <div id="preview-container-logo-{{ $p->id }}" class="img-preview-box mb-2">
                                                             @if($p->logo)
-                                                                <img src="{{ asset($p->logo) }}" alt="Logo">
+                                                                <img src="{{ \App\Helpers\ImageHelper::url($p->logo) }}" alt="Logo">
                                                                 <button type="button" class="btn btn-sm btn-danger d-block w-100 mt-1" onclick="ajaxDeleteImage('{{ $p->id }}', 'logo')">
                                                                     <i class="bi bi-x-circle me-1"></i>Hapus Logo
                                                                 </button>
@@ -469,14 +469,14 @@
                                                                 <span class="no-img"><i class="bi bi-image" style="font-size:1.6rem;opacity:.35"></i><br>Belum ada logo</span>
                                                             @endif
                                                         </div>
-                                                        <input type="file" name="logo" class="form-control form-control-sm">
+                                                        <input type="file" name="logo" class="form-control form-control-sm" accept="image/jpeg,image/png,image/jpg">
                                                     </div>
 
                                                     <div>
                                                         <label class="form-label d-block text-muted small">Foto Sekolah</label>
                                                         <div id="preview-container-foto-{{ $p->id }}" class="img-preview-box mb-2">
                                                             @if($p->foto_sekolah)
-                                                                <img class="img-cover" src="{{ asset($p->foto_sekolah) }}" alt="Foto">
+                                                                <img class="img-cover" src="{{ \App\Helpers\ImageHelper::url($p->foto_sekolah) }}" alt="Foto">
                                                                 <button type="button" class="btn btn-sm btn-danger d-block w-100 mt-1" onclick="ajaxDeleteImage('{{ $p->id }}', 'foto_sekolah')">
                                                                     <i class="bi bi-x-circle me-1"></i>Hapus Foto
                                                                 </button>
@@ -484,7 +484,7 @@
                                                                 <span class="no-img"><i class="bi bi-image" style="font-size:1.6rem;opacity:.35"></i><br>Belum ada foto</span>
                                                             @endif
                                                         </div>
-                                                        <input type="file" name="foto_sekolah" class="form-control form-control-sm">
+                                                        <input type="file" name="foto_sekolah" class="form-control form-control-sm" accept="image/jpeg,image/png,image/jpg">
                                                     </div>
                                                 </div>
                                             </div>
@@ -576,17 +576,17 @@
                                     
                                     <div class="mb-4">
                                         <label class="form-label d-block text-muted small">Logo Sekolah</label>
-                                        <div class="img-preview-box mb-2">
+                                        <div class="img-preview-box mb-2" id="tambah-preview-logo">
                                             <span class="no-img"><i class="bi bi-image" style="font-size:1.6rem;opacity:.35"></i><br>Unggah logo</span>
                                         </div>
-                                        <input type="file" name="logo" class="form-control form-control-sm" required>
+                                        <input type="file" name="logo" id="tambah-input-logo" class="form-control form-control-sm" accept="image/jpeg,image/png,image/jpg" required>
                                     </div>
                                     <div>
                                         <label class="form-label d-block text-muted small">Foto Sekolah</label>
-                                        <div class="img-preview-box mb-2">
+                                        <div class="img-preview-box mb-2" id="tambah-preview-foto">
                                             <span class="no-img"><i class="bi bi-image" style="font-size:1.6rem;opacity:.35"></i><br>Unggah foto</span>
                                         </div>
-                                        <input type="file" name="foto_sekolah" class="form-control form-control-sm" required>
+                                        <input type="file" name="foto_sekolah" id="tambah-input-foto" class="form-control form-control-sm" accept="image/jpeg,image/png,image/jpg" required>
                                     </div>
                                 </div>
                             </div>
@@ -650,6 +650,94 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // ── HELPER: Preview gambar dari input file ke dalam container ────────────
+        function bindImagePreview(inputEl, containerEl, isCover = false) {
+            inputEl.addEventListener('change', function () {
+                const file = this.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    containerEl.innerHTML = `<img src="${e.target.result}" 
+                        style="width:100%; height:120px; object-fit:${isCover ? 'cover' : 'contain'}; 
+                               border-radius:6px; margin-bottom:8px; display:block;" 
+                        alt="Preview">
+                        <small class="text-muted d-block text-center" style="font-size:.75rem;">${file.name}</small>`;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // ── Modal TAMBAH: pasang preview ─────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', function () {
+            const tambahModalEl = document.getElementById('modalTambah');
+            if (tambahModalEl) {
+                tambahModalEl.addEventListener('shown.bs.modal', function () {
+                    bindImagePreview(
+                        document.getElementById('tambah-input-logo'),
+                        document.getElementById('tambah-preview-logo'),
+                        false
+                    );
+                    bindImagePreview(
+                        document.getElementById('tambah-input-foto'),
+                        document.getElementById('tambah-preview-foto'),
+                        true
+                    );
+                });
+                // Reset preview saat modal ditutup
+                tambahModalEl.addEventListener('hidden.bs.modal', function () {
+                    document.getElementById('tambah-preview-logo').innerHTML =
+                        `<span class="no-img"><i class="bi bi-image" style="font-size:1.6rem;opacity:.35"></i><br>Unggah logo</span>`;
+                    document.getElementById('tambah-preview-foto').innerHTML =
+                        `<span class="no-img"><i class="bi bi-image" style="font-size:1.6rem;opacity:.35"></i><br>Unggah foto</span>`;
+                });
+            }
+
+            // ── Modal EDIT: pasang preview untuk setiap modal edit ───────────────
+            document.querySelectorAll('[id^="modalEdit"]').forEach(function (modalEl) {
+                const id = modalEl.id.replace('modalEdit', '');
+
+                modalEl.addEventListener('shown.bs.modal', function () {
+                    const inputLogo = modalEl.querySelector('input[name="logo"]');
+                    const inputFoto = modalEl.querySelector('input[name="foto_sekolah"]');
+                    const containerLogo = document.getElementById('preview-container-logo-' + id);
+                    const containerFoto = document.getElementById('preview-container-foto-' + id);
+
+                    if (inputLogo && containerLogo) {
+                        inputLogo.addEventListener('change', function () {
+                            const file = this.files[0];
+                            if (!file) return;
+                            const reader = new FileReader();
+                            reader.onload = function (e) {
+                                // Pertahankan tombol hapus jika sudah ada, atau ganti semua dengan preview baru
+                                containerLogo.innerHTML = `<img src="${e.target.result}" 
+                                    style="width:100%; height:120px; object-fit:contain; border-radius:6px; margin-bottom:8px; display:block;" 
+                                    alt="Preview Logo">
+                                    <small class="text-muted d-block text-center" style="font-size:.75rem;">${file.name}</small>`;
+                            };
+                            reader.readAsDataURL(file);
+                        });
+                    }
+
+                    if (inputFoto && containerFoto) {
+                        inputFoto.addEventListener('change', function () {
+                            const file = this.files[0];
+                            if (!file) return;
+                            const reader = new FileReader();
+                            reader.onload = function (e) {
+                                containerFoto.innerHTML = `<img class="img-cover" src="${e.target.result}" 
+                                    style="width:100%; height:120px; object-fit:cover; border-radius:6px; margin-bottom:8px; display:block;" 
+                                    alt="Preview Foto">
+                                    <small class="text-muted d-block text-center" style="font-size:.75rem;">${file.name}</small>`;
+                            };
+                            reader.readAsDataURL(file);
+                        });
+                    }
+                });
+            });
+        });
+
+        // ── AJAX hapus gambar ─────────────────────────────────────────────────────
         function ajaxDeleteImage(id, type) {
             if (confirm('Apakah Anda yakin ingin menghapus ' + type.replace('_', ' ') + ' ini?')) {
                 const containerId = type === 'logo'
@@ -667,8 +755,7 @@
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
-                        container.innerHTML = `<span class="no-img">Berhasil dihapus.<br>Unggah baru jika diperlukan.</span>`;
-                        alert(data.message);
+                        container.innerHTML = `<span class="no-img"><i class="bi bi-image" style="font-size:1.6rem;opacity:.35"></i><br>Gambar dihapus.<br>Unggah baru jika diperlukan.</span>`;
                     } else {
                         alert('Gagal menghapus: ' + data.message);
                     }
@@ -680,6 +767,7 @@
             }
         }
 
+        // ── Sidebar toggle ────────────────────────────────────────────────────────
         const sidebar     = document.getElementById('sidebar');
         const collapseBtn = document.getElementById('sidebarCollapse');
         const closeBtn    = document.getElementById('close-sidebar');

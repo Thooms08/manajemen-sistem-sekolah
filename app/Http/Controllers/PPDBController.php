@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PPDBRequest;
-use App\Models\Murid;
-use App\Models\OrtuMurid;
-use App\Models\WaliMurid;
+use App\Models\DataMaster\Murid;
+use App\Models\DataMaster\OrtuMurid;
+use App\Models\DataMaster\WaliMurid;
 use App\Models\Dokumen\DokumenPpdb;
 use App\Models\Keuangan\BiayaMurid;
 use App\Models\Keuangan\AkunPembayaran;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Informasi;
 
 use Illuminate\Http\Request;
 use App\Models\Informasi\Dokumentasi;
@@ -10,48 +10,71 @@ use App\Models\Informasi\Artikel;
 use App\Models\Informasi\StudiSekolah;
 use App\Models\Informasi\InfoSekolah;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 
 class InformasiController extends Controller
 {
     /**
-     * Fungsi Helper Baru untuk Kompresi Gambar ke < 100KB menggunakan PHP GD
+     * Kompresi gambar ke < 100KB menggunakan PHP GD, lalu simpan ke Storage disk 'public'.
+     * Mengembalikan path relatif yang tersimpan (contoh: kegiatan/1234_kegiatan.jpg)
      */
-    private function compressImage($sourcePath, $destinationPath)
+    private function compressAndStore($file, string $folder): string
     {
+        $sourcePath = $file->getPathname();
+        $fileName   = time() . '_' . $folder . '.' . $file->extension();
+        $tmpPath    = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $fileName;
+
         $info = getimagesize($sourcePath);
-        if (!$info) {
-            copy($sourcePath, $destinationPath);
-            return;
-        }
+        $mime = $info ? $info['mime'] : null;
+        $maxSize = 102400; // 100 KB
 
-        $mime = $info['mime'];
-        $maxSize = 102400; // 100KB dalam Bytes
-
-        if ($mime == 'image/jpeg' || $mime == 'image/jpg') {
-            $image = imagecreatefromjpeg($sourcePath);
-            $quality = 90; // Set kualitas awal
-            
-            imagejpeg($image, $destinationPath, $quality);
-            
-            // Turunkan kualitas secara bertahap jika ukuran masih di atas 100KB
-            while (file_exists($destinationPath) && filesize($destinationPath) > $maxSize && $quality > 10) {
+        if ($mime === 'image/jpeg' || $mime === 'image/jpg') {
+            $image   = imagecreatefromjpeg($sourcePath);
+            $quality = 90;
+            imagejpeg($image, $tmpPath, $quality);
+            while (file_exists($tmpPath) && filesize($tmpPath) > $maxSize && $quality > 10) {
                 $quality -= 10;
-                imagejpeg($image, $destinationPath, $quality);
+                imagejpeg($image, $tmpPath, $quality);
             }
             imagedestroy($image);
-        } elseif ($mime == 'image/png') {
+        } elseif ($mime === 'image/png') {
             $image = imagecreatefrompng($sourcePath);
             imagealphablending($image, false);
             imagesavealpha($image, true);
-            
-            // Untuk PNG, GD menggunakan level kompresi 0-9 (9 paling maksimal)
-            imagepng($image, $destinationPath, 9);
+            imagepng($image, $tmpPath, 9);
             imagedestroy($image);
         } else {
-            // Fallback jika format gambar selain JPG/PNG
-            copy($sourcePath, $destinationPath);
+            copy($sourcePath, $tmpPath);
+        }
+
+        $storagePath = $folder . '/' . $fileName;
+        Storage::disk('public')->put($storagePath, file_get_contents($tmpPath));
+        @unlink($tmpPath);
+
+        return $storagePath;
+    }
+
+    /**
+     * Hapus file lama dari storage (mendukung path lama 'assets/...' maupun path baru).
+     */
+    private function deleteOldFile(?string $path): void
+    {
+        if (!$path) return;
+
+        // Path lama masih di public/assets/...
+        if (str_starts_with($path, 'assets/')) {
+            $fullPath = public_path($path);
+            if (File::exists($fullPath)) {
+                File::delete($fullPath);
+            }
+            return;
+        }
+
+        // Path baru di storage/app/public/...
+        if (Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
         }
     }
 
@@ -84,13 +107,7 @@ class InformasiController extends Controller
         ];
 
         if ($request->hasFile('foto_kegiatan')) {
-            $fileName = time() . '_kegiatan.' . $request->foto_kegiatan->extension();
-            $destinationPath = public_path('assets/kegiatan/' . $fileName);
-            
-            // Menggunakan fungsi compressImage
-            $this->compressImage($request->file('foto_kegiatan')->getPathname(), $destinationPath);
-            
-            $data['foto_kegiatan'] = 'assets/kegiatan/' . $fileName;
+            $data['foto_kegiatan'] = $this->compressAndStore($request->file('foto_kegiatan'), 'kegiatan');
         }
 
         Dokumentasi::create($data);
@@ -105,14 +122,8 @@ class InformasiController extends Controller
         $updateData = $request->only(['label_foto', 'deskripsi_foto']);
         
         if ($request->hasFile('foto_kegiatan')) {
-            if (File::exists(public_path($data->foto_kegiatan))) File::delete(public_path($data->foto_kegiatan));
-            
-            $fileName = time() . '_kegiatan.' . $request->foto_kegiatan->extension();
-            $destinationPath = public_path('assets/kegiatan/' . $fileName);
-            
-            $this->compressImage($request->file('foto_kegiatan')->getPathname(), $destinationPath);
-            
-            $updateData['foto_kegiatan'] = 'assets/kegiatan/' . $fileName;
+            $this->deleteOldFile($data->foto_kegiatan);
+            $updateData['foto_kegiatan'] = $this->compressAndStore($request->file('foto_kegiatan'), 'kegiatan');
         }
         $data->update($updateData);
         return redirect()->back()->with('success', 'Kegiatan berhasil diperbarui');
@@ -121,7 +132,7 @@ class InformasiController extends Controller
     public function destroyKegiatan($id)
     {
         $data = Dokumentasi::findOrFail($id);
-        if (File::exists(public_path($data->foto_kegiatan))) File::delete(public_path($data->foto_kegiatan));
+        $this->deleteOldFile($data->foto_kegiatan);
         $data->delete();
         return redirect()->back()->with('success', 'Kegiatan dihapus');
     }
@@ -166,13 +177,7 @@ class InformasiController extends Controller
         ];
 
         if ($request->hasFile('foto_prestasi')) {
-            $file   = $request->file('foto_prestasi');
-            $name   = time() . '_prestasi.' . $file->extension();
-            $destinationPath = public_path('assets/prestasi/' . $name);
-            
-            $this->compressImage($file->getPathname(), $destinationPath);
-            
-            $data['foto_prestasi'] = 'assets/prestasi/' . $name;
+            $data['foto_prestasi'] = $this->compressAndStore($request->file('foto_prestasi'), 'prestasi');
         }
 
         Prestasi::create($data);
@@ -195,16 +200,8 @@ class InformasiController extends Controller
         ];
 
         if ($request->hasFile('foto_prestasi')) {
-            if ($prestasi->foto_prestasi && File::exists(public_path($prestasi->foto_prestasi))) {
-                File::delete(public_path($prestasi->foto_prestasi));
-            }
-            $file = $request->file('foto_prestasi');
-            $name = time() . '_prestasi.' . $file->extension();
-            $destinationPath = public_path('assets/prestasi/' . $name);
-            
-            $this->compressImage($file->getPathname(), $destinationPath);
-            
-            $updateData['foto_prestasi'] = 'assets/prestasi/' . $name;
+            $this->deleteOldFile($prestasi->foto_prestasi);
+            $updateData['foto_prestasi'] = $this->compressAndStore($request->file('foto_prestasi'), 'prestasi');
         }
 
         $prestasi->update($updateData);
@@ -214,13 +211,9 @@ class InformasiController extends Controller
     public function destroyPrestasi($id)
     {
         $prestasi = Prestasi::findOrFail($id);
-
         if ($prestasi->foto_prestasi && $prestasi->foto_prestasi !== '-') {
-            if (File::exists(public_path($prestasi->foto_prestasi))) {
-                File::delete(public_path($prestasi->foto_prestasi));
-            }
+            $this->deleteOldFile($prestasi->foto_prestasi);
         }
-
         $prestasi->delete();
         return redirect()->back()->with('success', 'Prestasi berhasil dihapus');
     }
@@ -243,13 +236,7 @@ class InformasiController extends Controller
 
         $fotoPath = null;
         if ($request->hasFile('foto_artikel')) {
-            $file     = $request->file('foto_artikel');
-            $name     = time() . '_artikel.' . $file->extension();
-            $destinationPath = public_path('assets/artikel/' . $name);
-            
-            $this->compressImage($file->getPathname(), $destinationPath);
-            
-            $fotoPath = 'assets/artikel/' . $name;
+            $fotoPath = $this->compressAndStore($request->file('foto_artikel'), 'artikel');
         }
 
         // 2. LOGIKA GENERATE SLUG UNIK
@@ -292,29 +279,18 @@ class InformasiController extends Controller
         ];
 
         if ($request->hasFile('foto_artikel')) {
-            if ($artikel->foto_artikel && File::exists(public_path($artikel->foto_artikel))) {
-                File::delete(public_path($artikel->foto_artikel));
-            }
-            $file     = $request->file('foto_artikel');
-            $name     = time() . '_artikel.' . $file->extension();
-            $destinationPath = public_path('assets/artikel/' . $name);
-            
-            $this->compressImage($file->getPathname(), $destinationPath);
-            
-            $updateData['foto_artikel'] = 'assets/artikel/' . $name;
+            $this->deleteOldFile($artikel->foto_artikel);
+            $updateData['foto_artikel'] = $this->compressAndStore($request->file('foto_artikel'), 'artikel');
         }
 
         $artikel->update($updateData);
         return redirect()->back()->with('success', 'Artikel diperbarui');
     }
 
-    // --- DESTROY ARTIKEL ---
     public function destroyArtikel($id)
     {
         $artikel = Artikel::findOrFail($id);
-        if ($artikel->foto_artikel && File::exists(public_path($artikel->foto_artikel))) {
-            File::delete(public_path($artikel->foto_artikel));
-        }
+        $this->deleteOldFile($artikel->foto_artikel);
         $artikel->delete();
         return redirect()->back()->with('success', 'Artikel dihapus');
     }
@@ -366,21 +342,8 @@ class InformasiController extends Controller
         $info = InfoSekolah::first();
 
         if ($request->hasFile('foto_kepala_sekolah')) {
-            if ($info && $info->foto_kepala_sekolah && File::exists(public_path($info->foto_kepala_sekolah))) {
-                File::delete(public_path($info->foto_kepala_sekolah));
-            }
-            
-            $folderPath = public_path('assets/kepala_sekolah');
-            if (!File::exists($folderPath)) {
-                File::makeDirectory($folderPath, 0755, true);
-            }
-            
-            $fileName = time() . '_kepala.' . $request->foto_kepala_sekolah->extension();
-            $destinationPath = $folderPath . '/' . $fileName;
-            
-            $this->compressImage($request->file('foto_kepala_sekolah')->getPathname(), $destinationPath);
-            
-            $data['foto_kepala_sekolah'] = 'assets/kepala_sekolah/' . $fileName;
+            $this->deleteOldFile($info ? $info->foto_kepala_sekolah : null);
+            $data['foto_kepala_sekolah'] = $this->compressAndStore($request->file('foto_kepala_sekolah'), 'kepala_sekolah');
         }
 
         if ($info) {
