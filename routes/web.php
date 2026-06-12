@@ -47,6 +47,7 @@ use App\Http\Controllers\Pengaturan\PengaturanFormPpdbController;
 // Akun
 use App\Http\Controllers\AkunGuruController;
 use App\Http\Controllers\AkunOrtuController;
+use App\Http\Controllers\DashboardController;
 
 
 // =========================================================
@@ -63,6 +64,7 @@ Route::post('/ppdb/auto-save', [PPDBController::class, 'autoSaveDraft'])->name('
 Route::get('/ppdb/get-draft', [PPDBController::class, 'getDraftData'])->name('ppdb.get-draft');
 
 Route::get('/artikel/{slug}', [InformasiController::class, 'showArtikel'])->name('artikel.show');
+Route::get('/brosur', [IndexController::class, 'brosur'])->name('brosur.publik');
 
 // Dokumen View via signed URL (aman tanpa session cookie)
 Route::get('/dokumen/view/{uuid}', [DokumenController::class, 'viewFile'])
@@ -90,7 +92,7 @@ Route::middleware('auth')->group(function () {
     // ROLE: ADMIN
     // ---------------------------------------------------------
     Route::middleware('role:admin')->group(function () {
-        Route::get('/admin', fn() => view('admin.index'))->name('admin.home');
+        Route::get('/admin', [DashboardController::class, 'index'])->name('admin.home');
 
         // ── Informasi Sekolah ──────────────────────────────────
         Route::get('/informasi', [InformasiController::class, 'index'])->name('informasi.index');
@@ -117,6 +119,11 @@ Route::middleware('auth')->group(function () {
         Route::delete('/informasi/studi/{id}', [InformasiController::class, 'destroyStudi'])->name('studi.destroy');
 
         Route::post('/informasi/info-sekolah', [InformasiController::class, 'storeOrUpdateInfoSekolah'])->name('info.sekolah.save');
+
+        // ── Brosur ─────────────────────────────────────────────
+        Route::post('/informasi/brosur', [InformasiController::class, 'storeBrosur'])->name('brosur.store');
+        Route::put('/informasi/brosur/{id}', [InformasiController::class, 'updateBrosur'])->name('brosur.update');
+        Route::delete('/informasi/brosur/{id}', [InformasiController::class, 'destroyBrosur'])->name('brosur.destroy');
 
         // ── Profile Sekolah ────────────────────────────────────
         Route::resource('profile-sekolah', ProfileSekolahController::class);

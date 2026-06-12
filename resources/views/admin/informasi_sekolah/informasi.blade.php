@@ -106,6 +106,11 @@
                     <i class="bi bi-info-circle me-2 text-success"></i> Informasi Lainnya
                 </button>
             </li>
+            <li>
+                <button class="dropdown-item py-2" type="button" data-tab-target="#tab-brosur" onclick="switchTab(this, '#tab-brosur', 'Brosur', 'bi-file-earmark-text')">
+                    <i class="bi bi-file-earmark-text me-2 text-success"></i> Brosur
+                </button>
+            </li>
         </ul>
     </div>
 </div>
@@ -516,8 +521,144 @@
                     </div>
                 </div>
 
+                {{-- TAB BROSUR --}}
+                <div class="tab-pane fade" id="tab-brosur">
+                    <div class="card p-4">
+                        <h5 class="fw-bold mb-1">Upload Brosur</h5>
+                        <p class="text-muted small mb-4">Upload file brosur (PDF / gambar). Pengunjung dapat melihat dan mengunduh brosur dari halaman publik.</p>
+
+                        {{-- Form Upload --}}
+                        <form action="{{ route('brosur.store') }}" method="POST" enctype="multipart/form-data" class="row g-3 mb-4">
+                            @csrf
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Label Brosur <span class="text-danger">*</span></label>
+                                <input type="text" name="label" class="form-control" required placeholder="Contoh: Brosur PPDB 2026">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">File Brosur <span class="text-danger">*</span></label>
+                                <input type="file" name="file_brosur" id="input-brosur-file" class="form-control" required accept=".pdf,.jpg,.jpeg,.png">
+                                <small class="text-muted">Format: PDF, JPG, PNG. Maks <strong>10 MB</strong>.</small>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Deskripsi <span class="text-muted fw-normal">(Opsional)</span></label>
+                                <input type="text" name="deskripsi" class="form-control" placeholder="Keterangan singkat brosur">
+                            </div>
+                            {{-- Preview area --}}
+                            <div class="col-12 d-none" id="brosur-preview-area">
+                                <div class="border rounded p-3 bg-light d-flex align-items-center gap-3">
+                                    <i class="bi bi-file-earmark-check-fill text-success fs-3"></i>
+                                    <div>
+                                        <div class="fw-semibold" id="brosur-preview-name">—</div>
+                                        <small class="text-muted" id="brosur-preview-size">—</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 text-end">
+                                <button type="submit" class="btn btn-success px-4">
+                                    <i class="bi bi-upload me-1"></i> Upload Brosur
+                                </button>
+                            </div>
+                        </form>
+
+                        <hr>
+
+                        {{-- Daftar Brosur --}}
+                        <h6 class="fw-bold mb-3 text-muted">Daftar Brosur</h6>
+                        @if($brosurList->isEmpty())
+                            <div class="text-center py-4 text-muted">
+                                <i class="bi bi-file-earmark-x display-5 d-block mb-2"></i>
+                                Belum ada brosur yang diupload.
+                            </div>
+                        @else
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="40">#</th>
+                                        <th>Label</th>
+                                        <th>Deskripsi</th>
+                                        <th width="90">Format</th>
+                                        <th width="70" class="text-center">File</th>
+                                        <th width="130" class="text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($brosurList as $i => $b)
+                                    @php $ext = strtolower(pathinfo($b->path_file, PATHINFO_EXTENSION)); @endphp
+                                    <tr>
+                                        <td class="text-muted">{{ $i + 1 }}</td>
+                                        <td class="fw-bold">{{ $b->label }}</td>
+                                        <td class="text-muted">{{ $b->deskripsi ?? '-' }}</td>
+                                        <td>
+                                            <span class="badge {{ $ext === 'pdf' ? 'bg-danger' : 'bg-info text-dark' }}">
+                                                {{ strtoupper($ext) }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="{{ Storage::url($b->path_file) }}" target="_blank"
+                                               class="btn btn-sm btn-outline-secondary" title="Lihat">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-outline-success me-1"
+                                                onclick="editBrosur('{{ $b->id }}', '{{ addslashes($b->label) }}', '{{ addslashes($b->deskripsi) }}')"
+                                                title="Edit">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
+                                            <form action="{{ route('brosur.destroy', $b->id) }}" method="POST" class="d-inline"
+                                                onsubmit="return confirm('Hapus brosur ini?')">
+                                                @csrf @method('DELETE')
+                                                <button class="btn btn-sm btn-outline-danger" title="Hapus">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+
             </div>{{-- end tab-content --}}
         </div>
+    </div>
+</div>
+
+{{-- MODAL EDIT BROSUR --}}
+<div class="modal fade" id="modalEditBrosur" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <form id="formEditBrosur" method="POST" enctype="multipart/form-data" class="modal-content border-0 shadow">
+            @csrf @method('PUT')
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square me-2"></i>Edit Brosur</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 row g-3">
+                <div class="col-12">
+                    <label class="form-label fw-bold">Label Brosur <span class="text-danger">*</span></label>
+                    <input type="text" name="label" id="edit_brosur_label" class="form-control" required>
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-bold">Ganti File Brosur <span class="text-muted fw-normal">(Opsional)</span></label>
+                    <input type="file" name="file_brosur" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                    <small class="text-muted">Kosongkan jika tidak ingin mengganti file. Maks 10 MB.</small>
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-bold">Deskripsi</label>
+                    <input type="text" name="deskripsi" id="edit_brosur_deskripsi" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-success px-4">
+                    <i class="bi bi-save me-1"></i> Simpan
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -896,21 +1037,43 @@ function switchTab(element, targetTabId, text, icon) {
     localStorage.setItem('activeTab', targetTabId);
 }
 
-// --- VALIDASI UKURAN GAMBAR (MAKS 2MB) SECARA GLOBAL ---
+// --- VALIDASI UKURAN GAMBAR (MAKS 2MB) SECARA GLOBAL, KECUALI BROSUR (10MB) ---
 document.addEventListener('change', function(event) {
     if (event.target.type === 'file') {
         const files = event.target.files;
-        const maxSize = 2 * 1024 * 1024; // 2MB
+        const isBrosur = event.target.name === 'file_brosur';
+        const maxSize  = isBrosur ? 10 * 1024 * 1024 : 2 * 1024 * 1024;
+        const label    = isBrosur ? '10MB' : '2MB';
 
         for (let i = 0; i < files.length; i++) {
             if (files[i].size > maxSize) {
-                alert(`Ukuran file "${files[i].name}" terlalu besar!\nMaksimal ukuran gambar yang diperbolehkan adalah 2MB.`);
+                alert(`Ukuran file "${files[i].name}" terlalu besar!\nMaksimal yang diperbolehkan adalah ${label}.`);
                 event.target.value = '';
-                return; 
+                return;
+            }
+        }
+
+        // Preview info file brosur
+        if (isBrosur && files.length > 0) {
+            const area = document.getElementById('brosur-preview-area');
+            const name = document.getElementById('brosur-preview-name');
+            const size = document.getElementById('brosur-preview-size');
+            if (area && name && size) {
+                area.classList.remove('d-none');
+                name.textContent = files[0].name;
+                size.textContent = (files[0].size / 1024).toFixed(1) + ' KB';
             }
         }
     }
 });
+
+// --- EDIT BROSUR ---
+function editBrosur(id, label, deskripsi) {
+    document.getElementById('edit_brosur_label').value     = label;
+    document.getElementById('edit_brosur_deskripsi').value = deskripsi || '';
+    document.getElementById('formEditBrosur').action       = `/informasi/brosur/${id}`;
+    new bootstrap.Modal(document.getElementById('modalEditBrosur')).show();
+}
 </script>
 </body>
 </html>

@@ -210,9 +210,14 @@
                 <div class="col-lg-8">
                     <h3 class="fw-bold mb-3">Siap Bergabung Bersama Kami?</h3>
                     <p class="text-muted mb-4 fs-5">Pendaftaran Peserta Didik Baru (PPDB) tahun ajaran 2026/2027 telah dibuka secara online.</p>
-                    <a href="{{ route('ppdb.index') }}" class="btn btn-ppdb">
-                        Daftar PPDB Online Sekarang <i class="bi bi-arrow-right-circle"></i>
-                    </a>
+                    <div class="d-flex flex-wrap justify-content-center gap-3">
+                        <a href="{{ route('ppdb.index') }}" class="btn btn-ppdb">
+                            Daftar PPDB Online Sekarang <i class="bi bi-arrow-right-circle"></i>
+                        </a>
+                        <a href="{{ route('brosur.publik') }}" class="btn btn-ppdb" style="background-color:#0f5132;">
+                            <i class="bi bi-file-earmark-text me-2"></i>Lihat Brosur
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

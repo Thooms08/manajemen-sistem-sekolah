@@ -9,6 +9,7 @@ use App\Models\Informasi\Artikel;
 use App\Models\Informasi\ProgramSekolah;
 use App\Models\Informasi\Dokumentasi;
 use App\Models\Informasi\InfoSekolah;
+use App\Models\Informasi\Brosur;
 use App\Models\DataMaster\Murid;
 use App\Models\DataMaster\Guru;
 use Illuminate\Support\Facades\DB;
@@ -56,5 +57,12 @@ class IndexController extends Controller
         $artikel = Artikel::with('fotos')->findOrFail($id);
         $sekolah = DB::table('profile_sekolah')->first();
         return view('index.detail_artikel', compact('artikel', 'sekolah'));
+    }
+
+    public function brosur()
+    {
+        $sekolah    = DB::table('profile_sekolah')->first();
+        $brosurList = Brosur::latest()->get();
+        return view('index.brosur', compact('sekolah', 'brosurList'));
     }
 }

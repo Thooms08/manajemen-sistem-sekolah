@@ -9,6 +9,7 @@ use App\Models\Informasi\Prestasi;
 use App\Models\Informasi\Artikel;
 use App\Models\Informasi\StudiSekolah;
 use App\Models\Informasi\InfoSekolah;
+use App\Models\Informasi\Brosur;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -80,15 +81,16 @@ class InformasiController extends Controller
 
     public function index()
     {
-        $kegiatan = Dokumentasi::all();
-        $programs = ProgramSekolah::all();
-        $prestasi = Prestasi::all();
-        $artikels = Artikel::all();
-        $studiList = StudiSekolah::all();
+        $kegiatan    = Dokumentasi::all();
+        $programs    = ProgramSekolah::all();
+        $prestasi    = Prestasi::all();
+        $artikels    = Artikel::all();
+        $studiList   = StudiSekolah::all();
         $infoSekolah = InfoSekolah::first();
+        $brosurList  = Brosur::latest()->get();
 
         return view('admin.informasi_sekolah.informasi', compact(
-            'kegiatan', 'programs', 'prestasi', 'artikels', 'studiList', 'infoSekolah'
+            'kegiatan', 'programs', 'prestasi', 'artikels', 'studiList', 'infoSekolah', 'brosurList'
         ));
     }
 
@@ -323,6 +325,63 @@ class InformasiController extends Controller
     {
         StudiSekolah::destroy($id);
         return redirect()->back()->with('success', 'Program Studi dihapus');
+    }
+
+    // --- BROSUR ---
+    public function storeBrosur(Request $request)
+    {
+        $request->validate([
+            'label'     => 'required|string|max:150',
+            'file_brosur' => 'required|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'deskripsi' => 'nullable|string|max:500',
+        ]);
+
+        $path = $request->file('file_brosur')->store('brosur', 'public');
+
+        Brosur::create([
+            'label'     => $request->label,
+            'path_file' => $path,
+            'deskripsi' => $request->deskripsi,
+        ]);
+
+        return redirect()->back()->with('success', 'Brosur berhasil disimpan');
+    }
+
+    public function updateBrosur(Request $request, $id)
+    {
+        $request->validate([
+            'label'       => 'required|string|max:150',
+            'file_brosur' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+            'deskripsi'   => 'nullable|string|max:500',
+        ]);
+
+        $brosur = Brosur::findOrFail($id);
+
+        $updateData = [
+            'label'     => $request->label,
+            'deskripsi' => $request->deskripsi,
+        ];
+
+        if ($request->hasFile('file_brosur')) {
+            // Hapus file lama
+            if ($brosur->path_file && Storage::disk('public')->exists($brosur->path_file)) {
+                Storage::disk('public')->delete($brosur->path_file);
+            }
+            $updateData['path_file'] = $request->file('file_brosur')->store('brosur', 'public');
+        }
+
+        $brosur->update($updateData);
+        return redirect()->back()->with('success', 'Brosur berhasil diperbarui');
+    }
+
+    public function destroyBrosur($id)
+    {
+        $brosur = Brosur::findOrFail($id);
+        if ($brosur->path_file && Storage::disk('public')->exists($brosur->path_file)) {
+            Storage::disk('public')->delete($brosur->path_file);
+        }
+        $brosur->delete();
+        return redirect()->back()->with('success', 'Brosur berhasil dihapus');
     }
 
     // --- INFO SEKOLAH ---
