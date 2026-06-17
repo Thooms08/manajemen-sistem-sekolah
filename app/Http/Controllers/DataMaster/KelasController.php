@@ -17,7 +17,7 @@ class KelasController extends Controller
         $kelas = Kelas::withCount('murid')->with('waliKelas')->get();
 
         // Mengambil murid yang BELUM memiliki kelas (agar tidak error di blade)
-        $muridTersedia = \App\Models\Murid::whereNotExists(function ($query) {
+        $muridTersedia = \App\Models\DataMaster\Murid::whereNotExists(function ($query) {
             $query->select(DB::raw(1))
                   ->from('murid_kelas')
                   ->whereRaw('murid_kelas.id_murid = murid.id');

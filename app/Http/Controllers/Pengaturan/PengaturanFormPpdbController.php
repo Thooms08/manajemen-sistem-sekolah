@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Pengaturan;
 
-use App\Models\PpdbFormSetting;
+use App\Models\Pengaturan\PpdbFormSetting;
 use App\Models\Keuangan\BiayaMurid;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;

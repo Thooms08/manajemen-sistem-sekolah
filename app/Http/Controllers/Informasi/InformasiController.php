@@ -223,7 +223,7 @@ class InformasiController extends Controller
     public function showArtikel($slug)
     {
         $artikel = Artikel::where('slug', $slug)->firstOrFail();
-        $sekolah = \App\Models\ProfileSekolah::first() ?? \App\Models\InfoSekolah::first() ?? InfoSekolah::first(); 
+        $sekolah = \App\Models\Informasi\ProfileSekolah::first() ?? \App\Models\Informasi\InfoSekolah::first() ?? InfoSekolah::first(); 
         $infoSekolah = InfoSekolah::first();
 
         return view('index.artikel', compact('artikel', 'sekolah', 'infoSekolah'));
@@ -388,14 +388,13 @@ class InformasiController extends Controller
     public function storeOrUpdateInfoSekolah(Request $request)
     {
         $request->validate([
-            'jumlah_guru' => 'required|integer|min:0',
-            'jumlah_staff' => 'required|integer|min:0',
-            'nama_kepala_sekolah' => 'required|string|max:255',
+            'jumlah_guru'         => 'nullable|integer|min:0',
+            'jumlah_staff'        => 'nullable|integer|min:0',
+            'nama_kepala_sekolah' => 'nullable|string|max:255',
             'foto_kepala_sekolah' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'fasilitas' => 'nullable|string', // Validasi baru untuk fasilitas
+            'fasilitas'           => 'nullable|string',
         ]);
 
-        // Tambahkan 'fasilitas' ke dalam fungsi only()
         $data = $request->only(['jumlah_guru', 'jumlah_staff', 'nama_kepala_sekolah', 'fasilitas']);
 
         $info = InfoSekolah::first();

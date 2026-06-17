@@ -38,6 +38,7 @@ class Murid extends Model
         'jumlah_adik',
         'status',
         'alasan_nonaktif',
+        'alasan_tolak',
         'surat_pernyataan',
         'tanggal_nonaktif',
     ];

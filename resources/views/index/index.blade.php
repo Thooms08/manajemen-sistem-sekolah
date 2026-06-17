@@ -158,7 +158,7 @@
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item"><a class="nav-link" href="#">Beranda</a></li>
                     <li class="nav-item"><a class="nav-link" href="#profil">Tentang</a></li>
-                    @if($infoSekolah)
+                    @if($adaDataInformasi)
                     <li class="nav-item"><a class="nav-link" href="#informasi">Informasi</a></li>
                     @endif
                     <li class="nav-item"><a class="nav-link" href="#prestasi">Prestasi</a></li>
@@ -249,59 +249,137 @@
         </div>
     </section>
 
-    {{-- SECTION INFORMASI SEKOLAH (Hanya Muncul Jika $infoSekolah Memiliki Data) --}}
-    @if($infoSekolah)
+    {{-- SECTION INFORMASI SEKOLAH --}}
+    @if($adaDataInformasi)
     <section id="informasi" class="py-5 bg-light rounded-5 mx-2 mx-md-4">
         <div class="container py-5">
             <div class="text-center mb-5">
+                <span class="text-success fw-bold text-uppercase d-block mb-2">Data Sekolah</span>
                 <h2 class="section-title">Informasi Sekolah</h2>
-                <p class="text-muted">Fasilitas dan statistik tenaga kependidikan di {{ $sekolah->nama_sekolah }}</p>
+                <p class="text-muted">Statistik dan fasilitas {{ $sekolah->nama_sekolah ?? 'sekolah kami' }}</p>
             </div>
-            
-            <div class="row justify-content-center">
+
+            {{-- Tabel statistik — selalu tampil jika ada setidaknya satu data --}}
+            <div class="row justify-content-center mb-5">
                 <div class="col-lg-10">
                     <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                        <div class="card-header bg-success text-white py-3 px-4">
+                            <h6 class="mb-0 fw-bold"><i class="bi bi-bar-chart-fill me-2"></i>Statistik & Data Umum</h6>
+                        </div>
                         <div class="table-responsive">
-                            <table class="table info-table mb-0 fs-5">
+                            <table class="table info-table mb-0">
                                 <tbody>
+
+                                    {{-- Kepala Sekolah (hanya jika ada) --}}
+                                    @if($infoSekolah && $infoSekolah->nama_kepala_sekolah)
                                     <tr>
-                                        <th class="ps-4 py-4 w-25"><i class="bi bi-door-open-fill me-2"></i> Jumlah Kelas</th>
-                                        <td class="fw-bold py-4 text-dark">{{ $jumlah_kelas > 0 ? $jumlah_kelas : '-' }}</td>
+                                        <th class="ps-4 py-3" style="width:42%">
+                                            <i class="bi bi-person-fill-gear me-2 text-success"></i>Kepala Sekolah
+                                        </th>
+                                        <td class="py-3 fw-semibold text-dark">
+                                            @if($infoSekolah->foto_kepala_sekolah)
+                                                <img src="{{ \App\Helpers\ImageHelper::url($infoSekolah->foto_kepala_sekolah) }}"
+                                                    class="rounded-circle me-2 shadow-sm"
+                                                    style="width:34px;height:34px;object-fit:cover;vertical-align:middle;">
+                                            @endif
+                                            {{ $infoSekolah->nama_kepala_sekolah }}
+                                        </td>
                                     </tr>
+                                    @endif
+
+                                    {{-- Total Murid Aktif --}}
+                                    @if($jumlah_murid > 0)
                                     <tr>
-                                        <th class="ps-4 py-4"><i class="bi bi-person-badge-fill me-2"></i> Jumlah Guru</th>
-                                        @php
-                                            // Prioritaskan input admin dari InfoSekolah, jika kosong ambil hitungan aktual dari db
-                                            $guruDisplay = $infoSekolah->jumlah_guru ?? $jumlah_guru_db ?? 0;
-                                        @endphp
-                                        <td class="fw-bold py-4 text-dark">{{ $guruDisplay > 0 ? $guruDisplay : '-' }}</td>
+                                        <th class="ps-4 py-3">
+                                            <i class="bi bi-people-fill me-2 text-success"></i>Total Murid Aktif
+                                        </th>
+                                        <td class="py-3 fw-semibold text-dark">
+                                            {{ number_format($jumlah_murid) }} siswa
+                                        </td>
                                     </tr>
+                                    @endif
+
+                                    {{-- Total Guru — diambil dari tabel guru, bukan InfoSekolah --}}
+                                    @if($jumlah_guru_tampil > 0)
                                     <tr>
-                                        <th class="ps-4 py-4"><i class="bi bi-people-fill me-2"></i> Jumlah Murid</th>
-                                        <td class="fw-bold py-4 text-dark">{{ $jumlah_murid > 0 ? $jumlah_murid : '-' }}</td>
+                                        <th class="ps-4 py-3">
+                                            <i class="bi bi-person-badge-fill me-2 text-success"></i>Total Guru
+                                        </th>
+                                        <td class="py-3 fw-semibold text-dark">
+                                            {{ number_format($jumlah_guru_tampil) }} orang
+                                        </td>
                                     </tr>
-                                    @if($infoSekolah->fasilitas)
+                                    @endif
+
+                                    {{-- Total Staff — diambil dari tabel staff, bukan InfoSekolah --}}
+                                    @if($jumlah_staff_tampil > 0)
                                     <tr>
-                                        <th class="ps-4 py-4 align-middle"><i class="bi bi-building-fill-check me-2"></i> Fasilitas</th>
-                                        <td class="py-4">
+                                        <th class="ps-4 py-3">
+                                            <i class="bi bi-person-workspace me-2 text-success"></i>Total Staff
+                                        </th>
+                                        <td class="py-3 fw-semibold text-dark">
+                                            {{ number_format($jumlah_staff_tampil) }} orang
+                                        </td>
+                                    </tr>
+                                    @endif
+
+                                    {{-- Jumlah Kelas --}}
+                                    @if($jumlah_kelas > 0)
+                                    <tr>
+                                        <th class="ps-4 py-3">
+                                            <i class="bi bi-door-open-fill me-2 text-success"></i>Jumlah Kelas
+                                        </th>
+                                        <td class="py-3 fw-semibold text-dark">
+                                            {{ number_format($jumlah_kelas) }} kelas
+                                        </td>
+                                    </tr>
+                                    @endif
+
+                                    {{-- Fasilitas (hanya jika ada) --}}
+                                    @if($infoSekolah && $infoSekolah->fasilitas)
+                                    <tr>
+                                        <th class="ps-4 py-3 align-top pt-4">
+                                            <i class="bi bi-building-fill-check me-2 text-success"></i>Fasilitas
+                                        </th>
+                                        <td class="py-3">
                                             <div class="d-flex flex-wrap gap-2">
-                                                @foreach(explode(',', $infoSekolah->fasilitas) as $fasilitas)
-                                                    @if(trim($fasilitas) != '')
-                                                        <span class="badge bg-white text-success border border-success px-3 py-2 rounded-pill shadow-sm">
-                                                            <i class="bi bi-check-circle-fill me-1"></i> {{ trim($fasilitas) }}
-                                                        </span>
-                                                    @endif
+                                                @foreach(array_filter(array_map('trim', explode(',', $infoSekolah->fasilitas))) as $fas)
+                                                    <span class="badge bg-success-subtle text-success border border-success px-3 py-2 rounded-pill">
+                                                        <i class="bi bi-check-circle-fill me-1"></i>{{ $fas }}
+                                                    </span>
                                                 @endforeach
                                             </div>
                                         </td>
                                     </tr>
                                     @endif
+
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {{-- Program Studi: tampil seperti Program Unggulan (kotak-kotak) --}}
+            @if($studiList->isNotEmpty())
+            <div class="text-center mb-4">
+                <span class="text-success fw-bold text-uppercase d-block mb-2">Akademik</span>
+                <h3 class="fw-bold" style="color: var(--dark-green);">Program Studi</h3>
+                <p class="text-muted">Pilihan program studi yang tersedia di {{ $sekolah->nama_sekolah ?? 'sekolah kami' }}</p>
+            </div>
+            <div class="row g-4">
+                @foreach($studiList as $s)
+                <div class="col-md-4">
+                    <div class="program-box shadow-sm text-center">
+                        <i class="bi bi-mortarboard-fill text-success fs-1 mb-3"></i>
+                        <h5 class="fw-bold">{{ $s->nama_studi }}</h5>
+                        <p class="small mb-0 opacity-75">{{ $s->deskripsi_studi ?? '' }}</p>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @endif
+
         </div>
     </section>
     @endif

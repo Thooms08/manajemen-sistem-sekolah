@@ -29,6 +29,8 @@
         /* Button Style */
         .btn-confirm { background-color: var(--primary-green); color: white; border: none; }
         .btn-confirm:hover { background-color: #146c43; color: white; }
+        .btn-reject { background-color: #dc3545; color: white; border: none; }
+        .btn-reject:hover { background-color: #b02a37; color: white; }
         #sidebarCollapse { background: var(--primary-green); border: none; color: white; border-radius: 10px; padding: 8px 12px; }
         
         /* Modal Detail Style */
@@ -124,6 +126,45 @@
                 <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
                 <button type="button" class="btn btn-success rounded-pill px-4" id="btnKonfirmasiAkhir">
                     <i class="bi bi-check-circle me-1"></i> Konfirmasi Pendaftaran
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tolak Pendaftaran -->
+<div class="modal fade" id="modalTolak" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog" style="max-width:500px;">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title fw-bold"><i class="bi bi-x-circle me-2"></i>Tolak Pendaftaran</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="alert alert-danger py-2 mb-3" style="font-size:0.85rem;">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                    Tindakan ini akan menolak pendaftaran atas nama <strong id="rejectNama"></strong>.
+                    Data akan tetap tersimpan dengan status <strong>ditolak</strong>.
+                </div>
+                <input type="hidden" id="rejectMuridId">
+                <div class="mb-3">
+                    <label for="alasanTolak" class="form-label fw-semibold" style="font-size:0.9rem;">
+                        Alasan Penolakan <span class="text-danger">*</span>
+                    </label>
+                    <textarea
+                        id="alasanTolak"
+                        class="form-control"
+                        rows="4"
+                        maxlength="1000"
+                        placeholder="Tuliskan alasan penolakan pendaftaran ini..."></textarea>
+                    <div class="invalid-feedback" id="alasanTolakError"></div>
+                    <div class="form-text text-muted">Alasan ini akan tersimpan di database sebagai catatan admin.</div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-danger rounded-pill px-4" id="btnTolakAkhir">
+                    <i class="bi bi-x-circle me-1"></i> Tolak Pendaftaran
                 </button>
             </div>
         </div>
@@ -235,12 +276,15 @@
                                     <span class="badge badge-pending px-3 py-2">PENDING VERIFIKASI</span>
                                     ${cashBadge}
                                 </div>
-                                <div class="d-flex gap-2">
+                                <div class="d-flex gap-2 flex-wrap">
                                     <button class="btn btn-outline-success btn-sm px-3 rounded-pill" onclick="viewDetail(${m.id})">
                                         <i class="bi bi-eye"></i> Detail Berkas
                                     </button>
                                     <button class="btn btn-confirm btn-sm px-3 rounded-pill" onclick="confirmPPDB(${m.id}, ${hasCash})">
                                         <i class="bi bi-check-circle"></i> Konfirmasi
+                                    </button>
+                                    <button class="btn btn-reject btn-sm px-3 rounded-pill" onclick="openRejectModal(${m.id}, '${m.nama_lengkap.replace(/'/g, "\\'")}')">
+                                        <i class="bi bi-x-circle"></i> Tolak
                                     </button>
                                 </div>
                             </div>
@@ -370,8 +414,25 @@
                     html += '</div>';
                 }
 
+                // ══ BUKTI PEMBAYARAN (full width, load async) ══
+                html += `
+                    <div class="col-12">
+                        <div class="section-title" style="color:#0d6efd;">
+                            <i class="bi bi-receipt me-1"></i>Bukti Pembayaran
+                        </div>
+                        <div id="bukti-pembayaran-container-${id}">
+                            <div class="text-center py-3">
+                                <div class="spinner-border spinner-border-sm text-primary"></div>
+                                <span class="ms-2 text-muted" style="font-size:0.85rem;">Memuat bukti pembayaran...</span>
+                            </div>
+                        </div>
+                    </div>`;
+
                 html += '</div>';
                 content.innerHTML = html;
+
+                // Load bukti pembayaran setelah HTML dirender
+                loadBuktiPembayaran(id);
             })
             .catch(err => {
                 content.innerHTML = `<div class="alert alert-danger">Gagal memuat detail: ${err.message}</div>`;
@@ -529,7 +590,138 @@
         document.getElementById('sidebarCollapse').onclick = () => {
             document.getElementById('sidebar').classList.toggle('inactive');
         };
+
+        // Tombol submit tolak
+        document.getElementById('btnTolakAkhir').onclick = function () {
+            const id     = document.getElementById('rejectMuridId').value;
+            const alasan = document.getElementById('alasanTolak').value.trim();
+
+            if (!alasan) {
+                document.getElementById('alasanTolakError').textContent = 'Alasan penolakan wajib diisi.';
+                document.getElementById('alasanTolak').classList.add('is-invalid');
+                return;
+            }
+
+            doReject(id, alasan);
+        };
+
+        document.getElementById('alasanTolak').addEventListener('input', function () {
+            this.classList.remove('is-invalid');
+            document.getElementById('alasanTolakError').textContent = '';
+        });
     });
+
+    // --- 6. FUNGSI BUKTI PEMBAYARAN ---
+    function loadBuktiPembayaran(muridId) {
+        fetch(`{{ url('admin/ppdb-notifications/bukti') }}/${muridId}`)
+            .then(res => res.json())
+            .then(bukti => {
+                const container = document.getElementById(`bukti-pembayaran-container-${muridId}`);
+                if (!container) return;
+
+                if (!bukti || bukti.length === 0) {
+                    container.innerHTML = `
+                        <div class="alert alert-secondary py-2 mb-0" style="font-size:0.85rem;">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Tidak ada bukti pembayaran yang diupload oleh pendaftar.
+                        </div>`;
+                    return;
+                }
+
+                let rows = '';
+                bukti.forEach(b => {
+                    const sizeKb   = b.file_size ? (b.file_size / 1024).toFixed(1) + ' KB' : '-';
+                    const isImage  = /\.(jpg|jpeg|png|webp|gif)$/i.test(b.file_name);
+                    const isPdf    = /\.pdf$/i.test(b.file_name);
+                    const icon     = isPdf
+                        ? 'bi-file-earmark-pdf-fill text-danger'
+                        : (isImage ? 'bi-file-earmark-image-fill text-primary' : 'bi-file-earmark-fill text-secondary');
+
+                    rows += `
+                        <div class="col-md-6 mb-2">
+                            <div class="border rounded p-2 d-flex align-items-center gap-2">
+                                <i class="bi ${icon} fs-5 flex-shrink-0"></i>
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <div class="fw-semibold text-truncate" style="font-size:0.82rem;" title="${b.file_name}">
+                                        ${b.nama_biaya ? b.nama_biaya : b.file_name}
+                                    </div>
+                                    <small class="text-muted">${b.file_name} &bull; ${sizeKb}</small>
+                                </div>
+                                <a href="${b.url}" target="_blank" class="btn btn-outline-primary btn-sm py-0 px-2 flex-shrink-0" title="Lihat bukti">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="${b.url}" download class="btn btn-outline-secondary btn-sm py-0 px-2 flex-shrink-0" title="Unduh">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                            </div>
+                        </div>`;
+                });
+
+                container.innerHTML = `<div class="row">${rows}</div>`;
+            })
+            .catch(() => {
+                const container = document.getElementById(`bukti-pembayaran-container-${muridId}`);
+                if (container) {
+                    container.innerHTML = `<div class="alert alert-warning py-2" style="font-size:0.85rem;">
+                        <i class="bi bi-exclamation-triangle me-1"></i>Gagal memuat bukti pembayaran.</div>`;
+                }
+            });
+    }
+
+    // --- 7. FUNGSI TOLAK PENDAFTARAN ---
+    let _rejectId = null;
+
+    function openRejectModal(id, nama) {
+        _rejectId = id;
+        document.getElementById('rejectMuridId').value  = id;
+        document.getElementById('rejectNama').textContent = nama;
+        document.getElementById('alasanTolak').value    = '';
+        document.getElementById('alasanTolak').classList.remove('is-invalid');
+        document.getElementById('alasanTolakError').textContent = '';
+
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalTolak')).show();
+    }
+
+    function doReject(id, alasan) {
+        const btn = document.getElementById('btnTolakAkhir');
+        btn.disabled    = true;
+        btn.innerHTML   = '<span class="spinner-border spinner-border-sm me-1"></span>Memproses...';
+
+        fetch(`{{ url('admin/ppdb-notifications/reject') }}/${id}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ alasan_tolak: alasan })
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled  = false;
+            btn.innerHTML = '<i class="bi bi-x-circle me-1"></i> Tolak Pendaftaran';
+
+            if (data.success) {
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('modalTolak')).hide();
+
+                const row = document.getElementById(`row-${id}`);
+                if (row) {
+                    row.style.transform = 'translateX(-100px)';
+                    row.style.opacity   = '0';
+                    setTimeout(() => {
+                        row.remove();
+                        updateBadge();
+                    }, 400);
+                }
+            } else {
+                alert(data.message || 'Gagal menolak pendaftaran. Silakan coba lagi.');
+            }
+        })
+        .catch(() => {
+            btn.disabled  = false;
+            btn.innerHTML = '<i class="bi bi-x-circle me-1"></i> Tolak Pendaftaran';
+            alert('Terjadi kesalahan jaringan. Silakan coba lagi.');
+        });
+    }
 </script>
 </body>
 </html>

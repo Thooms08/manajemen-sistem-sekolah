@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\PpdbFormSetting;
+use App\Models\Pengaturan\PpdbFormSetting;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;

@@ -41,7 +41,7 @@ class MuridController extends Controller
         $murid = null;
         $biayas = BiayaMurid::with('account')->orderBy('id')->get();
         $accounts = AkunPembayaran::orderBy('bank_name')->get();
-        $formSettings = \App\Models\PpdbFormSetting::all()->keyBy('field_name');
+        $formSettings = \App\Models\Pengaturan\PpdbFormSetting::all()->keyBy('field_name');
         return view('admin.ppdb', compact('murid', 'biayas', 'accounts', 'formSettings'));
     }
 
@@ -55,7 +55,7 @@ class MuridController extends Controller
                 'jenis_kelamin'   => $request->jenis_kelamin,
                 'nisn'            => $request->nisn,
                 'nik'             => $request->nik,
-                'nis_lama'        => $request->nis_lama,   // store → nis_lama
+                'nis_lama'        => $request->nis_lama,   // store â†’ nis_lama
                 'tempat_lahir'    => $request->tempat_lahir,
                 'tgl_lahir'       => $request->tgl_lahir,
                 'rt_rw'           => $request->rt_rw,
@@ -165,7 +165,7 @@ class MuridController extends Controller
     {
         $murid = Murid::where('uuid', $uuid)->with(['ortu', 'wali', 'dokumen'])->firstOrFail();
 
-        $formSettings = \App\Models\PpdbFormSetting::where('is_active', true)
+        $formSettings = \App\Models\Pengaturan\PpdbFormSetting::where('is_active', true)
             ->orderBy('sort_order')
             ->get()
             ->groupBy('field_category');
@@ -364,7 +364,7 @@ class MuridController extends Controller
         $murid = Murid::where('uuid', $uuid)->with(['ortu', 'wali', 'dokumen'])->firstOrFail();
         $biayas = BiayaMurid::with('account')->orderBy('id')->get();
         $accounts = AkunPembayaran::orderBy('bank_name')->get();
-        $formSettings = \App\Models\PpdbFormSetting::all()->keyBy('field_name');
+        $formSettings = \App\Models\Pengaturan\PpdbFormSetting::all()->keyBy('field_name');
         return view('admin.ppdb', compact('murid', 'biayas', 'accounts', 'formSettings'));
     }
 
@@ -373,10 +373,6 @@ class MuridController extends Controller
         DB::beginTransaction();
         try {
             $murid = Murid::where('uuid', $uuid)->firstOrFail();
-
-            // ── 1. Update Data Murid ─────────────────────────────────────────
-            // Hanya update field yang benar-benar dikirim dalam request
-            // (input di-disable oleh JS saat step lain aktif, tapi di-enable sebelum submit)
             $muridFields = [
                 'nama_lengkap', 'jenis_kelamin', 'nisn', 'nik', 'tempat_lahir', 'tgl_lahir',
                 'rt_rw', 'desa_kelurahan', 'kota_kabupaten', 'provinsi', 'alamat_detail',
@@ -402,7 +398,6 @@ class MuridController extends Controller
                 $murid->update($muridData);
             }
 
-            // ── 2. Update Data Orang Tua ─────────────────────────────────────
             $ortuFields = [
                 'nama_ayah', 'tempat_lahir_ayah', 'tgl_lahir_ayah', 'pendidikan_ayah',
                 'pekerjaan_ayah', 'penghasilan_ayah', 'status_ayah',
@@ -421,7 +416,6 @@ class MuridController extends Controller
                 $murid->ortu()->update($ortuData);
             }
 
-            // ── 3. Update Data Wali ──────────────────────────────────────────
             $waliFields = [
                 'nama_wali', 'tempat_lahir_wali', 'tgl_lahir_wali', 'pendidikan_wali',
                 'pekerjaan_wali', 'penghasilan_wali', 'status_wali', 'hubungan_wali',
@@ -435,18 +429,17 @@ class MuridController extends Controller
             }
 
             if ($request->filled('nama_wali')) {
-                // Ada nama wali → simpan/update
+                // Ada nama wali â†’ simpan/update
                 if ($murid->wali) {
                     $murid->wali()->update($waliData);
                 } else {
                     WaliMurid::create(array_merge($waliData, ['id_murid' => $murid->id]));
                 }
             } elseif ($request->has('nama_wali') && empty($request->nama_wali) && $murid->wali) {
-                // Field nama_wali dikirim tapi dikosongkan → hapus data wali
+                // Field nama_wali dikirim tapi dikosongkan â†’ hapus data wali
                 $murid->wali()->delete();
             }
 
-            // ── 4. Update Dokumen ────────────────────────────────────────────
             $documentFields = [
                 'pasfoto'                      => 'pasfoto',
                 'ktp_ayah'                     => 'ktp-ayah',

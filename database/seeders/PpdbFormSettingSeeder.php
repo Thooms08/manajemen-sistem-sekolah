@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\PpdbFormSetting;
+use App\Models\Pengaturan\PpdbFormSetting;
 use Illuminate\Database\Seeder;
 
 class PpdbFormSettingSeeder extends Seeder

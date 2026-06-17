@@ -215,10 +215,33 @@
             <small class="text-uppercase fw-bold" style="font-size: 0.85rem; letter-spacing: 1px; color: rgba(255,255,255,0.6);">Data Master</small>
         </li>
 
-        <li class="{{ Request::is('guru*') ? 'active' : '' }}">
-            <a href="{{ route('guru.index') }}">
-                <i class="bi bi-person-badge"></i> Data Guru
+        <?php
+            $isGuruMenu = Request::is('guru*') || Request::is('jadwal-mengajar*');
+        ?>
+        <li class="{{ $isGuruMenu ? 'active' : '' }}">
+            <a href="#submenu-guru" data-bs-toggle="collapse"
+               class="d-flex align-items-center {{ $isGuruMenu ? 'active' : '' }}"
+               aria-expanded="{{ $isGuruMenu ? 'true' : 'false' }}">
+                <i class="bi bi-person-badge"></i>
+                <span class="flex-grow-1">Data Guru</span>
+                <i class="bi bi-chevron-down small"></i>
             </a>
+            <div class="collapse {{ $isGuruMenu ? 'show' : '' }}" id="submenu-guru">
+                <ul class="list-unstyled collapse-inner">
+                    <li>
+                        <a href="{{ route('guru.index') }}"
+                           class="{{ Request::is('guru*') ? 'active-sub' : '' }}">
+                            <i class="bi bi-people me-2"></i> Data Guru
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('jadwal-mengajar.index') }}"
+                           class="{{ Request::is('jadwal-mengajar*') ? 'active-sub' : '' }}">
+                            <i class="bi bi-calendar3-week me-2"></i> Jadwal Mengajar
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </li>
 
         <li class="{{ Request::is('mapel*') ? 'active' : '' }}">
@@ -314,6 +337,12 @@
         <li class="{{ request()->routeIs('admin.pengaturan-form-ppdb.*') ? 'active' : '' }}">
             <a href="{{ route('admin.pengaturan-form-ppdb') }}">
                 <i class="bi bi-gear"></i> Pengaturan Form PPDB
+            </a>
+        </li>
+
+        <li class="{{ request()->routeIs('admin.manajemen-role*') ? 'active' : '' }}">
+            <a href="{{ route('admin.manajemen-role.index') }}">
+                <i class="bi bi-shield-lock"></i> Manajemen Role
             </a>
         </li>
     </ul>

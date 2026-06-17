@@ -16,6 +16,9 @@ use App\Http\Controllers\PPDBController;
 // Informasi & Profil Sekolah
 use App\Http\Controllers\Informasi\InformasiController;
 use App\Http\Controllers\Informasi\ProfileSekolahController;
+use App\Http\Controllers\Informasi\DetailProgramController;
+use App\Http\Controllers\Informasi\DetailStudiController;
+use App\Http\Controllers\Informasi\DetailPrestasiController;
 
 // Data Master
 use App\Http\Controllers\DataMaster\KelasController;
@@ -41,8 +44,12 @@ use App\Http\Controllers\AdminPPDBController;
 // Dokumen
 use App\Http\Controllers\Dokumen\DokumenController;
 
+// Jadwal Mengajar
+use App\Http\Controllers\DataMaster\JadwalMengajarController;
+
 // Pengaturan
 use App\Http\Controllers\Pengaturan\PengaturanFormPpdbController;
+use App\Http\Controllers\Pengaturan\ManajemenRoleController;
 
 // Akun
 use App\Http\Controllers\AkunGuruController;
@@ -105,9 +112,52 @@ Route::middleware('auth')->group(function () {
         Route::put('/informasi/program/{id}', [InformasiController::class, 'updateProgram'])->name('program.update');
         Route::delete('/informasi/program/{id}', [InformasiController::class, 'destroyProgram'])->name('program.destroy');
 
+        // ── Detail Program Sekolah ─────────────────────────────
+        Route::get('/informasi/program/{id}/detail', [DetailProgramController::class, 'show'])->name('program.detail');
+
+        // Pembina
+        Route::post('/informasi/program/{id}/pembina', [DetailProgramController::class, 'storePembina'])->name('program.pembina.store');
+        Route::delete('/informasi/program/{id}/pembina/{pembinaId}', [DetailProgramController::class, 'destroyPembina'])->name('program.pembina.destroy');
+
+        // Anggota
+        Route::post('/informasi/program/{id}/anggota', [DetailProgramController::class, 'storeAnggota'])->name('program.anggota.store');
+        Route::delete('/informasi/program/{id}/anggota/{anggotaId}', [DetailProgramController::class, 'destroyAnggota'])->name('program.anggota.destroy');
+
+        // Bagan Organisasi
+        Route::post('/informasi/program/{id}/bagan', [DetailProgramController::class, 'storeBagan'])->name('program.bagan.store');
+        Route::get('/informasi/program/{id}/bagan/{baganId}', [DetailProgramController::class, 'getBagan'])->name('program.bagan.get');
+        Route::put('/informasi/program/{id}/bagan/{baganId}', [DetailProgramController::class, 'updateBagan'])->name('program.bagan.update');
+        Route::delete('/informasi/program/{id}/bagan/{baganId}', [DetailProgramController::class, 'destroyBagan'])->name('program.bagan.destroy');
+
+        // Catatan
+        Route::post('/informasi/program/{id}/catatan', [DetailProgramController::class, 'storeCatatan'])->name('program.catatan.store');
+        Route::get('/informasi/program/{id}/catatan/{catatanId}', [DetailProgramController::class, 'getCatatan'])->name('program.catatan.get');
+        Route::put('/informasi/program/{id}/catatan/{catatanId}', [DetailProgramController::class, 'updateCatatan'])->name('program.catatan.update');
+        Route::delete('/informasi/program/{id}/catatan/{catatanId}', [DetailProgramController::class, 'destroyCatatan'])->name('program.catatan.destroy');
+
+        // AJAX helper
+        Route::get('/informasi/program/pemegang-by-tipe', [DetailProgramController::class, 'getPemegangByTipe'])->name('program.pemegang-by-tipe');
+
         Route::post('/informasi/prestasi', [InformasiController::class, 'storePrestasi'])->name('prestasi.store');
         Route::put('/informasi/prestasi/{id}', [InformasiController::class, 'updatePrestasi'])->name('prestasi.update');
         Route::delete('/informasi/prestasi/{id}', [InformasiController::class, 'destroyPrestasi'])->name('prestasi.destroy');
+
+        // ── Detail Prestasi ────────────────────────────────────
+        Route::get('/informasi/prestasi/{id}/detail', [DetailPrestasiController::class, 'show'])->name('prestasi.detail');
+        Route::post('/informasi/prestasi/{id}/detail', [DetailPrestasiController::class, 'updateDetail'])->name('prestasi.detail.update');
+
+        // Murid Prestasi
+        Route::post('/informasi/prestasi/{id}/murid', [DetailPrestasiController::class, 'storeMurid'])->name('prestasi.murid.store');
+        Route::delete('/informasi/prestasi/{id}/murid/{muridId}', [DetailPrestasiController::class, 'destroyMurid'])->name('prestasi.murid.destroy');
+
+        // Catatan Prestasi
+        Route::post('/informasi/prestasi/{id}/catatan', [DetailPrestasiController::class, 'storeCatatan'])->name('prestasi.catatan.store');
+        Route::get('/informasi/prestasi/{id}/catatan/{catatanId}', [DetailPrestasiController::class, 'getCatatan'])->name('prestasi.catatan.get');
+        Route::put('/informasi/prestasi/{id}/catatan/{catatanId}', [DetailPrestasiController::class, 'updateCatatan'])->name('prestasi.catatan.update');
+        Route::delete('/informasi/prestasi/{id}/catatan/{catatanId}', [DetailPrestasiController::class, 'destroyCatatan'])->name('prestasi.catatan.destroy');
+
+        // AJAX cari murid
+        Route::get('/informasi/prestasi/search-murid', [DetailPrestasiController::class, 'searchMurid'])->name('prestasi.search-murid');
 
         Route::post('/informasi/artikel', [InformasiController::class, 'storeArtikel'])->name('artikel.store');
         Route::put('/informasi/artikel/{id}', [InformasiController::class, 'updateArtikel'])->name('artikel.update');
@@ -117,6 +167,26 @@ Route::middleware('auth')->group(function () {
         Route::post('/informasi/studi', [InformasiController::class, 'storeStudi'])->name('studi.store');
         Route::put('/informasi/studi/{id}', [InformasiController::class, 'updateStudi'])->name('studi.update');
         Route::delete('/informasi/studi/{id}', [InformasiController::class, 'destroyStudi'])->name('studi.destroy');
+
+        // ── Detail Program Studi ────────────────────────────────
+        Route::get('/informasi/studi/{id}/detail', [DetailStudiController::class, 'show'])->name('studi.detail');
+
+        // Kepala Prodi
+        Route::post('/informasi/studi/{id}/kepala', [DetailStudiController::class, 'storeKepala'])->name('studi.kepala.store');
+        Route::delete('/informasi/studi/{id}/kepala/{kepalaId}', [DetailStudiController::class, 'destroyKepala'])->name('studi.kepala.destroy');
+
+        // Kelas
+        Route::post('/informasi/studi/{id}/kelas', [DetailStudiController::class, 'storeKelas'])->name('studi.kelas.store');
+        Route::delete('/informasi/studi/{id}/kelas/{kelasId}', [DetailStudiController::class, 'destroyKelas'])->name('studi.kelas.destroy');
+
+        // Catatan
+        Route::post('/informasi/studi/{id}/catatan', [DetailStudiController::class, 'storeCatatan'])->name('studi.catatan.store');
+        Route::get('/informasi/studi/{id}/catatan/{catatanId}', [DetailStudiController::class, 'getCatatan'])->name('studi.catatan.get');
+        Route::put('/informasi/studi/{id}/catatan/{catatanId}', [DetailStudiController::class, 'updateCatatan'])->name('studi.catatan.update');
+        Route::delete('/informasi/studi/{id}/catatan/{catatanId}', [DetailStudiController::class, 'destroyCatatan'])->name('studi.catatan.destroy');
+
+        // AJAX helper
+        Route::get('/informasi/studi/sumber-by-tipe', [DetailStudiController::class, 'getSumberByTipe'])->name('studi.sumber-by-tipe');
 
         Route::post('/informasi/info-sekolah', [InformasiController::class, 'storeOrUpdateInfoSekolah'])->name('info.sekolah.save');
 
@@ -149,6 +219,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/guru/{id}/restore', [GuruController::class, 'restore'])->name('guru.restore');
         Route::get('/guru/{id}/download-surat', [GuruController::class, 'downloadSurat'])->name('guru.download-surat');
         Route::resource('guru', GuruController::class);
+
+        // ── Jadwal Mengajar ────────────────────────────────────
+        Route::get('/jadwal-mengajar', [JadwalMengajarController::class, 'index'])->name('jadwal-mengajar.index');
+        Route::post('/jadwal-mengajar', [JadwalMengajarController::class, 'store'])->name('jadwal-mengajar.store');
+        Route::get('/jadwal-mengajar/{id}', [JadwalMengajarController::class, 'show'])->name('jadwal-mengajar.show');
+        Route::put('/jadwal-mengajar/{id}', [JadwalMengajarController::class, 'update'])->name('jadwal-mengajar.update');
+        Route::delete('/jadwal-mengajar/{id}', [JadwalMengajarController::class, 'destroy'])->name('jadwal-mengajar.destroy');
+        Route::get('/jadwal-mengajar/guru/{id_guru}/mapel', [JadwalMengajarController::class, 'getMapelByGuru'])->name('jadwal-mengajar.mapel-by-guru');
+        Route::get('/jadwal-mengajar/guru/kelas', [JadwalMengajarController::class, 'getKelasByGuruMapel'])->name('jadwal-mengajar.kelas-by-guru-mapel');
 
         // ── Mapel ──────────────────────────────────────────────
         Route::get('/mapel/search', [MapelController::class, 'search'])->name('mapel.search');
@@ -264,6 +343,9 @@ Route::middleware('auth')->group(function () {
             Route::get('/count', [AdminPPDBController::class, 'getBadgeCount'])->name('admin.ppdb.count');
             Route::get('/detail/{id}', [AdminPPDBController::class, 'getDetail'])->name('admin.ppdb.detail');
             Route::post('/confirm/{id}', [AdminPPDBController::class, 'confirm'])->name('admin.ppdb.confirm');
+            Route::post('/reject/{id}', [AdminPPDBController::class, 'reject'])->name('admin.ppdb.reject');
+            Route::get('/bukti/{id}', [AdminPPDBController::class, 'getBuktiPembayaran'])->name('admin.ppdb.bukti');
+            Route::get('/bukti-file/{id}', [AdminPPDBController::class, 'serveBuktiPembayaran'])->name('admin.ppdb.bukti.serve');
             Route::get('/dokumen', [AdminPPDBController::class, 'serveDokumen'])->name('admin.ppdb.dokumen');
             Route::get('/cash-biayas', [AdminPPDBController::class, 'getCashBiayas'])->name('admin.ppdb.cashBiayas');
         });
@@ -273,6 +355,16 @@ Route::middleware('auth')->group(function () {
         // ── Pengaturan Form PPDB ───────────────────────────────
         Route::get('/admin/pengaturan-form-ppdb', [PengaturanFormPpdbController::class, 'index'])->name('admin.pengaturan-form-ppdb');
         Route::post('/admin/pengaturan-form-ppdb', [PengaturanFormPpdbController::class, 'update'])->name('admin.pengaturan-form-ppdb.update');
+
+        // ── Manajemen Role & Hak Akses ─────────────────────────
+        Route::get('/admin/manajemen-role', [ManajemenRoleController::class, 'index'])->name('admin.manajemen-role.index');
+        Route::post('/admin/manajemen-role', [ManajemenRoleController::class, 'store'])->name('admin.manajemen-role.store');
+        Route::get('/admin/manajemen-role/{uuid}/data', [ManajemenRoleController::class, 'getRole'])->name('admin.manajemen-role.get');
+        Route::put('/admin/manajemen-role/{uuid}', [ManajemenRoleController::class, 'update'])->name('admin.manajemen-role.update');
+        Route::delete('/admin/manajemen-role/{uuid}', [ManajemenRoleController::class, 'destroy'])->name('admin.manajemen-role.destroy');
+        Route::get('/admin/manajemen-role/{uuid}/permissions', [ManajemenRoleController::class, 'editPermissions'])->name('admin.manajemen-role.permissions');
+        Route::post('/admin/manajemen-role/{uuid}/permissions', [ManajemenRoleController::class, 'savePermissions'])->name('admin.manajemen-role.permissions.save');
+        Route::get('/admin/manajemen-role/{uuid}/summary', [ManajemenRoleController::class, 'getPermissionSummary'])->name('admin.manajemen-role.summary');
     });
 
 });

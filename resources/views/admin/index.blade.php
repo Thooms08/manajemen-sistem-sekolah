@@ -309,18 +309,6 @@
                     </a>
                 </div>
                 <div class="col-6 col-md-4 col-lg-2">
-                    <a href="{{ route('admin.ppdb.index') }}" class="text-decoration-none">
-                        <div class="stat-card">
-                            <div class="stat-icon orange"><i class="bi bi-hourglass-split"></i></div>
-                            <div>
-                                <div class="stat-label">Pendaftar Baru</div>
-                                <div class="stat-value">{{ number_format($totalMuridPending) }}</div>
-                                <div class="stat-sub">menunggu konfirmasi</div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-6 col-md-4 col-lg-2">
                     <a href="{{ route('guru.index') }}" class="text-decoration-none">
                         <div class="stat-card">
                             <div class="stat-icon blue"><i class="bi bi-person-badge-fill"></i></div>
@@ -417,7 +405,9 @@
                             </a>
                         </div>
                         <div class="panel-body">
-                            <canvas id="cashflowChart" height="180"></canvas>
+                            <div style="position: relative; height: 260px; width: 100%;">
+                                <canvas id="cashflowChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -658,7 +648,7 @@
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     position: 'bottom',

@@ -197,13 +197,16 @@
                                     <td class="fw-bold">{{ $p->nama_program }}</td>
                                     <td>{{ $p->deskripsi_program }}</td>
                                     <td>
+                                        <a href="{{ route('program.detail', $p->id) }}" class="btn btn-sm btn-outline-primary mb-1" title="Detail Program">
+                                            <i class="bi bi-folder2-open"></i>
+                                        </a>
                                         <button class="btn btn-sm btn-outline-success mb-1"
                                             onclick="editProgram('{{ $p->id }}', '{{ $p->nama_program }}', '{{ $p->deskripsi_program }}')">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
-                                        <form action="{{ route('program.destroy', $p->id) }}" method="POST">
+                                        <form action="{{ route('program.destroy', $p->id) }}" method="POST" class="d-inline">
                                             @csrf @method('DELETE')
-                                            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                            <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Hapus program ini?')"><i class="bi bi-trash"></i></button>
                                         </form>
                                     </td>
                                 </tr>
@@ -264,6 +267,9 @@
                                         <td>{{ Str::limit($pres->deskripsi_prestasi, 50) }}</td>
                                         <td>
                                             <div class="d-flex gap-1">
+                                                <a href="{{ route('prestasi.detail', $pres->id) }}" class="btn btn-sm btn-outline-primary" title="Detail Prestasi">
+                                                    <i class="bi bi-folder2-open"></i>
+                                                </a>
                                                 <button class="btn btn-sm btn-outline-success"
                                                         data-id="{{ $pres->id }}"
                                                         data-judul="{{ $pres->judul_prestasi }}"
@@ -421,6 +427,9 @@
                                         <td class="fw-bold">{{ $s->nama_studi }}</td>
                                         <td class="text-muted">{{ $s->deskripsi_studi ?? '-' }}</td>
                                         <td class="text-center">
+                                            <a href="{{ route('studi.detail', $s->id) }}" class="btn btn-sm btn-outline-primary me-1" title="Detail Program Studi">
+                                                <i class="bi bi-folder2-open"></i>
+                                            </a>
                                             <button class="btn btn-sm btn-outline-success me-1"
                                                 onclick="editStudi('{{ $s->id }}', '{{ addslashes($s->nama_studi) }}', '{{ addslashes($s->deskripsi_studi) }}')">
                                                 <i class="bi bi-pencil-square"></i>
@@ -451,27 +460,29 @@
 
                             {{-- Jumlah Guru --}}
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Jumlah Guru <span class="text-danger">*</span></label>
+                                <label class="form-label fw-semibold">Jumlah Guru <span class="text-muted fw-normal small">(Opsional — jika kosong, dihitung otomatis dari data guru)</span></label>
                                 <div class="input-group">
-                                    <input type="number" name="jumlah_guru" class="form-control" required min="0"
+                                    <input type="number" name="jumlah_guru" class="form-control" min="0"
                                         value="{{ $infoSekolah->jumlah_guru ?? '' }}" placeholder="Contoh: 45">
                                 </div>
+                                <small class="text-muted">Isi jika ingin override angka yang dihitung dari tabel Data Guru.</small>
                             </div>
 
                             {{-- Jumlah Staff --}}
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Jumlah Staff <span class="text-danger">*</span></label>
+                                <label class="form-label fw-semibold">Jumlah Staff <span class="text-muted fw-normal small">(Opsional — jika kosong, dihitung otomatis dari data staff)</span></label>
                                 <div class="input-group">
-                                    <input type="number" name="jumlah_staff" class="form-control" required min="0"
+                                    <input type="number" name="jumlah_staff" class="form-control" min="0"
                                         value="{{ $infoSekolah->jumlah_staff ?? '' }}" placeholder="Contoh: 12">
                                 </div>
+                                <small class="text-muted">Isi jika ingin override angka yang dihitung dari tabel Data Staff.</small>
                             </div>
 
                             {{-- Nama Kepala Sekolah --}}
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Nama Kepala Sekolah <span class="text-danger">*</span></label>
+                                <label class="form-label fw-semibold">Nama Kepala Sekolah <span class="text-muted fw-normal small">(Opsional)</span></label>
                                 <div class="input-group">
-                                    <input type="text" name="nama_kepala_sekolah" class="form-control" required
+                                    <input type="text" name="nama_kepala_sekolah" class="form-control"
                                         value="{{ $infoSekolah->nama_kepala_sekolah ?? '' }}" placeholder="Nama lengkap kepala sekolah">
                                 </div>
                             </div>

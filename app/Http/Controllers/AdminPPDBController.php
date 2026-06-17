@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\DataMaster\Murid;
-use App\Models\PpdbFormSetting;
+use App\Models\Pengaturan\PpdbFormSetting;
 use App\Models\Keuangan\BiayaMurid;
+use App\Models\Keuangan\BuktiPembayaranPpdb;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -136,6 +137,59 @@ class AdminPPDBController extends Controller
         }
 
         return response()->json(['success' => false], 500);
+    }
+
+    // Tolak Pendaftaran
+    public function reject(Request $request, $id)
+    {
+        $request->validate([
+            'alasan_tolak' => 'required|string|max:1000',
+        ]);
+
+        $update = DB::table('murid')
+            ->where('id', $id)
+            ->update([
+                'status'       => 'ditolak',
+                'alasan_tolak' => $request->alasan_tolak,
+                'updated_at'   => now(),
+            ]);
+
+        if ($update) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Pendaftaran berhasil ditolak.',
+            ]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Gagal menolak pendaftaran.'], 500);
+    }
+
+    // Ambil daftar bukti pembayaran milik pendaftar
+    public function getBuktiPembayaran($id)
+    {
+        $bukti = BuktiPembayaranPpdb::where('id_murid', $id)
+            ->orderBy('id')
+            ->get(['id', 'nama_biaya', 'file_name', 'file_size', 'created_at']);
+
+        // Tambahkan URL serve per file
+        $bukti->transform(function ($item) {
+            $item->url = route('admin.ppdb.bukti.serve', ['id' => $item->id]);
+            return $item;
+        });
+
+        return response()->json($bukti);
+    }
+
+    // Serve file bukti pembayaran untuk admin
+    public function serveBuktiPembayaran($id)
+    {
+        $bukti = BuktiPembayaranPpdb::findOrFail($id);
+
+        if (!Storage::exists($bukti->file_path)) {
+            abort(404, 'File tidak ditemukan');
+        }
+
+        return Storage::response($bukti->file_path, $bukti->file_name);
     }
 
 

@@ -13,5 +13,6 @@ class InfoSekolah extends Model
         'jumlah_staff',
         'nama_kepala_sekolah',
         'foto_kepala_sekolah',
+        'fasilitas',
     ];
 }

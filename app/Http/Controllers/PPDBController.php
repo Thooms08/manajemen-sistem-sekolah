@@ -36,7 +36,7 @@ class PPDBController extends Controller
             AkunPembayaran::orderBy('bank_name')->get()
         );
         $formSettings = Cache::remember('ppdb_form_settings', 600, fn() =>
-            \App\Models\PpdbFormSetting::all()->keyBy('field_name')
+            \App\Models\Pengaturan\PpdbFormSetting::all()->keyBy('field_name')
         );
 
         return view('index.ppdb', compact('biayas', 'accounts', 'formSettings'));

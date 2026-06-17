@@ -12,4 +12,19 @@ class StudiSekolah extends Model
         'nama_studi',
         'deskripsi_studi',
     ];
+
+    public function kepalas()
+    {
+        return $this->hasMany(StudiKepala::class, 'id_studi');
+    }
+
+    public function kelass()
+    {
+        return $this->hasMany(StudiKelas::class, 'id_studi');
+    }
+
+    public function catatans()
+    {
+        return $this->hasMany(StudiCatatan::class, 'id_studi')->latest();
+    }
 }
