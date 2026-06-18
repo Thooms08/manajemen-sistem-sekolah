@@ -2,16 +2,20 @@
 
 namespace App\Http\Controllers\DataMaster;
 
+use App\Http\Traits\RendersUserView;
+
+
 use App\Models\DataMaster\Mapel;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class MapelController extends Controller
 {
+    use RendersUserView;
     public function index()
     {
         $mapels = Mapel::orderBy('created_at', 'desc')->get();
-        return view('admin.data_master.mapel', compact('mapels'));
+        return $this->renderView('admin.data_master.mapel', compact('mapels'));
     }
 
     public function store(Request $request)

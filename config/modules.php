@@ -49,6 +49,12 @@ return [
     ],
 
     // ── Data Master ────────────────────────────────────────────
+    'catatan' => [
+        'label' => 'Catatan',
+        'icon'  => 'bi-journal-text',
+        'group' => 'Data Master',
+        'aksi'  => ['view', 'create', 'edit', 'delete'],
+    ],
     'data_guru' => [
         'label' => 'Data Guru',
         'icon'  => 'bi-person-badge',

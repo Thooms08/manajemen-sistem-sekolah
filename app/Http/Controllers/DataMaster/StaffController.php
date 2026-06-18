@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\DataMaster;
 
+use App\Http\Traits\RendersUserView;
+
+
 use App\Models\DataMaster\Staff;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -11,12 +14,13 @@ use App\Http\Controllers\Controller;
 
 class StaffController extends Controller
 {
+    use RendersUserView;
     public function index()
     {
         $staffsAktif    = Staff::where('status', 'aktif')->latest()->get();
         $staffsNonaktif = Staff::where('status', 'nonaktif')->latest('tanggal_nonaktif')->get();
 
-        return view('admin.data_master.staff', compact('staffsAktif', 'staffsNonaktif'));
+        return $this->renderView('admin.data_master.staff', compact('staffsAktif', 'staffsNonaktif'));
     }
 
     public function store(Request $request)

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Keuangan;
 
+use App\Http\Traits\RendersUserView;
+
+
 use App\Http\Controllers\Controller;
 use App\Models\Keuangan\Pemasukan;
 use App\Models\Keuangan\Pengeluaran;
@@ -12,6 +15,7 @@ use Rap2hpoutre\FastExcel\FastExcel;
 
 class LaporanKeuanganController extends Controller
 {
+    use RendersUserView;
     /**
      * Hitung rentang tanggal berdasarkan periode yang dipilih.
      * Return: [ Carbon $from, Carbon $to, string $periode ]
@@ -172,7 +176,7 @@ class LaporanKeuanganController extends Controller
             ->whereBetween('created_at', [$from, $to])
             ->latest()->limit(5)->get();
 
-        return view('admin.keuangan.laporan', compact(
+        return $this->renderView('admin.keuangan.laporan', compact(
             'sekolah', 'periode', 'dateFrom', 'dateTo',
             'from', 'to',
             // Summary

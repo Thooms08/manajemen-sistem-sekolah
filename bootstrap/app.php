@@ -5,6 +5,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 // Import class middleware Anda di sini
 use App\Http\Middleware\RoleMiddleware;
+use App\Http\Middleware\CheckPermission;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,7 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Mendaftarkan middleware menggunakan alias
         $middleware->alias([
-            'role' => RoleMiddleware::class,
+            'role'       => RoleMiddleware::class,
+            'permission' => CheckPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

@@ -93,7 +93,13 @@
                 @csrf
 
                 @php
-                    $groups = collect($modules)->groupBy('group');
+                    // Kelompokkan dengan mempertahankan key string asli modul
+                    // collect()->groupBy() mereset key menjadi integer, sehingga
+                    // kita gunakan array biasa agar name="permissions[kode_modul][]" tetap benar
+                    $groups = [];
+                    foreach ($modules as $modulKey => $modulConf) {
+                        $groups[$modulConf['group']][$modulKey] = $modulConf;
+                    }
                     $aksiLabels = ['view'=>'Lihat','create'=>'Tambah','edit'=>'Edit','delete'=>'Hapus'];
                 @endphp
 
@@ -111,7 +117,7 @@
 
                         @foreach($groupModules as $modulKey => $modulConf)
                             @php
-                                $savedAksi = $saved->get($modulKey, []);
+                                $savedAksi = (array) $saved->get($modulKey, []);
                             @endphp
                             <div class="perm-row" data-group="{{ Str::slug($groupName) }}">
                                 <i class="bi {{ $modulConf['icon'] }} text-success flex-shrink-0" style="width:20px;"></i>
@@ -124,7 +130,7 @@
                                                 name="permissions[{{ $modulKey }}][]"
                                                 value="{{ $aksi }}"
                                                 data-aksi="{{ $aksi }}"
-                                                {{ in_array($aksi, $savedAksi) ? 'checked' : '' }}>
+                                                {{ in_array($aksi, (array) $savedAksi) ? 'checked' : '' }}>
                                             <span class="aksi-label">{{ $aksiLabels[$aksi] ?? $aksi }}</span>
                                         </label>
                                     @endforeach

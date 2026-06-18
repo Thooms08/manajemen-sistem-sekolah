@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Dokumen;
 
+use App\Http\Traits\RendersUserView;
+
+
 use Illuminate\Http\Request;
 use App\Models\Dokumen\Dokumen;
 use Illuminate\Support\Facades\Storage;
@@ -9,11 +12,12 @@ use App\Http\Controllers\Controller;
 
 class DokumenController extends Controller
 {
+    use RendersUserView;
     // Halaman Root (Manajemen Dokumen)
     public function index()
     {
         $items = Dokumen::whereNull('parent_id')->orderBy('tipe', 'desc')->orderBy('nama', 'asc')->get();
-        return view('admin.dokumen.manajemen_dokumen', compact('items'));
+        return $this->renderView('admin.dokumen.manajemen_dokumen', compact('items'));
     }
 
     // Halaman Detail Folder
@@ -23,7 +27,7 @@ class DokumenController extends Controller
         if ($folder->tipe !== 'folder') abort(404);
 
         $items = Dokumen::where('parent_id', $folder->id)->orderBy('tipe', 'desc')->orderBy('nama', 'asc')->get();
-        return view('admin.dokumen.detail_folder', compact('folder', 'items'));
+        return $this->renderView('admin.dokumen.detail_folder', compact('folder', 'items'));
     }
 
     // Buat Folder Baru

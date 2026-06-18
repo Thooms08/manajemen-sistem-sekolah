@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\DataMaster;
 
+use App\Http\Traits\RendersUserView;
+
+
 use App\Models\DataMaster\WaliMurid;
 use App\Models\DataMaster\Murid;
 use Illuminate\Http\Request;
@@ -9,6 +12,7 @@ use App\Http\Controllers\Controller;
 
 class WaliMuridController extends Controller
 {
+    use RendersUserView;
     public function index()
     {
         // Tab Aktif: murid dengan status konfirmasi yang memiliki wali
@@ -23,7 +27,7 @@ class WaliMuridController extends Controller
             ->where('status', 'nonaktif')
             ->get();
 
-        return view('admin.data_master.wali_murid', compact('dataAktif', 'dataNonaktif'));
+        return $this->renderView('admin.data_master.wali_murid', compact('dataAktif', 'dataNonaktif'));
     }
 
     public function search(Request $request)

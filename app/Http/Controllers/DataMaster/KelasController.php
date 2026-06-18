@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\DataMaster;
 
+use App\Http\Traits\RendersUserView;
+
+
 use Illuminate\Http\Request;
 use App\Models\DataMaster\Kelas;
 use App\Models\DataMaster\Murid;
@@ -11,6 +14,7 @@ use App\Http\Controllers\Controller;
 
 class KelasController extends Controller
 {
+    use RendersUserView;
     public function index()
     {
         // Load relasi murid (count) dan waliKelas agar bisa dicek kondisi di view
@@ -23,7 +27,7 @@ class KelasController extends Controller
                   ->whereRaw('murid_kelas.id_murid = murid.id');
         })->get();
 
-        return view('admin.data_master.kelas', compact('kelas', 'muridTersedia'));
+        return $this->renderView('admin.data_master.kelas', compact('kelas', 'muridTersedia'));
     }
 
     // HALAMAN BARU: Menampilkan detail kelas dan daftar murid di dalamnya
@@ -46,7 +50,7 @@ class KelasController extends Controller
         // Ambil hanya guru aktif untuk modal "Wali Kelas"
         $semuaGuru = Guru::where('status', 'aktif')->orderBy('nama_guru')->get();
 
-        return view('admin.data_master.detail_kelas', compact('kelas', 'muridTersedia', 'semuaGuru'));
+        return $this->renderView('admin.data_master.detail_kelas', compact('kelas', 'muridTersedia', 'semuaGuru'));
     }
 
     public function store(Request $request)

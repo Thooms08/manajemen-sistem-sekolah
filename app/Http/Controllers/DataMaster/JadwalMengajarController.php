@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\DataMaster;
 
+use App\Http\Traits\RendersUserView;
+
+
 use App\Http\Controllers\Controller;
 use App\Models\DataMaster\Guru;
 use App\Models\DataMaster\Kelas;
@@ -12,6 +15,7 @@ use Illuminate\Validation\Rule;
 
 class JadwalMengajarController extends Controller
 {
+    use RendersUserView;
     private const HARI_LIST = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
     /**
@@ -41,7 +45,7 @@ class JadwalMengajarController extends Controller
             $jadwalPerHari[$hari] = $jadwals->where('hari', $hari)->values();
         }
 
-        return view('admin.data_master.jadwal_mengajar', compact(
+        return $this->renderView('admin.data_master.jadwal_mengajar', compact(
             'guruList', 'kelasList', 'mapelList', 'jadwals', 'jadwalPerHari'
         ));
     }

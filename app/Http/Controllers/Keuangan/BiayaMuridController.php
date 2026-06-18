@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Keuangan;
 
+use App\Http\Traits\RendersUserView;
+
+
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
@@ -11,13 +14,14 @@ use App\Models\Informasi\ProfileSekolah;
 
 class BiayaMuridController extends Controller
 {
+    use RendersUserView;
     public function index()
     {
         $sekolah  = ProfileSekolah::first();
         $accounts = AkunPembayaran::orderBy('bank_name')->get();
         $biayas   = BiayaMurid::with('account')->orderBy('id')->get();
 
-        return view('admin.keuangan.biaya-murid', compact('sekolah', 'accounts', 'biayas'));
+        return $this->renderView('admin.keuangan.biaya-murid', compact('sekolah', 'accounts', 'biayas'));
     }
 
     /**

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\DataMaster;
 
+use App\Http\Traits\RendersUserView;
+
+
 use App\Models\DataMaster\Guru;
 use App\Models\DataMaster\Mapel;
 use App\Models\DataMaster\Kelas;
@@ -14,6 +17,7 @@ use App\Http\Controllers\Controller;
 
 class GuruController extends Controller
 {
+    use RendersUserView;
    public function index()
     {
         $mapels = Mapel::all();
@@ -23,7 +27,7 @@ class GuruController extends Controller
         $gurusAktif    = Guru::with(['pengajars.mapel', 'pengajars.kelas'])->where('status', 'aktif')->latest()->get();
         $gurusNonaktif = Guru::with(['pengajars.mapel', 'pengajars.kelas'])->where('status', 'nonaktif')->latest('tanggal_nonaktif')->get();
 
-        return view('admin.data_master.guru', compact('gurusAktif', 'gurusNonaktif', 'mapels', 'kelases'));
+        return $this->renderView('admin.data_master.guru', compact('gurusAktif', 'gurusNonaktif', 'mapels', 'kelases'));
     }
 
     public function store(Request $request)

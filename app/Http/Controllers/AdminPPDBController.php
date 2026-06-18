@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Traits\RendersUserView;
+
+
 use App\Models\DataMaster\Murid;
 use App\Models\Pengaturan\PpdbFormSetting;
 use App\Models\Keuangan\BiayaMurid;
@@ -12,9 +15,10 @@ use Illuminate\Support\Facades\Storage;
 
 class AdminPPDBController extends Controller
 {
+    use RendersUserView;
     public function index()
     {
-        return view('admin.notif_ppdb');
+        return $this->renderView('admin.notif_ppdb');
     }
 
     // Ambil data murid status pending + flag apakah ada biaya cash aktif

@@ -119,7 +119,7 @@
                         {{-- Aksi --}}
                         <div class="d-flex gap-2 flex-wrap">
                             @if($role->isAdmin())
-                                {{-- Role admin: tombol atur hak akses dikunci --}}
+                                {{-- Role admin: semua tombol dikunci --}}
                                 <button class="btn btn-secondary btn-sm px-3 flex-grow-1" disabled title="Hak akses Administrator tidak dapat diubah">
                                     <i class="bi bi-shield-lock me-1"></i>Terlindungi
                                 </button>
@@ -130,19 +130,31 @@
                             @endif
 
                             @if(!$role->is_system)
-                                <button class="btn btn-outline-secondary btn-sm px-3" onclick="openEditRole('{{ $role->uuid }}')" title="Edit">
+                                {{-- Tombol Edit --}}
+                                <button class="btn btn-outline-secondary btn-sm px-3"
+                                    onclick="openEditRole('{{ $role->uuid }}')" title="Edit Role">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
-                                <form action="{{ route('admin.manajemen-role.destroy', $role->uuid) }}" method="POST" class="d-inline">
+
+                                {{-- Tombol Hapus dengan SweetAlert --}}
+                                <form id="form-hapus-{{ $role->uuid }}"
+                                    action="{{ route('admin.manajemen-role.destroy', $role->uuid) }}"
+                                    method="POST" class="d-inline">
                                     @csrf @method('DELETE')
-                                    <button class="btn btn-outline-danger btn-sm px-3" title="Hapus"
-                                        onclick="return confirm('Hapus role \"{{ addslashes($role->nama) }}\"? Semua hak aksesnya juga akan terhapus.')">
+                                    <button type="button"
+                                        class="btn btn-outline-danger btn-sm px-3"
+                                        title="Hapus Role"
+                                        onclick="konfirmasiHapusRole(
+                                            '{{ $role->uuid }}',
+                                            '{{ addslashes($role->nama) }}',
+                                            {{ $role->permissions_count }}
+                                        )">
                                         <i class="bi bi-trash"></i>
                                     </button>
                                 </form>
                             @elseif(!$role->isAdmin())
-                                {{-- Role sistem non-admin: tampilkan info tapi tidak bisa hapus --}}
-                                <span class="btn btn-outline-secondary btn-sm px-3 disabled" title="Role sistem tidak dapat diedit nama/warnanya">
+                                {{-- Role sistem non-admin: kunci edit & hapus --}}
+                                <span class="btn btn-outline-secondary btn-sm px-3 disabled" title="Role sistem tidak dapat diedit">
                                     <i class="bi bi-lock"></i>
                                 </span>
                             @endif
@@ -310,6 +322,30 @@ function openEditRole(uuid) {
         });
 
         new bootstrap.Modal(document.getElementById('modalEditRole')).show();
+    });
+}
+
+// Konfirmasi hapus role dengan SweetAlert
+function konfirmasiHapusRole(uuid, nama, jumlahModul) {
+    const pesanModul = jumlahModul > 0
+        ? `<br><small class="text-warning"><i class="bi bi-exclamation-triangle me-1"></i>${jumlahModul} konfigurasi hak akses juga akan ikut terhapus.</small>`
+        : '';
+
+    Swal.fire({
+        title: 'Hapus Role?',
+        html: `Anda akan menghapus role <strong>"${nama}"</strong>.${pesanModul}<br><br>Aksi ini <strong>tidak dapat dibatalkan</strong>.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="bi bi-trash me-1"></i>Ya, Hapus',
+        cancelButtonText: 'Batal',
+        reverseButtons: true,
+        focusCancel: true,
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('form-hapus-' + uuid).submit();
+        }
     });
 }
 

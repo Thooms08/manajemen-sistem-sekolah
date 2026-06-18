@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Informasi;
 
+use App\Http\Traits\RendersUserView;
+
+
 use App\Models\Informasi\ProfileSekolah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -12,10 +15,11 @@ use App\Http\Controllers\Controller;
 
 class ProfileSekolahController extends Controller
 {
+    use RendersUserView;
     public function index()
     {
         $profiles = ProfileSekolah::all();
-        return view('admin.informasi_sekolah.profile_sekolah', compact('profiles'));
+        return $this->renderView('admin.informasi_sekolah.profile_sekolah', compact('profiles'));
     }
 
     public function store(Request $request)

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Keuangan;
 
+use App\Http\Traits\RendersUserView;
+
+
 use App\Http\Controllers\Controller;
 use App\Models\Keuangan\Pemasukan;
 use App\Models\Keuangan\BiayaMurid;
@@ -14,6 +17,7 @@ use Rap2hpoutre\FastExcel\FastExcel;
 
 class PemasukanController extends Controller
 {
+    use RendersUserView;
     // ──────────────────────────────────────────────────────────────────
     // Helper: bangun query berdasarkan filter range waktu
     // ──────────────────────────────────────────────────────────────────
@@ -87,7 +91,7 @@ class PemasukanController extends Controller
         $allCollection = $pemasukans->merge($dihapusList);
         $murids        = $this->attachMurid($allCollection);
 
-        return view('admin.keuangan.pemasukan', compact(
+        return $this->renderView('admin.keuangan.pemasukan', compact(
             'biayas', 'sekolah',
             'pemasukans', 'dihapusList',
             'totalNominal', 'totalAktifitas',

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Informasi;
 
+use App\Http\Traits\RendersUserView;
+
+
 use Illuminate\Http\Request;
 use App\Models\Informasi\Dokumentasi;
 use App\Models\Informasi\ProgramSekolah;
@@ -17,6 +20,7 @@ use App\Http\Controllers\Controller;
 
 class InformasiController extends Controller
 {
+    use RendersUserView;
     /**
      * Kompresi gambar ke < 100KB menggunakan PHP GD, lalu simpan ke Storage disk 'public'.
      * Mengembalikan path relatif yang tersimpan (contoh: kegiatan/1234_kegiatan.jpg)
@@ -89,7 +93,7 @@ class InformasiController extends Controller
         $infoSekolah = InfoSekolah::first();
         $brosurList  = Brosur::latest()->get();
 
-        return view('admin.informasi_sekolah.informasi', compact(
+        return $this->renderView('admin.informasi_sekolah.informasi', compact(
             'kegiatan', 'programs', 'prestasi', 'artikels', 'studiList', 'infoSekolah', 'brosurList'
         ));
     }

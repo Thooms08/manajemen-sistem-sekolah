@@ -180,7 +180,7 @@
     <ul class="list-unstyled components">
         <li class="{{ Request::is('admin') ? 'active' : '' }}">
             <a href="{{ route('admin.home') }}">
-                <i class="bi bi-speedometer2"></i> Dashboard
+                <i class="bi bi-speedometer2"></i> Beranda
             </a>
         </li>
 
@@ -292,6 +292,12 @@
             </a>
         </li>
 
+        <li class="{{ request()->routeIs('catatan.*') ? 'active' : '' }}">
+            <a href="{{ route('catatan.index') }}">
+                <i class="bi bi-journal-text"></i> Catatan
+            </a>
+        </li>
+
         <li class="px-3 mt-4 mb-2">
             <small class="text-uppercase fw-bold" style="font-size: 0.85rem; letter-spacing: 1px; color: rgba(255,255,255,0.6);">Dokumen</small>
         </li>
@@ -343,6 +349,12 @@
         <li class="{{ request()->routeIs('admin.manajemen-role*') ? 'active' : '' }}">
             <a href="{{ route('admin.manajemen-role.index') }}">
                 <i class="bi bi-shield-lock"></i> Manajemen Role
+            </a>
+        </li>
+
+        <li class="{{ request()->routeIs('akun-role.*') ? 'active' : '' }}">
+            <a href="{{ route('akun-role.index') }}">
+                <i class="bi bi-person-gear"></i> Akun Role
             </a>
         </li>
     </ul>

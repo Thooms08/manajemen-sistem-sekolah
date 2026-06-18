@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Informasi;
 
+use App\Http\Traits\RendersUserView;
+
+
 use App\Http\Controllers\Controller;
 use App\Models\Informasi\Prestasi;
 use App\Models\Informasi\PrestasiDetail;
@@ -12,6 +15,7 @@ use Illuminate\Http\Request;
 
 class DetailPrestasiController extends Controller
 {
+    use RendersUserView;
     public const TINGKAT_LIST = [
         'Sekolah', 'Kecamatan', 'Kabupaten/Kota', 'Provinsi', 'Nasional', 'Internasional',
     ];
@@ -34,7 +38,7 @@ class DetailPrestasiController extends Controller
 
         $totalMurid = Murid::whereIn('status', ['konfirmasi', 'lulus'])->count();
 
-        return view('admin.informasi_sekolah.detail_prestasi', compact(
+        return $this->renderView('admin.informasi_sekolah.detail_prestasi', compact(
             'prestasi', 'muridIds', 'muridAwal', 'totalMurid'
         ));
     }

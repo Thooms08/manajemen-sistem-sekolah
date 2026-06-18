@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\DataMaster;
 
+use App\Http\Traits\RendersUserView;
+
+
 use App\Models\DataMaster\Murid;
 use App\Models\Dokumen\Kelulusan;
 use Illuminate\Http\Request;
@@ -9,6 +12,7 @@ use App\Http\Controllers\Controller;
 
 class AlumniController extends Controller
 {
+    use RendersUserView;
     /**
      * Tampilan Utama Halaman Alumni
      */
@@ -25,7 +29,7 @@ class AlumniController extends Controller
             ->with(['kelas', 'kelulusan'])
             ->get();
 
-        return view('admin.data_master.alumni', compact('alumnis', 'years'));
+        return $this->renderView('admin.data_master.alumni', compact('alumnis', 'years'));
     }
 
     /**

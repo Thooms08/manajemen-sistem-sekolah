@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Informasi;
 
+use App\Http\Traits\RendersUserView;
+
+
 use App\Http\Controllers\Controller;
 use App\Models\Informasi\ProgramSekolah;
 use App\Models\Informasi\ProgramPembina;
@@ -15,6 +18,7 @@ use Illuminate\Http\Request;
 
 class DetailProgramController extends Controller
 {
+    use RendersUserView;
     /**
      * Halaman detail program sekolah.
      */
@@ -35,7 +39,7 @@ class DetailProgramController extends Controller
         // ID murid yang sudah jadi anggota
         $anggotaIds = $program->anggotas->pluck('id_murid')->toArray();
 
-        return view('admin.informasi_sekolah.detail_program', compact(
+        return $this->renderView('admin.informasi_sekolah.detail_program', compact(
             'program', 'guruList', 'staffList', 'muridList', 'anggotaIds'
         ));
     }

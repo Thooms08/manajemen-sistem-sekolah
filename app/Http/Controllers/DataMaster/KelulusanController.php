@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\DataMaster;
 
+use App\Http\Traits\RendersUserView;
+
+
 use App\Models\DataMaster\Murid;
 use App\Models\Dokumen\Kelulusan;
 use Illuminate\Http\Request;
@@ -11,6 +14,7 @@ use App\Http\Controllers\Controller;
 
 class KelulusanController extends Controller
 {
+    use RendersUserView;
     /**
      * Tampilan Utama Halaman Kelulusan.
      * Hanya load data minimal — detail berkas di-lazy load saat buka modal edit.
@@ -29,7 +33,7 @@ class KelulusanController extends Controller
         // Reload dengan data kelulusan yang sudah pasti ada
         $murids->load('kelulusan:id,uuid,id_murid,status,tahun_lulus,ijazah,raport,surat_kelulusan');
 
-        return view('admin.data_master.data_kelulusan', compact('murids'));
+        return $this->renderView('admin.data_master.data_kelulusan', compact('murids'));
     }
 
     /**

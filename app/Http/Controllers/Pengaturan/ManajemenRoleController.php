@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Pengaturan\Role;
 use App\Models\Pengaturan\RolePermission;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ManajemenRoleController extends Controller
@@ -59,20 +60,32 @@ class ManajemenRoleController extends Controller
                 ->with('error', 'Hak akses role Administrator tidak dapat diubah.');
         }
 
-        $modules = $this->modules();
-        RolePermission::where('role_id', $role->id)->delete();
+        $request->validate([
+            'permissions' => ['nullable', 'array'],
+            'permissions.*' => ['array'],
+            'permissions.*.*' => ['string'],
+        ]);
 
-        foreach ($modules as $modul => $config) {
-            $aksi      = $request->input("permissions.{$modul}", []);
-            $validAksi = array_intersect($aksi, $config['aksi']);
-            if (!empty($validAksi)) {
+        $modules = $this->modules();
+
+        DB::transaction(function () use ($request, $role, $modules) {
+            $role->permissions()->delete();
+
+            foreach ($modules as $modul => $config) {
+                $aksi      = (array) $request->input("permissions.{$modul}", []);
+                $validAksi = array_values(array_intersect($aksi, $config['aksi']));
+
+                if ($validAksi === []) {
+                    continue;
+                }
+
                 RolePermission::create([
                     'role_id' => $role->id,
                     'modul'   => $modul,
-                    'aksi'    => array_values($validAksi),
+                    'aksi'    => $validAksi,
                 ]);
             }
-        }
+        });
 
         return redirect()->route('admin.manajemen-role.index')
             ->with('success', "Hak akses untuk role \"{$role->nama}\" berhasil disimpan.");

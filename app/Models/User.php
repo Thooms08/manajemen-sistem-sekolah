@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\DataMaster\Catatan;
 
 class User extends Authenticatable
 {
@@ -40,6 +41,11 @@ class User extends Authenticatable
     public function setRulesAttribute($value): void
     {
         $this->attributes['role'] = $value;
+    }
+
+    public function catatans()
+    {
+        return $this->hasMany(Catatan::class, 'id_user');
     }
 
     // Otomatis menghash password saat disimpan (Laravel 10/11/12 Style)

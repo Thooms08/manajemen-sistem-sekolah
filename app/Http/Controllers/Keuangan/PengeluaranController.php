@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Keuangan;
 
+use App\Http\Traits\RendersUserView;
+
+
 use App\Http\Controllers\Controller;
 use App\Models\Keuangan\Pengeluaran;
 use App\Models\Keuangan\BuktiPengeluaran;
@@ -13,6 +16,7 @@ use Rap2hpoutre\FastExcel\FastExcel;
 
 class PengeluaranController extends Controller
 {
+    use RendersUserView;
     // ──────────────────────────────────────────────────────────────────
     // Helper: bangun query berdasarkan filter range waktu
     // ──────────────────────────────────────────────────────────────────
@@ -71,7 +75,7 @@ class PengeluaranController extends Controller
         $totalNominal   = $pengeluarans->sum('total');
         $totalAktifitas = $pengeluarans->count();
 
-        return view('admin.keuangan.pengeluaran', compact(
+        return $this->renderView('admin.keuangan.pengeluaran', compact(
             'sekolah',
             'pengeluarans', 'dihapusList',
             'totalNominal', 'totalAktifitas',

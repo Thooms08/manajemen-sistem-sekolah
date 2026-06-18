@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Informasi;
 
+use App\Http\Traits\RendersUserView;
+
+
 use App\Http\Controllers\Controller;
 use App\Models\Informasi\StudiSekolah;
 use App\Models\Informasi\StudiKepala;
@@ -14,6 +17,7 @@ use Illuminate\Http\Request;
 
 class DetailStudiController extends Controller
 {
+    use RendersUserView;
     // ── Halaman Detail ───────────────────────────────────────────
     public function show($id)
     {
@@ -30,7 +34,7 @@ class DetailStudiController extends Controller
         // ID kelas yang sudah masuk prodi ini
         $kelasIds = $studi->kelass->pluck('id_kelas')->toArray();
 
-        return view('admin.informasi_sekolah.detail_studi', compact(
+        return $this->renderView('admin.informasi_sekolah.detail_studi', compact(
             'studi', 'guruList', 'staffList', 'kelasList', 'kelasIds'
         ));
     }

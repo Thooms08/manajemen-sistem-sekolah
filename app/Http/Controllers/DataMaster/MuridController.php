@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\DataMaster;
 
+use App\Http\Traits\RendersUserView;
+
+
 use App\Http\Requests\PPDBStoreRequest;
 use App\Http\Requests\PPDBUpdateRequest;
 use App\Models\DataMaster\Murid;
@@ -19,6 +22,7 @@ use App\Http\Controllers\Controller;
 
 class MuridController extends Controller
 {
+    use RendersUserView;
     public function index()
     {
         // Tab Aktif: status konfirmasi
@@ -33,7 +37,7 @@ class MuridController extends Controller
             ->latest('tanggal_nonaktif')
             ->get();
 
-        return view('admin.data_master.murid', compact('muridsAktif', 'muridsNonaktif'));
+        return $this->renderView('admin.data_master.murid', compact('muridsAktif', 'muridsNonaktif'));
     }
 
     public function create()
@@ -42,7 +46,7 @@ class MuridController extends Controller
         $biayas = BiayaMurid::with('account')->orderBy('id')->get();
         $accounts = AkunPembayaran::orderBy('bank_name')->get();
         $formSettings = \App\Models\Pengaturan\PpdbFormSetting::all()->keyBy('field_name');
-        return view('admin.ppdb', compact('murid', 'biayas', 'accounts', 'formSettings'));
+        return $this->renderView('admin.ppdb', compact('murid', 'biayas', 'accounts', 'formSettings'));
     }
 
     public function store(PPDBStoreRequest $request)
@@ -365,7 +369,7 @@ class MuridController extends Controller
         $biayas = BiayaMurid::with('account')->orderBy('id')->get();
         $accounts = AkunPembayaran::orderBy('bank_name')->get();
         $formSettings = \App\Models\Pengaturan\PpdbFormSetting::all()->keyBy('field_name');
-        return view('admin.ppdb', compact('murid', 'biayas', 'accounts', 'formSettings'));
+        return $this->renderView('admin.ppdb', compact('murid', 'biayas', 'accounts', 'formSettings'));
     }
 
     public function update(PPDBUpdateRequest $request, $uuid)

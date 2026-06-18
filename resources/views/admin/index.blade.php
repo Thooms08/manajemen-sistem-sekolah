@@ -532,6 +532,12 @@
                                         <span>Laporan</span>
                                     </a>
                                 </div>
+                                <div class="col-6">
+                                    <a href="{{ route('catatan.index') }}" class="quick-link">
+                                        <i class="bi bi-journal-text"></i>
+                                        <span>Catatan</span>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
