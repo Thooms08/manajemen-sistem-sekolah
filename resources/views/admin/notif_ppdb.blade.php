@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -41,27 +41,56 @@
         
         /* Toggle Transition */
         .transition { transition: all 0.4s ease; }
+
+        .btn-toggle-wrapper { text-align: right; }
+
+        @media (max-width: 768px) {
+            #content { padding: 15px 12px; }
+            .card { padding: 15px !important; }
+            h4.fw-bold { font-size: 1.2rem; }
+            .btn-toggle-wrapper { text-align: center; width: 100%; margin-top: 5px; }
+            .btn-toggle-wrapper button { width: 100%; font-size: 1rem; padding: 10px 15px; }
+            
+            /* Susunan Modal Footer di Mobile */
+            .modal-footer { display: flex; flex-direction: column-reverse; gap: 8px; }
+            .modal-footer button { width: 100%; margin: 0 !important; }
+            
+            /* Proporsionalitas Tabel Modal */
+            .table-detail th, .table-detail td { font-size: 0.8rem; padding: 6px; }
+            .table-detail th { width: 45%; }
+            .section-title { font-size: 0.85rem; }
+            
+            /* Ukuran Badge */
+            .badge-pending, .badge-unpaid { padding: 8px 12px !important; font-size: 0.75rem; }
+        }
+        
+        /* Overlay Sidebar Mobile */
+        #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1040; }
+        #overlay.active { display: block; }
     </style>
 </head>
 <body>
 
+<div id="overlay"></div>
 <div class="wrapper">
     @include('admin.sidebar')
 
     <div id="content">
         <div class="container-fluid">
-            <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+            <div class="d-flex align-items-md-center justify-content-between mb-4 flex-column flex-md-row gap-3">
                 <div class="d-flex align-items-center">
-                    <button type="button" id="sidebarCollapse"><i class="bi bi-list fs-4"></i></button>
+                    <button type="button" id="sidebarCollapse" class="flex-shrink-0"><i class="bi bi-list fs-4"></i></button>
                     <div class="ms-3">
                         <h4 class="mb-0 fw-bold">Manajemen PPDB</h4>
-                        <p class="text-muted small mb-0">Kelola pendaftaran siswa baru dan status sistem</p>
+                        <p class="text-muted small mb-0">Kelola pendaftaran siswa baru</p>
                     </div>
                 </div>
 
-                <button id="btnTogglePPDB" class="btn btn-lg rounded-pill px-4 fw-bold shadow-sm transition">
-                    <span id="ppdbStatusText"><i class="spinner-border spinner-border-sm me-2"></i>Memuat...</span>
-                </button>
+                <div class="btn-toggle-wrapper">
+                    <button id="btnTogglePPDB" class="btn btn-lg rounded-pill px-4 fw-bold shadow-sm transition">
+                        <span id="ppdbStatusText"><i class="spinner-border spinner-border-sm me-2"></i>Memuat...</span>
+                    </button>
+                </div>
             </div>
 
             <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 15px;">
@@ -266,17 +295,19 @@
 
                     container.innerHTML += `
                         <div class="card card-notif p-3 mb-3 shadow-sm" id="row-${m.id}">
-                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            <div class="d-flex justify-content-between align-items-md-center flex-column flex-md-row gap-3">
                                 <div>
                                     <h6 class="fw-bold mb-1 text-success">${m.nama_lengkap}</h6>
                                     <small class="text-muted d-block mb-2">
-                                        <i class="bi bi-person-vcard"></i> NISN: ${m.nisn ?? '-'} |
+                                        <i class="bi bi-person-vcard"></i> NISN: ${m.nisn ?? '-'} <span class="d-none d-md-inline">|</span><br class="d-md-none">
                                         <i class="bi bi-calendar3"></i> ${date}
                                     </small>
-                                    <span class="badge badge-pending px-3 py-2">PENDING VERIFIKASI</span>
-                                    ${cashBadge}
+                                    <div class="d-flex flex-wrap gap-2 mt-1">
+                                        <span class="badge badge-pending px-3 py-2">PENDING VERIFIKASI</span>
+                                        ${cashBadge}
+                                    </div>
                                 </div>
-                                <div class="d-flex gap-2 flex-wrap">
+                                <div class="d-grid d-md-flex gap-2 mt-1 mt-md-0">
                                     <button class="btn btn-outline-success btn-sm px-3 rounded-pill" onclick="viewDetail(${m.id})">
                                         <i class="bi bi-eye"></i> Detail Berkas
                                     </button>
@@ -587,10 +618,6 @@
         setInterval(updateBadge, 10000); 
         setInterval(fetchNotifications, 60000); // 1 menit sekali
 
-        document.getElementById('sidebarCollapse').onclick = () => {
-            document.getElementById('sidebar').classList.toggle('inactive');
-        };
-
         // Tombol submit tolak
         document.getElementById('btnTolakAkhir').onclick = function () {
             const id     = document.getElementById('rejectMuridId').value;
@@ -610,6 +637,24 @@
             document.getElementById('alasanTolakError').textContent = '';
         });
     });
+    
+    // ── Sidebar toggle ────────────────────────────────────────────────────────
+    const sidebar     = document.getElementById('sidebar');
+    const collapseBtn = document.getElementById('sidebarCollapse');
+    const closeBtn    = document.getElementById('close-sidebar');
+    const overlay     = document.getElementById('overlay');
+
+    function toggleSidebar() {
+        if (window.innerWidth <= 768) {
+            if (sidebar) sidebar.classList.toggle('show-mobile');
+            if (overlay) overlay.classList.toggle('active');
+        } else {
+            if (sidebar) sidebar.classList.toggle('inactive');
+        }
+    }
+    if (collapseBtn) collapseBtn.onclick = toggleSidebar;
+    if (closeBtn) closeBtn.onclick    = toggleSidebar;
+    if (overlay) overlay.onclick     = toggleSidebar;
 
     // --- 6. FUNGSI BUKTI PEMBAYARAN ---
     function loadBuktiPembayaran(muridId) {

@@ -43,7 +43,7 @@ class CheckPermission
         if (!$role) {
             return $this->denyAccess(
                 $request,
-                'Role Anda tidak ditemukan. Hubungi Administrator.'
+                'Role Anda tidak ditemukan. Hubungi Admin.'
             );
         }
 
@@ -56,7 +56,7 @@ class CheckPermission
 
             return $this->denyAccess(
                 $request,
-                "Maaf, Anda tidak memiliki akses ke halaman {$modulLabel}. Silakan hubungi Administrator jika ini keliru."
+                "Maaf, Anda tidak memiliki akses ke halaman {$modulLabel}. Silakan hubungi Admin jika ini keliru."
             );
         }
 

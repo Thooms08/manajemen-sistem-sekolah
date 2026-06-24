@@ -230,14 +230,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/guru/{id}/download-surat', [GuruController::class, 'downloadSurat'])->name('guru.download-surat')->middleware('permission:data_guru');
     Route::resource('guru', GuruController::class)->middleware('permission:data_guru');
 
-    // Jadwal Mengajar
+    // Jadwal Mengajar — route statis harus di atas route wildcard {id}
     Route::get('/jadwal-mengajar', [JadwalMengajarController::class, 'index'])->name('jadwal-mengajar.index')->middleware('permission:jadwal_mengajar');
     Route::post('/jadwal-mengajar', [JadwalMengajarController::class, 'store'])->name('jadwal-mengajar.store')->middleware('permission:jadwal_mengajar,create');
+    Route::get('/jadwal-mengajar/poster', [JadwalMengajarController::class, 'showPoster'])->name('jadwal-mengajar.poster')->middleware('permission:jadwal_mengajar');
+    Route::get('/jadwal-mengajar/guru/{id_guru}/mapel', [JadwalMengajarController::class, 'getMapelByGuru'])->name('jadwal-mengajar.mapel-by-guru')->middleware('permission:jadwal_mengajar');
+    Route::get('/jadwal-mengajar/guru/kelas', [JadwalMengajarController::class, 'getKelasByGuruMapel'])->name('jadwal-mengajar.kelas-by-guru-mapel')->middleware('permission:jadwal_mengajar');
     Route::get('/jadwal-mengajar/{id}', [JadwalMengajarController::class, 'show'])->name('jadwal-mengajar.show')->middleware('permission:jadwal_mengajar');
     Route::put('/jadwal-mengajar/{id}', [JadwalMengajarController::class, 'update'])->name('jadwal-mengajar.update')->middleware('permission:jadwal_mengajar,edit');
     Route::delete('/jadwal-mengajar/{id}', [JadwalMengajarController::class, 'destroy'])->name('jadwal-mengajar.destroy')->middleware('permission:jadwal_mengajar,delete');
-    Route::get('/jadwal-mengajar/guru/{id_guru}/mapel', [JadwalMengajarController::class, 'getMapelByGuru'])->name('jadwal-mengajar.mapel-by-guru')->middleware('permission:jadwal_mengajar');
-    Route::get('/jadwal-mengajar/guru/kelas', [JadwalMengajarController::class, 'getKelasByGuruMapel'])->name('jadwal-mengajar.kelas-by-guru-mapel')->middleware('permission:jadwal_mengajar');
 
     // Mata Pelajaran
     Route::get('/mapel/search', [MapelController::class, 'search'])->name('mapel.search')->middleware('permission:data_mapel');

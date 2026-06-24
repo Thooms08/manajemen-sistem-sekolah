@@ -104,7 +104,7 @@ class InformasiController extends Controller
         $request->validate([
             'label_foto' => 'required|string|max:255',
             'foto_kegiatan' => 'required|image|mimes:jpg,jpeg,png|max:2048',
-            'deskripsi_foto' => 'nullable|string'
+            'deskripsi_foto' => 'nullable|string|max:300'
         ]);
 
         $data = [
@@ -123,7 +123,11 @@ class InformasiController extends Controller
     public function updateKegiatan(Request $request, $id)
     {
         $data = Dokumentasi::findOrFail($id);
-        $request->validate(['label_foto' => 'required']);
+        $request->validate([
+            'label_foto' => 'required|string|max:255',
+            'deskripsi_foto' => 'nullable|string|max:300',
+            'foto_kegiatan' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
 
         $updateData = $request->only(['label_foto', 'deskripsi_foto']);
         
@@ -148,7 +152,7 @@ class InformasiController extends Controller
     {
         $request->validate([
             'nama_program' => 'required|string|max:255',
-            'deskripsi_program' => 'nullable|max:150',
+            'deskripsi_program' => 'nullable|string|max:150',
         ]);
 
         ProgramSekolah::create($request->all());
@@ -172,7 +176,7 @@ class InformasiController extends Controller
     {
         $request->validate([
             'judul_prestasi'    => 'required|string|max:255',
-            'deskripsi_prestasi'=> 'nullable|string',
+            'deskripsi_prestasi'=> 'nullable|string|max:500',
             'foto_prestasi'     => 'required|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
@@ -195,7 +199,7 @@ class InformasiController extends Controller
     {
         $request->validate([
             'judul_prestasi'    => 'required|string|max:255',
-            'deskripsi_prestasi'=> 'nullable|string',
+            'deskripsi_prestasi'=> 'nullable|string|max:500',
             'foto_prestasi'     => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
@@ -237,6 +241,8 @@ class InformasiController extends Controller
     {
         $request->validate([
             'judul_artikel' => 'required|string|max:255',
+            'deskripsi'     => 'required|string|max:5000',
+            'teaser'        => 'nullable|string|max:255',
             'foto_artikel'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
@@ -266,6 +272,8 @@ class InformasiController extends Controller
     {
         $request->validate([
             'judul_artikel' => 'required|string|max:255',
+            'deskripsi'     => 'required|string|max:5000',
+            'teaser'        => 'nullable|string|max:255',
             'foto_artikel'  => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
@@ -306,7 +314,7 @@ class InformasiController extends Controller
     {
         $request->validate([
             'nama_studi' => 'required|string|max:255',
-            'deskripsi_studi' => 'nullable|string',
+            'deskripsi_studi' => 'nullable|string|max:500',
         ]);
 
         StudiSekolah::create($request->only(['nama_studi', 'deskripsi_studi']));
@@ -317,7 +325,7 @@ class InformasiController extends Controller
     {
         $request->validate([
             'nama_studi' => 'required|string|max:255',
-            'deskripsi_studi' => 'nullable|string',
+            'deskripsi_studi' => 'nullable|string|max:500',
         ]);
 
         $studi = StudiSekolah::findOrFail($id);
@@ -396,7 +404,7 @@ class InformasiController extends Controller
             'jumlah_staff'        => 'nullable|integer|min:0',
             'nama_kepala_sekolah' => 'nullable|string|max:255',
             'foto_kepala_sekolah' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'fasilitas'           => 'nullable|string',
+            'fasilitas'           => 'nullable|string|max:1000',
         ]);
 
         $data = $request->only(['jumlah_guru', 'jumlah_staff', 'nama_kepala_sekolah', 'fasilitas']);

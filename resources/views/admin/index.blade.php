@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -231,7 +231,6 @@
         .badge-konfirmasi { background: #d1fae5; color: #065f46; }
         .badge-pending    { background: #fef9c3; color: #713f12; }
 
-        /* ── Section label ── */
         .section-label {
             font-size: .7rem;
             font-weight: 700;
@@ -243,9 +242,19 @@
         }
 
         @media (max-width: 768px) {
-            #content { padding: 15px; }
-            .stat-value { font-size: 1.3rem; }
+            #content { padding: 15px 12px; }
+            .stat-value { font-size: 1.2rem; }
+            .stat-card { padding: 16px; gap: 12px; flex-direction: column; text-align: center; justify-content: center; }
+            .stat-icon { width: 42px; height: 42px; font-size: 1.2rem; margin: 0 auto; }
+            .welcome-banner { padding: 20px; }
             .welcome-banner h2 { font-size: 1.2rem; }
+            .welcome-banner::after { font-size: 6rem; right: -15px; top: -15px; }
+            .clock-pill { display: none !important; }
+            .balance-card .amount { font-size: 1.4rem; }
+            .panel-header { padding: 14px 16px; }
+            .panel-body { padding: 16px; }
+            .quick-link { padding: 14px 8px; font-size: 0.72rem; }
+            .quick-link i { font-size: 1.3rem; }
         }
     </style>
 </head>
@@ -296,10 +305,10 @@
 
             {{-- ── STAT CARDS ROW 1: DATA MASTER ── --}}
             <p class="section-label"><i class="bi bi-database me-1"></i> Data Master</p>
-            <div class="row g-3 mb-4">
-                <div class="col-6 col-md-4 col-lg-2">
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3 mb-4">
+                <div class="col">
                     <a href="{{ route('murid.index') }}" class="text-decoration-none">
-                        <div class="stat-card">
+                        <div class="stat-card h-100">
                             <div class="stat-icon green"><i class="bi bi-people-fill"></i></div>
                             <div>
                                 <div class="stat-label">Murid Aktif</div>
@@ -308,9 +317,9 @@
                         </div>
                     </a>
                 </div>
-                <div class="col-6 col-md-4 col-lg-2">
+                <div class="col">
                     <a href="{{ route('guru.index') }}" class="text-decoration-none">
-                        <div class="stat-card">
+                        <div class="stat-card h-100">
                             <div class="stat-icon blue"><i class="bi bi-person-badge-fill"></i></div>
                             <div>
                                 <div class="stat-label">Guru Aktif</div>
@@ -319,9 +328,9 @@
                         </div>
                     </a>
                 </div>
-                <div class="col-6 col-md-4 col-lg-2">
+                <div class="col">
                     <a href="{{ route('staff.index') }}" class="text-decoration-none">
-                        <div class="stat-card">
+                        <div class="stat-card h-100">
                             <div class="stat-icon purple"><i class="bi bi-person-workspace"></i></div>
                             <div>
                                 <div class="stat-label">Staff Aktif</div>
@@ -330,9 +339,9 @@
                         </div>
                     </a>
                 </div>
-                <div class="col-6 col-md-4 col-lg-2">
+                <div class="col">
                     <a href="{{ route('kelas.index') }}" class="text-decoration-none">
-                        <div class="stat-card">
+                        <div class="stat-card h-100">
                             <div class="stat-icon teal"><i class="bi bi-door-open-fill"></i></div>
                             <div>
                                 <div class="stat-label">Total Kelas</div>
@@ -341,9 +350,9 @@
                         </div>
                     </a>
                 </div>
-                <div class="col-6 col-md-4 col-lg-2">
+                <div class="col">
                     <a href="{{ route('informasi.index') }}" class="text-decoration-none">
-                        <div class="stat-card">
+                        <div class="stat-card h-100">
                             <div class="stat-icon green"><i class="bi bi-newspaper"></i></div>
                             <div>
                                 <div class="stat-label">Total Artikel</div>
@@ -547,9 +556,9 @@
 
             {{-- ── ROW 4: STATISTIK KONTEN ── --}}
             <p class="section-label"><i class="bi bi-info-circle me-1"></i> Statistik Konten Website</p>
-            <div class="row g-3 mb-2">
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
+            <div class="row row-cols-2 row-cols-md-4 g-3 mb-2">
+                <div class="col">
+                    <div class="stat-card h-100">
                         <div class="stat-icon green"><i class="bi bi-newspaper"></i></div>
                         <div>
                             <div class="stat-label">Artikel</div>
@@ -557,8 +566,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
+                <div class="col">
+                    <div class="stat-card h-100">
                         <div class="stat-icon blue"><i class="bi bi-trophy-fill"></i></div>
                         <div>
                             <div class="stat-label">Prestasi</div>
@@ -566,8 +575,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
+                <div class="col">
+                    <div class="stat-card h-100">
                         <div class="stat-icon purple"><i class="bi bi-camera-fill"></i></div>
                         <div>
                             <div class="stat-label">Dokumentasi</div>
@@ -575,9 +584,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col">
                     <a href="{{ route('home') }}" target="_blank" class="text-decoration-none">
-                        <div class="stat-card">
+                        <div class="stat-card h-100">
                             <div class="stat-icon teal"><i class="bi bi-box-arrow-up-right"></i></div>
                             <div>
                                 <div class="stat-label">Halaman Publik</div>

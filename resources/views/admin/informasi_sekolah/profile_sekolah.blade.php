@@ -120,7 +120,6 @@
             position: relative;
             height: 240px;
             background: linear-gradient(135deg, #0f5132 0%, #198754 60%, #34d399 100%);
-            overflow: hidden;
             flex-shrink: 0;
         }
         .profile-hero img.hero-foto {
@@ -156,6 +155,7 @@
             box-shadow: 0 4px 16px rgba(0,0,0,.18);
             overflow: hidden;
             display: flex; align-items: center; justify-content: center;
+            z-index: 10;
         }
         .profile-logo-wrap img { width: 100%; height: 100%; object-fit: cover; }
         .profile-logo-wrap .logo-placeholder { font-size: 2.2rem; color: var(--green-primary); }

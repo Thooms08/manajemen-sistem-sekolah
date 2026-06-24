@@ -149,8 +149,10 @@
     /* --- RESPONSIVE MOBILE LOGIC --- */
     @media (max-width: 768px) {
         #sidebar {
+            min-width: 260px;
+            max-width: 260px;
             position: fixed;
-            left: -280px; /* Sembunyi ke kiri secara default */
+            left: -260px; /* Sembunyi ke kiri secara default */
             margin-left: 0 !important; /* Override margin desktop */
         }
         
@@ -160,6 +162,12 @@
 
         #close-sidebar {
             display: block; /* Muncul di HP */
+        }
+        
+        /* Kurangi padding di mobile sedikit */
+        #sidebar ul li a {
+            padding: 10px 15px;
+            font-size: 0.9rem;
         }
     }
 </style>
@@ -230,14 +238,20 @@
                 <ul class="list-unstyled collapse-inner">
                     <li>
                         <a href="{{ route('guru.index') }}"
-                           class="{{ Request::is('guru*') ? 'active-sub' : '' }}">
+                           class="{{ request()->routeIs('guru.*') ? 'active-sub' : '' }}">
                             <i class="bi bi-people me-2"></i> Data Guru
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('jadwal-mengajar.index') }}"
-                           class="{{ Request::is('jadwal-mengajar*') ? 'active-sub' : '' }}">
+                           class="{{ request()->routeIs('jadwal-mengajar.index') ? 'active-sub' : '' }}">
                             <i class="bi bi-calendar3-week me-2"></i> Jadwal Mengajar
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('jadwal-mengajar.poster') }}"
+                           class="{{ request()->routeIs('jadwal-mengajar.poster') ? 'active-sub' : '' }}">
+                            <i class="bi bi-layout-text-window me-2"></i> Poster Jadwal
                         </a>
                     </li>
                 </ul>

@@ -138,7 +138,13 @@
 
         {{-- Guru + Jadwal Mengajar --}}
         @if(canAny('data_guru') || canAny('jadwal_mengajar'))
-        @php $isGuruMenu = Request::is('guru*') || Request::is('jadwal-mengajar*'); @endphp
+        @php
+            $isGuruMenu   = Request::is('guru*') || Request::is('jadwal-mengajar*');
+            // Apakah user punya akses CRUD (create/edit/delete) pada jadwal mengajar?
+            $jadwalCanCRUD = can('jadwal_mengajar', 'create') || can('jadwal_mengajar', 'edit') || can('jadwal_mengajar', 'delete');
+            // Poster tampil jika punya aksi view saja (hanya lihat) ATAU CRUD
+            $jadwalCanView = canAny('jadwal_mengajar');
+        @endphp
         <li class="{{ $isGuruMenu ? 'active' : '' }}">
             <a href="#submenu-guru" data-bs-toggle="collapse"
                class="d-flex align-items-center {{ $isGuruMenu ? 'active' : '' }}"
@@ -151,15 +157,29 @@
                 <ul class="list-unstyled collapse-inner">
                     @if(canAny('data_guru'))
                     <li>
-                        <a href="{{ route('guru.index') }}" class="{{ Request::is('guru*') ? 'active-sub' : '' }}">
+                        <a href="{{ route('guru.index') }}"
+                           class="{{ request()->routeIs('guru.*') ? 'active-sub' : '' }}">
                             <i class="bi bi-people me-2"></i> Data Guru
                         </a>
                     </li>
                     @endif
-                    @if(canAny('jadwal_mengajar'))
+
+                    {{-- Jadwal Mengajar (CRUD): hanya muncul jika user punya aksi create/edit/delete --}}
+                    @if($jadwalCanCRUD)
                     <li>
-                        <a href="{{ route('jadwal-mengajar.index') }}" class="{{ Request::is('jadwal-mengajar*') ? 'active-sub' : '' }}">
+                        <a href="{{ route('jadwal-mengajar.index') }}"
+                           class="{{ request()->routeIs('jadwal-mengajar.index') ? 'active-sub' : '' }}">
                             <i class="bi bi-calendar3-week me-2"></i> Jadwal Mengajar
+                        </a>
+                    </li>
+                    @endif
+
+                    {{-- Poster Jadwal: tampil untuk semua yang punya akses view jadwal mengajar --}}
+                    @if($jadwalCanView)
+                    <li>
+                        <a href="{{ route('jadwal-mengajar.poster') }}"
+                           class="{{ request()->routeIs('jadwal-mengajar.poster') ? 'active-sub' : '' }}">
+                            <i class="bi bi-layout-text-window me-2"></i> Poster Jadwal
                         </a>
                     </li>
                     @endif

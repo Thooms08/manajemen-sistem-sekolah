@@ -39,7 +39,23 @@
         #overlay.active { display: block; }
         input:focus, textarea:focus, select:focus { border-color: #198754 !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;}
         .foto-kepala-preview { width: 120px; height: 120px; object-fit: cover; border-radius: 12px; border: 3px solid #dee2e6; }
-        @media (max-width: 768px) { #content { padding: 15px; } }
+        
+        /* Typography & Table Proportionality */
+        .table { margin-bottom: 0; }
+        .table th { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; }
+        .table td { font-size: 0.9rem; vertical-align: middle; }
+        .table-responsive { border: 1px solid #dee2e6; border-radius: 10px; }
+
+        @media (max-width: 768px) { 
+            #content { padding: 15px 12px; } 
+            .card { padding: 16px !important; }
+            h5.fw-bold { font-size: 1.1rem; }
+            .form-label { font-size: 0.85rem; }
+            .img-thumbnail-custom { width: 60px; height: 45px; }
+            .btn-outline-success.dropdown-toggle { font-size: 0.9rem; padding: 10px; }
+            .dropdown-menu .dropdown-item { font-size: 0.85rem; padding: 10px 15px; }
+            .table th, .table td { font-size: 0.8rem; padding: 8px; }
+        }
     </style>
 </head>
 <body>
@@ -133,9 +149,10 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">Deskripsi (Opsional)</label>
-                                <input type="text" name="deskripsi_foto" class="form-control" placeholder="Keterangan singkat">
+                                <input type="text" name="deskripsi_foto" class="form-control" placeholder="Keterangan singkat" maxlength="300">
+                                <small class="text-muted float-end char-counter"><span class="current">0</span>/300</small>
                             </div>
-                            <div class="col-12 text-end">
+                            <div class="col-12 text-end d-grid d-md-block mt-3">
                                 <button type="submit" class="btn btn-success px-4">Simpan Kegiatan</button>
                             </div>
                         </form>
@@ -183,8 +200,9 @@
                             <div class="col-md-6">
                                 <label class="form-label">Deskripsi Singkat (Max 150 Karakter)</label>
                                 <input type="text" name="deskripsi_program" class="form-control" maxlength="150">
+                                <small class="text-muted float-end char-counter"><span class="current">0</span>/150</small>
                             </div>
-                            <div class="col-12 text-end">
+                            <div class="col-12 text-end d-grid d-md-block mt-3">
                                 <button type="submit" class="btn btn-success px-4">Simpan Program</button>
                             </div>
                         </form>
@@ -232,9 +250,10 @@
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Deskripsi Prestasi</label>
-                                <textarea name="deskripsi_prestasi" class="form-control" rows="2"></textarea>
+                                <textarea name="deskripsi_prestasi" class="form-control" rows="2" maxlength="500" style="resize: none;"></textarea>
+                                <small class="text-muted float-end char-counter"><span class="current">0</span>/500</small>
                             </div>
-                            <div class="col-12 text-end">
+                            <div class="col-12 text-end d-grid d-md-block mt-3">
                                 <button type="submit" class="btn btn-success px-4">Simpan Prestasi</button>
                             </div>
                         </form>
@@ -310,14 +329,15 @@
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Isi Artikel</label>
-                                <textarea name="deskripsi" class="form-control" rows="5" required></textarea>
+                                <textarea name="deskripsi" class="form-control" rows="5" required maxlength="5000" style="resize: none;"></textarea>
+                                <small class="text-muted float-end char-counter"><span class="current">0</span>/5000</small>
                             </div>
                             <div class="col-12">
                                 <label class="form-label fw-semibold">Foto Artikel</label>
                                 <input type="file" name="foto_artikel" class="form-control" accept="image/jpg,image/jpeg,image/png">
                                 <small class="text-muted">Format: JPG, JPEG, PNG. Maks 2MB.</small>
                             </div>
-                            <div class="col-12 text-center pt-3">
+                            <div class="col-12 text-center pt-3 d-grid d-md-block">
                                 <button type="submit" class="btn btn-success btn-lg px-5 shadow">Publikasikan</button>
                             </div>
                         </form>
@@ -394,9 +414,10 @@
                             </div>
                             <div class="col-md-7">
                                 <label class="form-label">Deskripsi Singkat Program Studi</label>
-                                <input type="text" name="deskripsi_studi" class="form-control" placeholder="Deskripsi singkat program studi...">
+                                <input type="text" name="deskripsi_studi" class="form-control" placeholder="Deskripsi singkat program studi..." maxlength="500">
+                                <small class="text-muted float-end char-counter"><span class="current">0</span>/500</small>
                             </div>
-                            <div class="col-12 text-end">
+                            <div class="col-12 text-end d-grid d-md-block mt-3">
                                 <button type="submit" class="btn btn-success px-4">
                                     <i class="bi bi-plus-circle me-1"></i> Simpan Program Studi
                                 </button>
@@ -519,11 +540,14 @@
                             {{-- Fasilitas Sekolah (BARU) --}}
                             <div class="col-12">
                                 <label class="form-label fw-semibold">Fasilitas Sekolah <span class="text-muted fw-normal">(Opsional)</span></label>
-                                <textarea name="fasilitas" class="form-control" rows="3" placeholder="Contoh: Kantin, Perpustakaan, Lab Komputer, Lapangan Basket">{{ $infoSekolah->fasilitas ?? '' }}</textarea>
-                                <small class="text-muted">Pisahkan setiap fasilitas dengan tanda koma (,)</small>
+                                <textarea name="fasilitas" class="form-control" rows="3" placeholder="Contoh: Kantin, Perpustakaan, Lab Komputer, Lapangan Basket" maxlength="1000" style="resize: none;">{{ $infoSekolah->fasilitas ?? '' }}</textarea>
+                                <div class="d-flex justify-content-between mt-1">
+                                    <small class="text-muted">Pisahkan setiap fasilitas dengan tanda koma (,)</small>
+                                    <small class="text-muted char-counter"><span class="current">0</span>/1000</small>
+                                </div>
                             </div>
 
-                            <div class="col-12 text-end">
+                            <div class="col-12 text-end d-grid d-md-block mt-3">
                                 <button type="submit" class="btn btn-success px-5 py-2 shadow-sm">
                                     <i class="bi bi-save me-2"></i> Simpan Informasi
                                 </button>
@@ -552,7 +576,8 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold">Deskripsi <span class="text-muted fw-normal">(Opsional)</span></label>
-                                <input type="text" name="deskripsi" class="form-control" placeholder="Keterangan singkat brosur">
+                                <input type="text" name="deskripsi" class="form-control" placeholder="Keterangan singkat brosur" maxlength="500">
+                                <small class="text-muted float-end char-counter"><span class="current">0</span>/500</small>
                             </div>
                             {{-- Preview area --}}
                             <div class="col-12 d-none" id="brosur-preview-area">
@@ -564,7 +589,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-12 text-end">
+                            <div class="col-12 text-end d-grid d-md-block mt-3">
                                 <button type="submit" class="btn btn-success px-4">
                                     <i class="bi bi-upload me-1"></i> Upload Brosur
                                 </button>
@@ -660,7 +685,8 @@
                 </div>
                 <div class="col-12">
                     <label class="form-label fw-bold">Deskripsi</label>
-                    <input type="text" name="deskripsi" id="edit_brosur_deskripsi" class="form-control">
+                    <input type="text" name="deskripsi" id="edit_brosur_deskripsi" class="form-control" maxlength="500">
+                    <small class="text-muted float-end char-counter"><span class="current">0</span>/500</small>
                 </div>
             </div>
             <div class="modal-footer">
@@ -703,7 +729,8 @@
                 
                 <div class="col-12">
                     <label class="form-label fw-bold">Deskripsi</label>
-                    <input type="text" name="deskripsi_foto" id="edit_kegiatan_desc" class="form-control">
+                    <input type="text" name="deskripsi_foto" id="edit_kegiatan_desc" class="form-control" maxlength="300">
+                    <small class="text-muted float-end char-counter"><span class="current">0</span>/300</small>
                 </div>
             </div>
             <div class="modal-footer border-0">
@@ -729,7 +756,8 @@
                 </div>
                 <div class="col-12">
                     <label class="form-label fw-bold">Deskripsi</label>
-                    <input type="text" name="deskripsi_program" id="edit_program_desc" class="form-control">
+                    <input type="text" name="deskripsi_program" id="edit_program_desc" class="form-control" maxlength="150">
+                    <small class="text-muted float-end char-counter"><span class="current">0</span>/150</small>
                 </div>
             </div>
             <div class="modal-footer border-0">
@@ -769,7 +797,8 @@
                 
                 <div class="col-12">
                     <label class="form-label fw-bold">Deskripsi</label>
-                    <textarea name="deskripsi_prestasi" id="edit_prestasi_desc" class="form-control" rows="3"></textarea>
+                    <textarea name="deskripsi_prestasi" id="edit_prestasi_desc" class="form-control" rows="3" maxlength="500" style="resize: none;"></textarea>
+                    <small class="text-muted float-end char-counter"><span class="current">0</span>/500</small>
                 </div>
             </div>
             <div class="modal-footer border-0">
@@ -796,7 +825,8 @@
                 <div class="col-12">
                     <label class="form-label fw-bold">Deskripsi Singkat</label>
                     <textarea name="deskripsi_studi" id="edit_studi_desc" class="form-control" rows="3"
-                        placeholder="Deskripsi singkat program studi..."></textarea>
+                        placeholder="Deskripsi singkat program studi..." maxlength="500" style="resize: none;"></textarea>
+                    <small class="text-muted float-end char-counter"><span class="current">0</span>/500</small>
                 </div>
             </div>
             <div class="modal-footer border-0">
@@ -841,7 +871,8 @@
                 
                 <div class="col-12">
                     <label class="form-label fw-bold">Isi Artikel</label>
-                    <textarea name="deskripsi" id="edit_artikel_desc" class="form-control" rows="5" required></textarea>
+                    <textarea name="deskripsi" id="edit_artikel_desc" class="form-control" rows="5" required maxlength="5000" style="resize: none;"></textarea>
+                    <small class="text-muted float-end char-counter"><span class="current">0</span>/5000</small>
                 </div>
             </div>
             <div class="modal-footer border-0">
@@ -859,27 +890,26 @@ document.addEventListener("DOMContentLoaded", function () {
     if (matchingItem) {
         matchingItem.click(); // Memicu fungsi switchTab() secara otomatis
     }
-
-    // 2. Logika Sidebar Toggle
-    const sidebar = document.getElementById('sidebar');
-    const collapseBtn = document.getElementById('sidebarCollapse');
-    const closeBtn = document.getElementById('close-sidebar'); // Berada di file include
-    const overlay = document.getElementById('overlay');
-
-    function toggleSidebar() {
-        if (window.innerWidth <= 768) {
-            // Tambahkan pengecekan if (sidebar) untuk mencegah error jika elemen belum dimuat
-            if (sidebar) sidebar.classList.toggle('show-mobile');
-            if (overlay) overlay.classList.toggle('active');
-        } else {
-            if (sidebar) sidebar.classList.toggle('inactive');
-        }
-    }
-
-    if (collapseBtn) collapseBtn.addEventListener('click', toggleSidebar);
-    if (closeBtn) closeBtn.addEventListener('click', toggleSidebar);
-    if (overlay) overlay.addEventListener('click', toggleSidebar);
 });
+
+// 2. Logika Sidebar Toggle
+const sidebar = document.getElementById('sidebar');
+const collapseBtn = document.getElementById('sidebarCollapse');
+const closeBtn = document.getElementById('close-sidebar'); // Berada di file include
+const overlay = document.getElementById('overlay');
+
+function toggleSidebar() {
+    if (window.innerWidth <= 768) {
+        if (sidebar) sidebar.classList.toggle('show-mobile');
+        if (overlay) overlay.classList.toggle('active');
+    } else {
+        if (sidebar) sidebar.classList.toggle('inactive');
+    }
+}
+
+if (collapseBtn) collapseBtn.onclick = toggleSidebar;
+if (closeBtn) closeBtn.onclick = toggleSidebar;
+if (overlay) overlay.onclick = toggleSidebar;
 
 // ===== ARTIKEL =====
 function addPhotoRow() {
@@ -1085,6 +1115,39 @@ function editBrosur(id, label, deskripsi) {
     document.getElementById('formEditBrosur').action       = `/informasi/brosur/${id}`;
     new bootstrap.Modal(document.getElementById('modalEditBrosur')).show();
 }
+
+// --- REAL-TIME CHARACTER COUNTER ---
+document.addEventListener("DOMContentLoaded", function() {
+    const attachCounter = (inputElement) => {
+        const wrapper = inputElement.parentElement;
+        // Search inside the wrapper or its next sibling for the char-counter
+        let counter = wrapper.querySelector('.char-counter .current');
+        if (!counter) {
+           // For Fasilitas, it's inside the next div
+           const nextDiv = wrapper.querySelector('.d-flex.justify-content-between');
+           if(nextDiv) counter = nextDiv.querySelector('.char-counter .current');
+        }
+        
+        if (counter && inputElement.hasAttribute('maxlength')) {
+            const updateCounter = () => { counter.textContent = inputElement.value.length; };
+            inputElement.addEventListener('input', updateCounter);
+            updateCounter(); // Initialize
+        }
+    };
+    
+    // Attach to all inputs with maxlength
+    document.querySelectorAll('input[maxlength], textarea[maxlength]').forEach(attachCounter);
+    
+    // Trigger input event to update counters when modals are opened
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('shown.bs.modal', function () {
+            modal.querySelectorAll('input[maxlength], textarea[maxlength]').forEach(el => {
+                el.dispatchEvent(new Event('input'));
+            });
+        });
+    });
+});
 </script>
+
 </body>
 </html>

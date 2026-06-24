@@ -191,6 +191,43 @@ class JadwalMengajarController extends Controller
     }
 
     /**
+     * Halaman poster jadwal mengajar — tampil berdasarkan hari ini secara default.
+     */
+    public function showPoster(Request $request)
+    {
+        $guruList  = Guru::where('status', 'aktif')->orderBy('nama_guru')->get();
+        $kelasList = Kelas::orderBy('nama_kelas')->get();
+
+        // Hari sekarang dalam bahasa Indonesia
+        $namaHariEn = now()->locale('id')->dayName; // Monday, Tuesday, dst
+        $mapHariEn  = [
+            'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu', 'Sunday' => 'Minggu',
+        ];
+        $hariHariIni = $mapHariEn[now()->englishDayOfWeek] ?? 'Senin';
+
+        // Hari yang sedang dipilih (dari query string, default hari ini)
+        // Jika hari ini Minggu (tidak ada jadwal), fallback ke Senin
+        $validHari   = self::HARI_LIST; // ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu']
+        $hariDipilih = $request->filled('hari') && in_array($request->hari, $validHari)
+            ? $request->hari
+            : (in_array($hariHariIni, $validHari) ? $hariHariIni : 'Senin');
+
+        // Query jadwal hanya untuk hari yang dipilih
+        $jadwalHariIni = JadwalMengajar::with(['guru', 'mapel', 'kelas'])
+            ->where('hari', $hariDipilih)
+            ->when($request->filled('filter_guru'),  fn($q) => $q->where('id_guru',  $request->filter_guru))
+            ->when($request->filled('filter_kelas'), fn($q) => $q->where('id_kelas', $request->filter_kelas))
+            ->orderBy('jam_mulai')
+            ->get();
+
+        return $this->renderView('admin.data_master.show_jadwal_mengajar', compact(
+            'guruList', 'kelasList',
+            'jadwalHariIni', 'hariDipilih', 'hariHariIni', 'validHari'
+        ));
+    }
+
+    /**
      * Ambil mapel yang diajarkan guru tertentu (AJAX — untuk isi dropdown dinamis di modal).
      */
     public function getMapelByGuru($id_guru)

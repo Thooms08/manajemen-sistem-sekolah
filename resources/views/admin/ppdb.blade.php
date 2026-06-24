@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -34,16 +34,45 @@
         .payment-card.active { border-color: #198754; background-color: #f8fff9; }
         .qris-image { max-width: 200px; height: auto; }
         input:focus, textarea:focus, select:focus { border-color: #198754 !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;}
+        
+        /* Overlay Sidebar Mobile */
+        #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1040; }
+        #overlay.active { display: block; }
+        
+        @media (max-width: 768px) {
+            #content { padding: 15px 10px; }
+            .step-indicator { margin-bottom: 20px; }
+            .step-indicator .step {
+                width: 35px; height: 35px;
+                margin: 0 5px;
+                font-size: 0.9rem;
+            }
+            .card { padding: 20px !important; }
+            
+            /* Form Buttons responsive */
+            .d-flex.justify-content-between.mt-4 { flex-direction: column-reverse; gap: 10px; }
+            .d-flex.justify-content-between.mt-4 .d-flex { flex-direction: column; width: 100%; gap: 10px; }
+            .d-flex.justify-content-between.mt-4 button { width: 100%; margin: 0 !important; }
+            
+            .text-end.mt-4 { display: flex; flex-direction: column; gap: 10px; }
+            .text-end.mt-4 button { width: 100%; margin: 0 !important; }
+        }
     </style>
 </head>
 <body>
+    <div id="overlay"></div>
     <div class="wrapper">
     @include('admin.sidebar')
         <div id="content">
             <div class="container-fluid">
-                <h4 class="fw-bold text-success mb-4">
-                    {{ isset($murid) ? 'Edit Data Murid: ' . $murid->nama_lengkap : 'Pendaftaran Murid Baru (PPDB)' }}
-                </h4>
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <button type="button" id="sidebarCollapse" class="btn btn-success">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <h4 class="fw-bold text-success mb-0">
+                        {{ isset($murid) ? 'Edit Data Murid: ' . $murid->nama_lengkap : 'Pendaftaran Murid Baru (PPDB)' }}
+                    </h4>
+                </div>
 
                 @if ($errors->any())
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -1047,6 +1076,24 @@
         
         // Load draft data on page load
         loadDraftData();
+        
+        // ── Sidebar toggle ────────────────────────────────────────────────────────
+        const sidebar     = document.getElementById('sidebar');
+        const collapseBtn = document.getElementById('sidebarCollapse');
+        const closeBtn    = document.getElementById('close-sidebar');
+        const overlay     = document.getElementById('overlay');
+
+        function toggleSidebar() {
+            if (window.innerWidth <= 768) {
+                if (sidebar) sidebar.classList.toggle('show-mobile');
+                if (overlay) overlay.classList.toggle('active');
+            } else {
+                if (sidebar) sidebar.classList.toggle('inactive');
+            }
+        }
+        if (collapseBtn) collapseBtn.onclick = toggleSidebar;
+        if (closeBtn) closeBtn.onclick    = toggleSidebar;
+        if (overlay) overlay.onclick     = toggleSidebar;
     </script>
 </body>
 </html>
