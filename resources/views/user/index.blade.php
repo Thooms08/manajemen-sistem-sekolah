@@ -243,9 +243,64 @@
         }
 
         @media (max-width: 768px) {
-            #content { padding: 15px; }
-            .stat-value { font-size: 1.3rem; }
+            #content { padding: 15px 12px; }
+            .stat-value { font-size: 1.2rem; }
+            .stat-card { padding: 16px; gap: 12px; flex-direction: column; text-align: center; justify-content: center; }
+            .stat-icon { width: 42px; height: 42px; font-size: 1.2rem; margin: 0 auto; }
+            .welcome-banner { padding: 20px; }
             .welcome-banner h2 { font-size: 1.2rem; }
+            .welcome-banner::after { font-size: 6rem; right: -15px; top: -15px; }
+            .clock-pill { display: none !important; }
+            .balance-card .amount { font-size: 1.4rem; }
+            .panel-header { padding: 14px 16px; }
+            .panel-body { padding: 16px; }
+            .quick-link { padding: 14px 8px; font-size: 0.72rem; }
+            .quick-link i { font-size: 1.3rem; }
+
+            /* Welcome banner buttons stack on mobile */
+            .welcome-banner .btn { font-size: 0.78rem; padding: 5px 12px; }
+
+            /* Activity items */
+            .activity-item { gap: 10px; }
+            .activity-avatar { width: 32px; height: 32px; font-size: 0.8rem; }
+            .activity-item .fw-600 { max-width: 120px !important; font-size: 0.8rem !important; }
+
+            /* Artikel items */
+            .artikel-item { gap: 10px; }
+            .artikel-thumb, .artikel-no-thumb { width: 56px; height: 44px; }
+            .artikel-item .fw-600 { font-size: 0.8rem !important; }
+
+            /* Chart */
+            .panel-body > div { height: 200px !important; }
+
+            /* Panel header buttons */
+            .panel-header .btn { font-size: 0.7rem !important; padding: 3px 8px !important; }
+
+            /* Section label */
+            .section-label { font-size: 0.65rem; letter-spacing: 1px; }
+
+            /* Finance items */
+            .finance-item { gap: 8px; }
+            .finance-item .fw-700 { font-size: 0.85rem !important; }
+        }
+
+        @media (max-width: 576px) {
+            #content { padding: 10px 8px; }
+            .welcome-banner { padding: 16px; border-radius: 10px; }
+            .welcome-banner h2 { font-size: 1.05rem; }
+            .welcome-banner p { font-size: 0.8rem; }
+            .welcome-banner .btn { font-size: 0.72rem; padding: 4px 10px; }
+            .stat-card { padding: 12px; gap: 8px; border-radius: 10px; }
+            .stat-icon { width: 36px; height: 36px; font-size: 1rem; border-radius: 10px; }
+            .stat-value { font-size: 1.1rem; }
+            .stat-label { font-size: 0.72rem; }
+            .balance-card { padding: 18px; border-radius: 10px; }
+            .balance-card .amount { font-size: 1.2rem; }
+            .panel { border-radius: 10px; }
+            .panel-header { padding: 12px 14px; }
+            .panel-body { padding: 12px 14px; }
+            .quick-link { padding: 10px 6px; font-size: 0.68rem; border-radius: 8px; }
+            .quick-link i { font-size: 1.1rem; }
         }
     </style>
 </head>
@@ -296,10 +351,10 @@
 
             {{-- ── STAT CARDS ROW 1: DATA MASTER ── --}}
             <p class="section-label"><i class="bi bi-database me-1"></i> Data Master</p>
-            <div class="row g-3 mb-4">
-                <div class="col-6 col-md-4 col-lg-2">
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3 mb-4">
+                <div class="col">
                     <a href="{{ route('murid.index') }}" class="text-decoration-none">
-                        <div class="stat-card">
+                        <div class="stat-card h-100">
                             <div class="stat-icon green"><i class="bi bi-people-fill"></i></div>
                             <div>
                                 <div class="stat-label">Murid Aktif</div>
@@ -308,9 +363,9 @@
                         </div>
                     </a>
                 </div>
-                <div class="col-6 col-md-4 col-lg-2">
+                <div class="col">
                     <a href="{{ route('guru.index') }}" class="text-decoration-none">
-                        <div class="stat-card">
+                        <div class="stat-card h-100">
                             <div class="stat-icon blue"><i class="bi bi-person-badge-fill"></i></div>
                             <div>
                                 <div class="stat-label">Guru Aktif</div>
@@ -319,9 +374,9 @@
                         </div>
                     </a>
                 </div>
-                <div class="col-6 col-md-4 col-lg-2">
+                <div class="col">
                     <a href="{{ route('staff.index') }}" class="text-decoration-none">
-                        <div class="stat-card">
+                        <div class="stat-card h-100">
                             <div class="stat-icon purple"><i class="bi bi-person-workspace"></i></div>
                             <div>
                                 <div class="stat-label">Staff Aktif</div>
@@ -330,9 +385,9 @@
                         </div>
                     </a>
                 </div>
-                <div class="col-6 col-md-4 col-lg-2">
+                <div class="col">
                     <a href="{{ route('kelas.index') }}" class="text-decoration-none">
-                        <div class="stat-card">
+                        <div class="stat-card h-100">
                             <div class="stat-icon teal"><i class="bi bi-door-open-fill"></i></div>
                             <div>
                                 <div class="stat-label">Total Kelas</div>
@@ -341,9 +396,9 @@
                         </div>
                     </a>
                 </div>
-                <div class="col-6 col-md-4 col-lg-2">
+                <div class="col">
                     <a href="{{ route('informasi.index') }}" class="text-decoration-none">
-                        <div class="stat-card">
+                        <div class="stat-card h-100">
                             <div class="stat-icon green"><i class="bi bi-newspaper"></i></div>
                             <div>
                                 <div class="stat-label">Total Artikel</div>
@@ -547,9 +602,9 @@
 
             {{-- ── ROW 4: STATISTIK KONTEN ── --}}
             <p class="section-label"><i class="bi bi-info-circle me-1"></i> Statistik Konten Website</p>
-            <div class="row g-3 mb-2">
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
+            <div class="row row-cols-2 row-cols-md-4 g-3 mb-2">
+                <div class="col">
+                    <div class="stat-card h-100">
                         <div class="stat-icon green"><i class="bi bi-newspaper"></i></div>
                         <div>
                             <div class="stat-label">Artikel</div>
@@ -557,8 +612,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
+                <div class="col">
+                    <div class="stat-card h-100">
                         <div class="stat-icon blue"><i class="bi bi-trophy-fill"></i></div>
                         <div>
                             <div class="stat-label">Prestasi</div>
@@ -566,8 +621,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
+                <div class="col">
+                    <div class="stat-card h-100">
                         <div class="stat-icon purple"><i class="bi bi-camera-fill"></i></div>
                         <div>
                             <div class="stat-label">Dokumentasi</div>
@@ -575,9 +630,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col">
                     <a href="{{ route('home') }}" target="_blank" class="text-decoration-none">
-                        <div class="stat-card">
+                        <div class="stat-card h-100">
                             <div class="stat-icon teal"><i class="bi bi-box-arrow-up-right"></i></div>
                             <div>
                                 <div class="stat-label">Halaman Publik</div>
@@ -592,6 +647,8 @@
         </div>{{-- end container --}}
     </div>{{-- end content --}}
 </div>{{-- end wrapper --}}
+
+<script id="grafik-data" type="application/json">{{ json_encode($grafik) }}</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -628,7 +685,7 @@
     updateClock();
 
     // ── Grafik Arus Kas ───────────────────────────────────────────
-    const grafikData = @json($grafik);
+    const grafikData = JSON.parse(document.getElementById('grafik-data').textContent);
 
     const ctx = document.getElementById('cashflowChart').getContext('2d');
     new Chart(ctx, {

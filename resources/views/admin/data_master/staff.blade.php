@@ -16,20 +16,52 @@
         :root { --primary-green: #198754; }
         body { font-family: 'Inter', sans-serif; background-color: #f4f7f6; overflow-x: hidden; }
         .wrapper { display: flex; width: 100%; align-items: stretch; }
-        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; min-height: 100vh; }
-        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary-green); border: none; color: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(25,135,84,0.2); display: flex; align-items: center; justify-content: center; }
+        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; min-height: 100vh; min-width: 0; }
+        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary-green); border: none; color: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(25,135,84,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .card { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .table thead { background-color: var(--primary-green); color: white; }
-        .table thead th { font-size: 0.82rem; letter-spacing: 0.4px; font-weight: 600; }
+        .table thead th { font-size: 0.82rem; letter-spacing: 0.4px; font-weight: 600; white-space: nowrap; }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
-        .search-box-wrapper { max-width: 400px; }
+        .search-box-wrapper { min-width: 200px; flex: 1 1 220px; max-width: 420px; }
         input:focus, textarea:focus, select:focus { border-color: #198754 !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(25,135,84,0.25) !important; }
-        .nav-tabs .nav-link { color: #6c757d; font-weight: 500; border-radius: 8px 8px 0 0; }
+        .nav-tabs .nav-link { color: #6c757d; font-weight: 500; border-radius: 8px 8px 0 0; font-size: 0.9rem; }
         .nav-tabs .nav-link.active { color: #198754; border-bottom-color: #fff; font-weight: 600; }
         .nav-tabs .nav-link:hover { color: #198754; }
         .row-hidden { display: none; }
-        @media (max-width: 768px) { #content { padding: 15px; } }
+
+        /* Mobile card list */
+        .staff-card-mobile { display: none; }
+        .staff-card-item {
+            background: #fff; border-radius: 12px; padding: 14px 16px;
+            margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 4px solid #198754;
+        }
+        .staff-card-item.nonaktif { border-left-color: #dc3545; }
+        .staff-card-item .sc-name  { font-weight: 700; font-size: 0.97rem; color: #1a3a3a; }
+        .staff-card-item .sc-meta  { font-size: 0.8rem; color: #6c757d; margin-top: 3px; }
+        .staff-card-item .sc-actions { display: flex; gap: 6px; margin-top: 10px; }
+        .staff-card-item .sc-actions .btn { flex: 1; font-size: 0.8rem; }
+
+        /* ── Responsive ── */
+        @media (max-width: 991px) {
+            #content { padding: 16px 18px; }
+            .table thead th, .table tbody td { font-size: 0.8rem; }
+        }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            /* Header stack vertikal */
+            .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+            .page-header .btn-tambah { width: 100%; }
+            /* Search bar full width */
+            .search-bar-wrapper { flex-direction: column; align-items: stretch !important; }
+            .search-box-wrapper { max-width: 100%; }
+            /* Sembunyikan tabel, tampilkan card */
+            .table-staff-desktop { display: none !important; }
+            .staff-card-mobile   { display: block; }
+            /* Tab font lebih kecil */
+            .nav-tabs .nav-link { font-size: 0.82rem; padding: 6px 10px; }
+        }
     </style>
 </head>
 <body>
@@ -41,12 +73,12 @@
         <div class="container-fluid">
 
             {{-- Header --}}
-            <div class="d-flex align-items-center justify-content-between mb-4 mt-2">
+            <div class="d-flex align-items-center justify-content-between mb-4 mt-2 flex-wrap gap-2 page-header">
                 <div class="d-flex align-items-center">
                     <button type="button" id="sidebarCollapse" class="btn"><i class="bi bi-list fs-4"></i></button>
                     <h4 class="ms-3 mb-0 fw-bold text-success">Data Staff</h4>
                 </div>
-                <button class="btn btn-success px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambahStaff">
+                <button class="btn btn-success px-4 shadow-sm fw-bold btn-tambah" data-bs-toggle="modal" data-bs-target="#modalTambahStaff">
                     <i class="bi bi-person-plus me-2"></i>Tambah Staff
                 </button>
             </div>
@@ -66,7 +98,7 @@
 
             {{-- Search Bar --}}
             <div class="card p-3 mb-4 shadow-sm">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 search-bar-wrapper">
                     <p class="text-muted small mb-0">Kelola data administrasi dan tenaga pendukung secara efisien.</p>
                     <div class="input-group search-box-wrapper">
                         <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
@@ -99,7 +131,8 @@
 
                     {{-- ══ TAB AKTIF ══ --}}
                     <div class="tab-pane fade show active" id="tab-aktif" role="tabpanel">
-                        <div class="table-responsive">
+                        {{-- DESKTOP TABLE --}}
+                        <div class="table-responsive table-staff-desktop">
                             <table class="table table-hover align-middle">
                                 <thead>
                                     <tr>
@@ -148,6 +181,36 @@
                             </table>
                         </div>
 
+                        {{-- MOBILE CARD LIST --}}
+                        <div class="staff-card-mobile" id="mobile-list-aktif">
+                            @forelse($staffsAktif as $index => $s)
+                            <div class="staff-card-item {{ $index >= 10 ? 'row-extra-aktif row-hidden' : '' }}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="sc-name">{{ $s->nama_staff }}</div>
+                                    <span class="badge bg-success">Aktif</span>
+                                </div>
+                                <div class="sc-meta"><i class="bi bi-briefcase me-1"></i>{{ $s->jabatan }}</div>
+                                <div class="sc-meta"><i class="bi bi-envelope me-1"></i>{{ $s->email }}</div>
+                                <div class="sc-meta"><i class="bi bi-whatsapp me-1"></i>{{ $s->no_wa }}</div>
+                                <div class="sc-actions">
+                                    <button class="btn btn-outline-success btn-sm"
+                                        onclick="openEditModal('{{ $s->id }}', '{{ addslashes($s->nama_staff) }}', '{{ addslashes($s->jabatan) }}', '{{ addslashes($s->email) }}', '{{ addslashes($s->no_wa) }}', '{{ addslashes($s->alamat) }}')">
+                                        <i class="bi bi-pencil-square me-1"></i>Edit
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm"
+                                        onclick="bukaModalNonaktif({{ $s->id }}, '{{ addslashes($s->nama_staff) }}')">
+                                        <i class="bi bi-person-dash me-1"></i>Nonaktifkan
+                                    </button>
+                                </div>
+                            </div>
+                            @empty
+                            <div class="text-center py-5 text-muted">
+                                <i class="bi bi-people fs-3 d-block mb-2 text-secondary"></i>
+                                Belum ada data staff aktif.
+                            </div>
+                            @endforelse
+                        </div>
+
                         {{-- Tombol Lihat Semua --}}
                         @if($staffsAktif->count() > 10)
                         <div class="text-center mt-2" id="btn-lihat-semua-wrapper">
@@ -161,7 +224,8 @@
 
                     {{-- ══ TAB NONAKTIF ══ --}}
                     <div class="tab-pane fade" id="tab-nonaktif" role="tabpanel">
-                        <div class="table-responsive">
+                        {{-- DESKTOP TABLE --}}
+                        <div class="table-responsive table-staff-desktop">
                             <table class="table table-hover align-middle">
                                 <thead>
                                     <tr>
@@ -219,6 +283,47 @@
                                     @endforelse
                                 </tbody>
                             </table>
+                        </div>
+
+                        {{-- MOBILE CARD LIST --}}
+                        <div class="staff-card-mobile" id="mobile-list-nonaktif">
+                            @forelse($staffsNonaktif as $index => $s)
+                            <div class="staff-card-item nonaktif">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="sc-name">{{ $s->nama_staff }}</div>
+                                    <span class="badge bg-danger">Nonaktif</span>
+                                </div>
+                                <div class="sc-meta"><i class="bi bi-briefcase me-1"></i>{{ $s->jabatan }}</div>
+                                <div class="sc-meta"><i class="bi bi-envelope me-1"></i>{{ $s->email }}</div>
+                                <div class="sc-meta"><i class="bi bi-whatsapp me-1"></i>{{ $s->no_wa }}</div>
+                                <div class="sc-meta mt-1">
+                                    <i class="bi bi-info-circle me-1 text-danger"></i>
+                                    <span class="badge bg-danger bg-opacity-10 text-danger">{{ $s->alasan_nonaktif ?? '-' }}</span>
+                                    @if($s->tanggal_nonaktif)
+                                        <span class="ms-1">· {{ \Carbon\Carbon::parse($s->tanggal_nonaktif)->format('d M Y') }}</span>
+                                    @endif
+                                </div>
+                                <div class="sc-actions">
+                                    @if($s->surat_keterangan)
+                                    <a href="{{ route('staff.download-surat', $s->id) }}" class="btn btn-outline-secondary btn-sm">
+                                        <i class="bi bi-file-earmark-arrow-down me-1"></i>Surat
+                                    </a>
+                                    @endif
+                                    <form action="{{ route('staff.restore', $s->id) }}" method="POST" class="flex-fill">
+                                        @csrf
+                                        <button class="btn btn-outline-success btn-sm w-100"
+                                                onclick="return confirm('Pulihkan staff ini ke data aktif?')">
+                                            <i class="bi bi-arrow-counterclockwise me-1"></i>Pulihkan
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            @empty
+                            <div class="text-center py-5 text-muted">
+                                <i class="bi bi-person-x fs-3 d-block mb-2 text-secondary"></i>
+                                Tidak ada data staff nonaktif.
+                            </div>
+                            @endforelse
                         </div>
                     </div>
 

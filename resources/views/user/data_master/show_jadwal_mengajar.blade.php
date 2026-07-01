@@ -15,8 +15,8 @@
     <style>
         body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
         .wrapper { display: flex; align-items: stretch; }
-        #content { flex: 1; padding: 24px 32px; min-height: 100vh; }
-        #sidebarCollapse { width: 42px; height: 42px; background: #198754; border: none; color: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        #content { flex: 1; padding: 24px 32px; min-height: 100vh; min-width: 0; }
+        #sidebarCollapse { width: 42px; height: 42px; background: #198754; border: none; color: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1040; }
         #overlay.active { display: block; }
 
@@ -119,11 +119,34 @@
         .dot-jumat  { background: #991b1b; }
         .dot-sabtu  { background: #0e7490; }
 
-        @media (max-width: 600px) {
-            .sesi-card { grid-template-columns: 84px 1fr; }
+        @media (max-width: 991px) {
+            #content { padding: 16px 18px; }
+        }
+        @media (max-width: 767px) {
+            #content { padding: 12px 10px; }
+            .hari-nav { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+            .hari-nav a { white-space: nowrap; padding: 6px 14px; font-size: 0.82rem; }
+            .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+            .page-header .btn-group-dl { width: 100%; display: flex; gap: 8px; }
+            .page-header .btn-group-dl .btn-dl-pdf,
+            .page-header .btn-group-dl .btn-dl-png { flex: 1; text-align: center; }
+            .poster-kop { padding: 16px 16px; gap: 12px; }
+            .poster-kop .kop-nama { font-size: 1rem; }
+            .poster-kop .kop-hari { width: 100%; text-align: center; }
+            .poster-kop .kop-hari .kop-hari-nama { font-size: 1.1rem; }
+            .sesi-card { grid-template-columns: 80px 1fr; gap: 10px; padding: 10px 12px; }
             .sesi-meta { display: none; }
-            #content { padding: 14px; }
-            .poster-kop { flex-wrap: wrap; }
+            .sesi-info .tag-kelas-mobile { display: inline-block !important; }
+            .poster-body { padding: 14px 14px; }
+            .poster-footer { padding: 10px 14px; flex-direction: column; align-items: flex-start; }
+            .filter-form-poster { flex-direction: column !important; }
+            .filter-form-poster > div { width: 100%; }
+            .filter-form-poster select { width: 100%; }
+        }
+        @media (max-width: 420px) {
+            .sesi-jam .jam-besar { font-size: 0.95rem; }
+            .sesi-info .mapel { font-size: 0.9rem; }
+            .sesi-card { grid-template-columns: 72px 1fr; }
         }
         @media print {
             .no-print, #sidebar, #overlay { display: none !important; }
@@ -142,7 +165,7 @@
         <div style="max-width: 900px; margin: 0 auto;">
 
             {{-- ── Header ── --}}
-            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-3 no-print">
+            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-3 no-print page-header">
                 <div class="d-flex align-items-center gap-3">
                     <button id="sidebarCollapse" class="btn p-0"><i class="bi bi-list fs-4"></i></button>
                     <div>
@@ -152,7 +175,7 @@
                         </p>
                     </div>
                 </div>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 btn-group-dl">
                     <button class="btn-dl-pdf btn" onclick="unduhPDF(event)">
                         <i class="bi bi-file-earmark-pdf me-1"></i>PDF
                     </button>
@@ -186,11 +209,11 @@
             {{-- ── Filter ── --}}
             <div class="mb-3 no-print">
                 <form method="GET" action="{{ route('jadwal-mengajar.poster') }}"
-                      class="d-flex flex-wrap gap-2 align-items-end">
+                      class="d-flex flex-wrap gap-2 align-items-end filter-form-poster">
                     <input type="hidden" name="hari" value="{{ $hariDipilih }}">
-                    <div>
+                    <div style="flex: 1 1 150px; min-width: 130px;">
                         <label class="form-label fw-semibold mb-1" style="font-size:.8rem;">Guru</label>
-                        <select name="filter_guru" class="form-select form-select-sm" style="min-width:160px;">
+                        <select name="filter_guru" class="form-select form-select-sm w-100">
                             <option value="">Semua Guru</option>
                             @foreach($guruList as $g)
                                 <option value="{{ $g->id }}" {{ request('filter_guru')==$g->id?'selected':'' }}>
@@ -199,9 +222,9 @@
                             @endforeach
                         </select>
                     </div>
-                    <div>
+                    <div style="flex: 1 1 120px; min-width: 110px;">
                         <label class="form-label fw-semibold mb-1" style="font-size:.8rem;">Kelas</label>
-                        <select name="filter_kelas" class="form-select form-select-sm" style="min-width:130px;">
+                        <select name="filter_kelas" class="form-select form-select-sm w-100">
                             <option value="">Semua Kelas</option>
                             @foreach($kelasList as $k)
                                 <option value="{{ $k->id }}" {{ request('filter_kelas')==$k->id?'selected':'' }}>
@@ -210,13 +233,15 @@
                             @endforeach
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-success btn-sm px-4 fw-semibold">
-                        <i class="bi bi-funnel me-1"></i>Filter
-                    </button>
-                    <a href="{{ route('jadwal-mengajar.poster', ['hari' => $hariDipilih]) }}"
-                       class="btn btn-outline-secondary btn-sm px-3" title="Reset filter">
-                        <i class="bi bi-x-lg"></i>
-                    </a>
+                    <div class="d-flex gap-2" style="flex: 1 1 auto;">
+                        <button type="submit" class="btn btn-success btn-sm px-3 fw-semibold flex-fill flex-sm-grow-0">
+                            <i class="bi bi-funnel me-1"></i>Filter
+                        </button>
+                        <a href="{{ route('jadwal-mengajar.poster', ['hari' => $hariDipilih]) }}"
+                           class="btn btn-outline-secondary btn-sm px-3 flex-fill flex-sm-grow-0" title="Reset filter">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    </div>
                 </form>
             </div>
 
@@ -279,6 +304,12 @@
                                 <div class="mapel">{{ $j->mapel->nama_mapel ?? '-' }}</div>
                                 <div class="guru">
                                     <i class="bi bi-person-fill me-1"></i>{{ $j->guru->nama_guru ?? '-' }}
+                                </div>
+                                <div class="mt-1 d-none tag-kelas-mobile">
+                                    <span class="tag-kelas" style="font-size:0.75rem;">{{ $j->kelas->nama_kelas ?? '-' }}</span>
+                                    @if($j->ruangan)
+                                        <span class="tag-ruang ms-1" style="font-size:0.72rem;">{{ $j->ruangan }}</span>
+                                    @endif
                                 </div>
                             </div>
                             <div class="sesi-meta">

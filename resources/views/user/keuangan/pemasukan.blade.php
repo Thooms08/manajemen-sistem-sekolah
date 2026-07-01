@@ -17,11 +17,11 @@
         :root { --primary-green: #198754; }
         body { font-family: 'Inter', sans-serif; background-color: #f4f7f6; overflow-x: hidden; }
         .wrapper { display: flex; width: 100%; align-items: stretch; }
-        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; min-height: 100vh; }
-        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary-green); border: none; color: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(25,135,84,0.2); display: flex; align-items: center; justify-content: center; }
+        #content { width: 100%; padding: 12px 12px; transition: all 0.3s; min-height: 100vh; min-width: 0; }
+        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary-green); border: none; color: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(25,135,84,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .card  { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .table thead { background-color: var(--primary-green); color: white; }
-        .table thead th { font-size: 0.82rem; letter-spacing: 0.4px; font-weight: 600; }
+        .table thead th { font-size: 0.82rem; letter-spacing: 0.4px; font-weight: 600; white-space: nowrap; }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
         input:focus, textarea:focus, select:focus { border-color: #198754 !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(25,135,84,0.25) !important; }
@@ -29,7 +29,7 @@
         /* Summary cards */
         .summary-card { border-radius: 12px; border: none; transition: transform 0.2s; }
         .summary-card:hover { transform: translateY(-2px); }
-        .summary-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+        .summary-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
 
         /* Form */
         .section-divider { border: 0; border-top: 2px dashed #dee2e6; margin: 1.2rem 0; }
@@ -69,10 +69,24 @@
 
         /* Mode Edit */
         .edit-mode-banner { background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 10px; padding: 10px 16px; display: none; margin-bottom: 14px; }
-        .edit-mode-banner.show { display: flex; align-items: center; gap: 10px; }
+        .edit-mode-banner.show { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .label-edited { font-size: 0.68rem; color: #6c757d; font-style: italic; display: block; margin-top: 2px; }
+        .page-header { gap: 10px; }
+        .page-header .btn-group-action { display: flex; flex-wrap: wrap; gap: 8px; }
+        .summary-card .min-width-0 { min-width: 0; }
+        .filter-bar .date-range-row { flex-direction: column; align-items: stretch !important; }
+        .filter-bar .date-range-row > .d-flex { width: 100%; }
+        .filter-bar .date-range-row input[type="date"] { width: 100% !important; max-width: 100% !important; }
+        .filter-bar .date-range-row .btn { width: 100%; }
 
-        @media (max-width: 768px) { #content { padding: 15px; } }
+        @media (max-width: 991px) { #content { padding: 16px 18px; } }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            .page-header { flex-direction: column; align-items: flex-start !important; }
+            .page-header .btn-group-action { width: 100%; }
+            .page-header .btn-group-action .btn { flex: 1 1 0; }
+            .table thead th, .table tbody td { font-size: 0.78rem; }
+        }
     </style>
 </head>
 <body>
@@ -90,13 +104,15 @@
         <div class="container-fluid">
 
             {{-- ══ Header ══ --}}
-            <div class="d-flex align-items-center mb-4 mt-2">
-                <button type="button" id="sidebarCollapse" class="btn" onclick="toggleSidebar()">
-                    <i class="bi bi-list fs-4"></i>
-                </button>
-                <h4 class="ms-3 mb-0 fw-bold text-success">
-                    <i class="bi bi-arrow-down-circle me-2"></i>Pemasukan Keuangan
-                </h4>
+            <div class="d-flex align-items-center justify-content-between mb-4 mt-2 flex-wrap gap-2 page-header">
+                <div class="d-flex align-items-center">
+                    <button type="button" id="sidebarCollapse" class="btn" onclick="toggleSidebar()">
+                        <i class="bi bi-list fs-4"></i>
+                    </button>
+                    <h4 class="ms-3 mb-0 fw-bold text-success">
+                        <i class="bi bi-arrow-down-circle me-2"></i>Pemasukan Keuangan
+                    </h4>
+                </div>
             </div>
 
             {{-- ══ Alert ══ --}}
@@ -253,8 +269,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="mt-4 text-end">
-                            <button type="submit" class="btn btn-success px-5 shadow-sm fw-bold">
+                        <div class="mt-4 d-flex justify-content-end">
+                            <button type="submit" class="btn btn-success px-5 shadow-sm fw-bold w-100 w-sm-auto">
                                 <i class="bi bi-save me-2"></i>Simpan Pemasukan
                             </button>
                         </div>
@@ -368,11 +384,11 @@
                                 <div class="hint-text"><i class="bi bi-info-circle me-1"></i>Otomatis: Nominal × QTY</div>
                             </div>
                         </div>
-                        <div class="mt-4 d-flex justify-content-end gap-2">
-                            <button type="button" class="btn btn-outline-secondary px-4" onclick="batalEdit()">
+                        <div class="mt-4 d-flex flex-column flex-sm-row justify-content-end gap-2">
+                            <button type="button" class="btn btn-outline-secondary px-4 w-100 w-sm-auto" onclick="batalEdit()">
                                 <i class="bi bi-x-lg me-1"></i>Batal
                             </button>
-                            <button type="submit" class="btn btn-warning px-5 shadow-sm fw-bold text-dark">
+                            <button type="submit" class="btn btn-warning px-5 shadow-sm fw-bold text-dark w-100 w-sm-auto">
                                 <i class="bi bi-pencil-square me-2"></i>Simpan Perubahan
                             </button>
                         </div>
@@ -401,7 +417,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-sm-6">
                     <div class="card summary-card p-3">
                         <div class="d-flex align-items-center gap-3">
                             <div class="summary-icon bg-primary bg-opacity-10">
@@ -447,9 +463,9 @@
                                 </button>
                             @endforeach
                         </div>
-                        <div class="d-flex flex-wrap align-items-center gap-2">
+                        <div class="d-flex flex-wrap align-items-center gap-2 date-range-row">
                             <span class="text-muted small fw-semibold">Atau pilih tanggal:</span>
-                            <div class="d-flex align-items-center gap-2">
+                            <div class="d-flex flex-wrap align-items-center gap-2 w-100 w-sm-auto">
                                 <input type="date" name="date_from" id="inputDateFrom"
                                        class="form-control form-control-sm" style="width:155px"
                                        value="{{ $dateFrom }}">
@@ -457,12 +473,12 @@
                                 <input type="date" name="date_to" id="inputDateTo"
                                        class="form-control form-control-sm" style="width:155px"
                                        value="{{ $dateTo }}">
-                                <button type="submit" class="btn btn-outline-success btn-sm px-3 fw-semibold">
+                                <button type="submit" class="btn btn-outline-success btn-sm px-3 fw-semibold w-100 w-sm-auto">
                                     <i class="bi bi-funnel me-1"></i>Terapkan
                                 </button>
                                 @if($range !== '1bulan' || $dateFrom || $dateTo)
                                     <a href="{{ route('keuangan.pemasukan.index') }}"
-                                       class="btn btn-outline-secondary btn-sm px-3">
+                                       class="btn btn-outline-secondary btn-sm px-3 w-100 w-sm-auto">
                                         <i class="bi bi-x-circle me-1"></i>Reset
                                     </a>
                                 @endif
@@ -748,8 +764,8 @@
                 </div>
                 <div id="murid-search-info" class="text-muted small text-end"></div>
             </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Batal</button>
+            <div class="modal-footer border-0 flex-column flex-sm-row gap-2">
+                <button type="button" class="btn btn-light border w-100 w-sm-auto" data-bs-dismiss="modal">Batal</button>
             </div>
         </div>
     </div>
@@ -794,8 +810,8 @@
                 </div>
                 <div id="murid-edit-search-info" class="text-muted small text-end"></div>
             </div>
-            <div class="modal-footer border-0">
-                <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Batal</button>
+            <div class="modal-footer border-0 flex-column flex-sm-row gap-2">
+                <button type="button" class="btn btn-light border w-100 w-sm-auto" data-bs-dismiss="modal">Batal</button>
             </div>
         </div>
     </div>

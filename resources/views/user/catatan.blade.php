@@ -60,7 +60,36 @@
         .form-control:focus,.form-select:focus { border-color:var(--green-primary)!important; box-shadow:0 0 0 .2rem rgba(25,135,84,.2)!important; }
         .empty-state { text-align:center; padding:60px 20px; color:var(--text-muted); }
         .empty-state i { font-size:3.5rem; opacity:.35; margin-bottom:12px; display:block; }
-        @media(max-width:768px){ .main-content{padding:16px;} .topbar{padding:0 16px;} }
+
+        /* --- RESPONSIVE MOBILE LOGIC --- */
+        @media (max-width: 768px) {
+            .main-content { padding: 16px; }
+            .topbar { padding: 0 14px; height: 56px; }
+            .topbar-brand span { display: none; }
+            .user-pill { padding: 5px 10px; font-size: .75rem; }
+            .user-pill i { font-size: 1rem; }
+            .btn-logout-top { padding: 5px 10px; }
+            .btn-logout-top i { font-size: 1rem; }
+            .catatan-card { padding: 14px 16px; }
+            .filter-bar { padding: 12px 14px; }
+            .empty-state { padding: 40px 16px; }
+            .empty-state i { font-size: 2.8rem; }
+            .modal-body { padding: 1rem !important; }
+            .modal-footer { padding: .75rem 1rem !important; }
+        }
+        @media (max-width: 576px) {
+            .topbar { padding: 0 12px; }
+            .topbar-brand { font-size: .95rem; }
+            .catatan-card { padding: 12px 14px; }
+            .catatan-isi { font-size: .84rem; line-height: 1.55; }
+            .label-badge { font-size: .7rem; padding: 3px 10px; }
+            .btn-aksi { padding: 3px 6px; }
+            .btn-aksi i { font-size: .9rem; }
+            .filter-bar { padding: 10px 12px; }
+            .filter-btn { font-size: .78rem; padding: 4px 10px; }
+            .empty-state { padding: 32px 12px; }
+            .empty-state i { font-size: 2.4rem; }
+        }
     </style>
 </head>
 <body>
@@ -85,12 +114,12 @@
 <div class="main-content">
 
     {{-- Header --}}
-    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+    <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center justify-content-between mb-4 gap-3">
         <div>
             <h5 class="mb-0 fw-bold"><i class="bi bi-journal-text text-success me-2"></i>Catatan Saya</h5>
             <small class="text-muted">Kelola catatan pribadi Anda</small>
         </div>
-        <button class="btn btn-success px-4 fw-bold shadow-sm"
+        <button class="btn btn-success px-4 fw-bold shadow-sm w-100 w-sm-auto align-self-start align-self-sm-center"
             data-bs-toggle="modal" data-bs-target="#modalTambahCatatan">
             <i class="bi bi-plus-circle me-2"></i>Tambah Catatan
         </button>
@@ -112,13 +141,15 @@
     @endif
 
     {{-- Filter --}}
-    <div class="filter-bar mb-4 d-flex align-items-center gap-3 flex-wrap">
-        <i class="bi bi-filter text-muted"></i>
-        <button class="btn btn-sm btn-success px-3 filter-btn active" data-filter="semua">Semua</button>
-        @foreach($catatans->pluck('label')->unique() as $lbl)
-        <button class="btn btn-sm btn-outline-success px-3 filter-btn" data-filter="{{ $lbl }}">{{ $lbl }}</button>
-        @endforeach
-        <span class="ms-auto text-muted" style="font-size:.82rem;">{{ $catatans->count() }} catatan</span>
+    <div class="filter-bar mb-4 d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-3">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <i class="bi bi-filter text-muted"></i>
+            <button class="btn btn-sm btn-success px-3 filter-btn active" data-filter="semua">Semua</button>
+            @foreach($catatans->pluck('label')->unique() as $lbl)
+            <button class="btn btn-sm btn-outline-success px-3 filter-btn" data-filter="{{ $lbl }}">{{ $lbl }}</button>
+            @endforeach
+        </div>
+        <span class="ms-md-auto text-muted" style="font-size:.82rem;">{{ $catatans->count() }} catatan</span>
     </div>
 
     {{-- Grid --}}
@@ -245,22 +276,24 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     // Counter tambah
-    const isiTambah = document.getElementById('isiTambah');
-    if (isiTambah) isiTambah.addEventListener('input', function(){
-        document.getElementById('charCountTambah').textContent = this.value.length + ' / 5000';
-    });
+    var isiTambah = document.getElementById('isiTambah');
+    if (isiTambah) {
+        isiTambah.addEventListener('input', function(){
+            document.getElementById('charCountTambah').textContent = this.value.length + ' / 5000';
+        });
+    }
 
     // Filter
-    document.querySelectorAll('.filter-btn').forEach(btn => {
+    document.querySelectorAll('.filter-btn').forEach(function(btn) {
         btn.addEventListener('click', function () {
-            document.querySelectorAll('.filter-btn').forEach(b => {
+            document.querySelectorAll('.filter-btn').forEach(function(b) {
                 b.classList.remove('btn-success','active');
                 b.classList.add('btn-outline-success');
             });
             this.classList.add('btn-success','active');
             this.classList.remove('btn-outline-success');
-            const f = this.dataset.filter;
-            document.querySelectorAll('.catatan-item').forEach(item => {
+            var f = this.dataset.filter;
+            document.querySelectorAll('.catatan-item').forEach(function(item) {
                 item.style.display = (f==='semua' || item.dataset.label===f) ? '' : 'none';
             });
         });
@@ -268,8 +301,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function openEdit(uuid, label, catatan) {
-    const baseUrl = '{{ url("/user/catatan") }}';
-    document.getElementById('formEditCatatan').action = baseUrl + '/' + uuid;
+    document.getElementById('formEditCatatan').action = '/user/catatan/' + uuid;
     document.getElementById('editLabel').value  = label;
     document.getElementById('editIsi').value    = catatan;
     document.getElementById('charCountEdit').textContent = catatan.length + ' / 5000';
@@ -281,7 +313,7 @@ function confirmLogout() {
         title:'Yakin ingin log out?', icon:'warning',
         showCancelButton:true, confirmButtonColor:'#198754', cancelButtonColor:'#d33',
         confirmButtonText:'Ya, Log Out', cancelButtonText:'Batal', reverseButtons:true
-    }).then(r => { if(r.isConfirmed) document.getElementById('logout-form-catatan').submit(); });
+    }).then(function(r) { if(r.isConfirmed) document.getElementById('logout-form-catatan').submit(); });
 }
 </script>
 </body>

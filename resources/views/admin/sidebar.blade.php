@@ -186,19 +186,19 @@
     <?php $menu_biaya = request()->routeIs('biaya-murid.*') ? 'active' : ''; ?>
 
     <ul class="list-unstyled components">
-        <li class="{{ Request::is('admin') ? 'active' : '' }}">
+        <li class="{{ Request::is('admin') || request()->routeIs('admin.home') ? 'active' : '' }}">
             <a href="{{ route('admin.home') }}">
                 <i class="bi bi-speedometer2"></i> Beranda
             </a>
         </li>
 
-        <li class="{{ Request::is('profile-sekolah*') ? 'active' : '' }}">
+        <li class="{{ Request::is('profile-sekolah*') || request()->routeIs('profile-sekolah.*') ? 'active' : '' }}">
             <a href="{{ route('profile-sekolah.index') }}">
                 <i class="bi bi-building"></i> Profile Sekolah
             </a>
         </li>
 
-        <li class="{{ request()->routeIs('informasi.*') ? 'active' : '' }}">
+        <li class="{{ request()->routeIs('informasi.*') || Request::is('informasi*') ? 'active' : '' }}">
             <a href="{{ route('informasi.index') }}">
                 <i class="bi bi-info-circle"></i> Kelola Informasi
             </a>
@@ -258,19 +258,19 @@
             </div>
         </li>
 
-        <li class="{{ Request::is('mapel*') ? 'active' : '' }}">
+        <li class="{{ Request::is('mapel*') || request()->routeIs('mapel.*') ? 'active' : '' }}">
             <a href="{{ route('mapel.index') }}">
-                <i class="bi bi-person-badge"></i> Data Mapel
+                <i class="bi bi-book"></i> Data Mapel
             </a>
         </li>
 
-        <li class="{{ Request::is('staff*') ? 'active' : '' }}">
+        <li class="{{ Request::is('staff*') || request()->routeIs('staff.*') ? 'active' : '' }}">
             <a href="{{ route('staff.index') }}">
-                <i class="bi bi-person-badge"></i> Data Staff
+                <i class="bi bi-person-workspace"></i> Data Staff
             </a>
         </li>
 
-        <li class="{{ request()->routeIs('murid.*') ? 'active' : '' }}">
+        <li class="{{ (request()->routeIs('murid.*') && !request()->routeIs('murid.create')) ? 'active' : '' }}">
             <a href="{{ route('murid.index') }}">
                 <i class="bi bi-people"></i> Data Murid
             </a>
@@ -300,7 +300,7 @@
             </a>
         </li>
 
-        <li class="{{ Request::is('kelas*') ? 'active' : '' }}">
+        <li class="{{ Request::is('kelas*') || request()->routeIs('kelas.*') ? 'active' : '' }}">
             <a href="{{ route('kelas.index') }}">
                 <i class="bi bi-door-open"></i> Kelola Kelas
             </a>
@@ -318,7 +318,7 @@
 
         <li class="{{ request()->routeIs('dokumen.*') ? 'active' : '' }}">
             <a href="{{ route('dokumen.index') }}">
-                <i class="bi bi-people-fill"></i> Manajemen Dokumen
+                <i class="bi bi-folder2-open"></i> Manajemen Dokumen
             </a>
         </li>
 
@@ -329,6 +329,12 @@
         <li class="{{ $menu_biaya }}">
             <a href="{{ route('biaya-murid.index') }}">
                 <i class="bi bi-cash-stack"></i> Biaya Murid
+            </a>
+        </li>
+
+        <li class="{{ request()->routeIs('akun-pembayaran.*') ? 'active' : '' }}">
+            <a href="{{ route('akun-pembayaran.index') }}">
+                <i class="bi bi-wallet2"></i> Akun Pembayaran
             </a>
         </li>
 
@@ -354,7 +360,7 @@
             <small class="text-uppercase fw-bold" style="font-size: 0.85rem; letter-spacing: 1px; color: rgba(255,255,255,0.6);">Pengaturan</small>
         </li>
 
-        <li class="{{ request()->routeIs('admin.pengaturan-form-ppdb.*') ? 'active' : '' }}">
+        <li class="{{ request()->routeIs('admin.pengaturan-form-ppdb') || request()->routeIs('admin.pengaturan-form-ppdb.*') ? 'active' : '' }}">
             <a href="{{ route('admin.pengaturan-form-ppdb') }}">
                 <i class="bi bi-gear"></i> Pengaturan Form PPDB
             </a>

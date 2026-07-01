@@ -17,15 +17,16 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
     <style>
         :root { --primary: #198754; }
-        body { font-family: 'Inter', sans-serif; background: #f4f7f6; }
+        body { font-family: 'Inter', sans-serif; background: #f4f7f6; overflow-x: hidden; }
         .wrapper { display: flex; width: 100%; align-items: stretch; }
-        #content { width: 100%; padding: 24px 30px; min-height: 100vh; transition: all 0.3s; }
-        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary); border: none; color: white; border-radius: 10px; }
+        #content { width: 100%; padding: 24px 30px; min-height: 100vh; min-width: 0; transition: all 0.3s; }
+        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary); border: none; color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         /* Section card */
         .sec { background: white; border-radius: 14px; box-shadow: 0 4px 18px rgba(0,0,0,.05); margin-bottom: 1.5rem; overflow: hidden; }
-        .sec-head { padding: 14px 20px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; background: #fafafa; }
+        .sec-head { padding: 14px 20px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; background: #fafafa; flex-wrap: wrap; gap: 8px; }
         .sec-head h6 { margin: 0; font-weight: 700; font-size: .93rem; }
         .sec-body { padding: 20px; }
+        .page-header { gap: 12px; }
         /* Kepala cards */
         .kepala-card { display: flex; align-items: center; gap: 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; transition: .2s; }
         .kepala-card:hover { border-color: var(--primary); box-shadow: 0 2px 10px rgba(25,135,84,.08); }
@@ -45,7 +46,20 @@
         input:focus, textarea:focus, select:focus { border-color: #198754 !important; box-shadow: 0 0 0 .2rem rgba(25,135,84,.25) !important; outline: none !important; }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
-        @media (max-width: 768px) { #content { padding: 15px; } }
+        .modal-footer { flex-wrap: wrap; gap: .5rem; }
+        @media (max-width: 991px) { #content { padding: 16px 18px; } }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            .page-header { flex-direction: column; align-items: flex-start !important; }
+            .page-header > .badge { width: 100%; justify-content: center; }
+            .sec-head { align-items: flex-start; }
+            .sec-head .btn { width: 100%; }
+            .sec-body { padding: 16px; }
+            .kepala-card, .kelas-card { flex-wrap: wrap; }
+            .catatan-card .d-flex { flex-wrap: wrap; gap: .5rem; }
+            .modal-footer .btn { width: 100%; }
+            .modal-body { padding: 1rem !important; }
+        }
     </style>
 </head>
 <body>
@@ -56,7 +70,7 @@
         <div class="container-fluid">
 
             {{-- Header --}}
-            <div class="d-flex align-items-center justify-content-between mb-4 mt-1 flex-wrap gap-3">
+            <div class="d-flex align-items-center justify-content-between mb-4 mt-1 flex-wrap gap-3 page-header">
                 <div class="d-flex align-items-center gap-3">
                     <button id="sidebarCollapse" class="btn"><i class="bi bi-list fs-4"></i></button>
                     <div>
@@ -216,7 +230,7 @@
 
 {{-- MODAL TAMBAH KEPALA --}}
 <div class="modal fade" id="modalTambahKepala" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
         <div class="modal-content border-0 shadow">
             <form action="{{ route('studi.kepala.store', $studi->id) }}" method="POST">
                 @csrf
@@ -261,7 +275,7 @@
 
 {{-- MODAL TAMBAH KELAS --}}
 <div class="modal fade" id="modalTambahKelas" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
         <div class="modal-content border-0 shadow">
             <form action="{{ route('studi.kelas.store', $studi->id) }}" method="POST">
                 @csrf
@@ -295,7 +309,7 @@
 
 {{-- MODAL TAMBAH CATATAN --}}
 <div class="modal fade" id="modalTambahCatatan" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
         <div class="modal-content border-0 shadow">
             <form action="{{ route('studi.catatan.store', $studi->id) }}" method="POST">
                 @csrf
@@ -326,7 +340,7 @@
 
 {{-- MODAL EDIT CATATAN --}}
 <div class="modal fade" id="modalEditCatatan" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
         <div class="modal-content border-0 shadow">
             <form id="formEditCatatan" method="POST">
                 @csrf @method('PUT')

@@ -37,6 +37,7 @@
             padding: 20px 30px;
             transition: all 0.3s;
             min-height: 100vh;
+            min-width: 0;
         }
 
         /* Hamburger Button Styling */
@@ -51,6 +52,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
 
         /* Class Card Styling */
@@ -105,7 +107,7 @@
         }
 
         .icon-box {
-            font-size: 3rem;
+            font-size: 2.6rem;
             color: var(--primary-green);
             margin-bottom: 10px;
         }
@@ -126,8 +128,20 @@
             display: block;
         }
 
-        @media (max-width: 768px) {
-            #content { padding: 15px; }
+        @media (max-width: 991px) {
+            #content { padding: 16px 18px; }
+        }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+            .page-header .btn-tambah { width: 100%; }
+            .card-footer .btn { width: 100%; margin-bottom: 4px; }
+            .card-footer form { width: 100%; }
+            .card-footer form .btn { width: 100%; }
+            .badge { font-size: 0.75rem; }
+        }
+        @media (max-width: 479px) {
+            .row-kelas > div { flex: 0 0 100%; max-width: 100%; }
         }
     </style>
 </head>
@@ -147,7 +161,7 @@
         <div id="content">
             <div class="container-fluid">
                 
-                <div class="d-flex align-items-center justify-content-between mb-4 mt-2">
+                <div class="d-flex align-items-center justify-content-between mb-4 mt-2 flex-wrap gap-2 page-header">
                     <div class="d-flex align-items-center">
                         <button type="button" id="sidebarCollapse" class="btn">
                             <i class="bi bi-list fs-4"></i>
@@ -157,7 +171,7 @@
                             <p class="text-muted small mb-0">Klik pada kelas untuk mengelola murid</p>
                         </div>
                     </div>
-                    @if($__canCreate)<button class="btn btn-success px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambahKelas">
+                    @if($__canCreate)<button class="btn btn-success px-4 shadow-sm fw-bold btn-tambah" data-bs-toggle="modal" data-bs-target="#modalTambahKelas">
                         <i class="bi bi-plus-lg me-2"></i>Tambah Kelas
                     </button>@endif
                 </div>
@@ -169,7 +183,7 @@
                     </div>
                 @endif
 
-                <div class="row g-4">
+                <div class="row g-3 row-kelas">
                     @forelse($kelas as $k)
                     @php
                             $punyaMurid = $k->murid_count > 0;
@@ -205,10 +219,10 @@
                                 $labelBadge = '';
                             }
                         @endphp
-                    <div class="col-md-4 col-lg-3">
+                    <div class="col-6 col-sm-4 col-md-4 col-lg-3">
                         <div class="card class-card shadow-sm h-100 {{ $cardClass }}">
                             <a href="{{ route('kelas.show', $k->id) }}" class="card-body-link">
-                                <div class="card-body p-4 text-center">
+                                <div class="card-body p-3 p-md-4 text-center">
                                     <div class="icon-box">
                                         <i class="bi bi-door-open-fill"></i>
                                     </div>
@@ -226,15 +240,15 @@
                                     @endif
                                 </div>
                             </a>
-                            <div class="card-footer bg-white border-0 pb-3 text-center">
-                                @if($__canEdit)<button class="btn btn-sm btn-outline-success border-0"
+                            <div class="card-footer bg-white border-0 pb-3 text-center px-2">
+                                @if($__canEdit)<button class="btn btn-sm btn-outline-success border-0 w-100 mb-1"
                                     onclick="openEditModal('{{ $k->id }}', '{{ $k->nama_kelas }}')">
-                                    <i class="bi bi-pencil-square"></i> Edit Kelas
+                                    <i class="bi bi-pencil-square me-1"></i>Edit Kelas
                                 </button>@endif
                                 <form action="{{ route('kelas.destroy', $k->id) }}" method="POST" onsubmit="return confirm('Hapus kelas ini? Semua data murid di dalamnya akan terlepas.')">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold border-0">
-                                        <i class="bi bi-trash me-1"></i> Hapus Kelas
+                                    <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold border-0 w-100">
+                                        <i class="bi bi-trash me-1"></i>Hapus Kelas
                                     </button>
                                 </form>
                             </div>

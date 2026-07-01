@@ -28,11 +28,12 @@
         }
         body { font-family: 'Inter', sans-serif; background: #f3f7f5; color: var(--text-main); }
         .wrapper { display: flex; width: 100%; align-items: stretch; }
-        #content { width: 100%; padding: 24px 30px; min-height: 100vh; }
+        #content { width: 100%; padding: 15px 15px; min-height: 100vh; transition: all 0.3s; }
         #sidebarCollapse {
             width: 42px; height: 42px;
             background: var(--green-primary); border: none; color: #fff;
             border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
         }
         #sidebarCollapse:hover { background: var(--green-dark); }
         #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1040; }
@@ -42,11 +43,11 @@
         .owner-banner {
             background: linear-gradient(135deg, #0f5132, #198754);
             border-radius: var(--radius);
-            padding: 22px 28px;
+            padding: 16px 18px;
             color: #fff;
             display: flex;
-            align-items: center;
-            gap: 18px;
+            flex-direction: column;
+            gap: 12px;
         }
         .owner-avatar {
             width: 56px; height: 56px; border-radius: 14px;
@@ -96,7 +97,10 @@
         /* ── Filter & Search ── */
         .filter-bar {
             background: var(--surface); border: 1px solid var(--border);
-            border-radius: 10px; padding: 14px 20px;
+            border-radius: 10px; padding: 14px 16px;
+        }
+        .catatan-card-footer {
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
         }
         .empty-state {
             text-align: center; padding: 60px 20px; color: var(--text-muted);
@@ -108,7 +112,27 @@
             box-shadow: 0 0 0 .2rem rgba(25,135,84,.2) !important;
         }
 
-        @media (max-width: 768px) { #content { padding: 15px; } }
+        @media (min-width: 768px) {
+            #content { padding: 24px 30px; }
+            .owner-banner {
+                padding: 22px 28px;
+                flex-direction: row;
+                align-items: center;
+                gap: 18px;
+            }
+            .catatan-card { padding: 20px 22px; }
+            .filter-bar { padding: 14px 20px; }
+        }
+
+        @media (max-width: 576px) {
+            .top-bar { flex-wrap: wrap; align-items: flex-start !important; }
+            .filter-bar .filter-btn { width: 100%; }
+            .input-group { max-width: 100% !important; }
+            .catatan-card-footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
     </style>
 </head>
 <body>
@@ -120,7 +144,7 @@
         <div class="container-fluid px-0">
 
             {{-- ── TOP BAR ── --}}
-            <div class="d-flex align-items-center gap-3 mb-4 mt-1">
+            <div class="top-bar d-flex align-items-center gap-3 mb-4 mt-1">
                 <button type="button" id="sidebarCollapse" class="btn">
                     <i class="bi bi-list fs-4"></i>
                 </button>
@@ -144,11 +168,11 @@
             @endif
 
             {{-- ── OWNER BANNER ── --}}
-            <div class="owner-banner mb-4">
+            <div class="owner-banner mb-4 align-items-center align-items-md-start text-center text-sm-start">
                 <div class="owner-avatar">{{ strtoupper(substr($pemilik->username, 0, 1)) }}</div>
-                <div>
+                <div class="w-100">
                     <div class="fw-bold fs-5">{{ $pemilik->username }}</div>
-                    <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
+                    <div class="d-flex align-items-center justify-content-center justify-content-sm-start gap-2 mt-1 flex-wrap">
                         <span class="owner-role-badge">
                             <i class="bi bi-shield-check me-1"></i>{{ $pemilik->role ?? $pemilik->rules ?? 'user' }}
                         </span>
@@ -160,19 +184,20 @@
             </div>
 
             {{-- ── FILTER & SEARCH ── --}}
-            <div class="filter-bar mb-4 d-flex align-items-center gap-3 flex-wrap">
-                <i class="bi bi-filter text-muted"></i>
-                <span class="text-muted small fw-semibold">Filter label:</span>
-                <button class="btn btn-sm btn-success px-3 filter-btn active" data-filter="semua">Semua</button>
-                @foreach($catatans->pluck('label')->unique() as $lbl)
-                <button class="btn btn-sm btn-outline-success px-3 filter-btn" data-filter="{{ $lbl }}">
-                    {{ $lbl }}
-                </button>
-                @endforeach
+            <div class="filter-bar mb-4 d-flex flex-column flex-md-row gap-3 justify-content-between align-items-stretch align-items-md-center">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="text-muted small fw-semibold me-1"><i class="bi bi-filter me-1"></i>Filter:</span>
+                    <button class="btn btn-sm btn-success px-3 filter-btn active" data-filter="semua">Semua</button>
+                    @foreach($catatans->pluck('label')->unique() as $lbl)
+                    <button class="btn btn-sm btn-outline-success px-3 filter-btn" data-filter="{{ $lbl }}">
+                        {{ $lbl }}
+                    </button>
+                    @endforeach
+                </div>
 
-                <div class="ms-auto input-group" style="max-width: 260px;">
-                    <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
-                    <input type="text" id="searchCatatan" class="form-control border-start-0"
+                <div class="input-group shrink-0" style="max-width: 320px; width: 100%;">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" id="searchCatatan" class="form-control border-start-0 ps-0"
                         placeholder="Cari isi catatan...">
                 </div>
             </div>
@@ -203,7 +228,7 @@
                         <p class="catatan-isi mb-3">{{ $c->catatan }}</p>
 
                         {{-- Footer --}}
-                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-1">
+                        <div class="catatan-card-footer">
                             <div class="catatan-time">
                                 <i class="bi bi-clock me-1"></i>
                                 {{ $c->created_at->isoFormat('D MMM YYYY, HH:mm') }}

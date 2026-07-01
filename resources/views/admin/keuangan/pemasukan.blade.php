@@ -17,11 +17,11 @@
         :root { --primary-green: #198754; }
         body { font-family: 'Inter', sans-serif; background-color: #f4f7f6; overflow-x: hidden; }
         .wrapper { display: flex; width: 100%; align-items: stretch; }
-        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; min-height: 100vh; }
-        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary-green); border: none; color: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(25,135,84,0.2); display: flex; align-items: center; justify-content: center; }
+        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; min-height: 100vh; min-width: 0; }
+        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary-green); border: none; color: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(25,135,84,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .card  { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .table thead { background-color: var(--primary-green); color: white; }
-        .table thead th { font-size: 0.82rem; letter-spacing: 0.4px; font-weight: 600; }
+        .table thead th { font-size: 0.82rem; letter-spacing: 0.4px; font-weight: 600; white-space: nowrap; }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
         input:focus, textarea:focus, select:focus { border-color: #198754 !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(25,135,84,0.25) !important; }
@@ -29,7 +29,7 @@
         /* Summary cards */
         .summary-card { border-radius: 12px; border: none; transition: transform 0.2s; }
         .summary-card:hover { transform: translateY(-2px); }
-        .summary-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+        .summary-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
 
         /* Form */
         .section-divider { border: 0; border-top: 2px dashed #dee2e6; margin: 1.2rem 0; }
@@ -37,15 +37,15 @@
         .hint-text { font-size: 0.75rem; color: #6c757d; margin-top: 4px; }
 
         /* Murid pill */
-        .murid-selected-pill { background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 8px; padding: 8px 14px; display: flex; align-items: center; gap: 10px; }
+        .murid-selected-pill { background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 8px; padding: 8px 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .murid-selected-pill .btn-clear { background: none; border: none; color: #dc3545; padding: 0; font-size: 1.1rem; line-height: 1; }
 
         /* Akun info box */
         .akun-info-box { background: #f0f9ff; border: 1px solid #b6e0fe; border-radius: 10px; padding: 14px 16px; }
         .akun-info-box .bank-name { font-weight: 700; font-size: 0.95rem; color: #0369a1; }
-        .akun-info-box .rekening-number { font-size: 1.15rem; font-weight: 700; letter-spacing: 2px; color: #1e293b; }
+        .akun-info-box .rekening-number { font-size: 1.1rem; font-weight: 700; letter-spacing: 2px; color: #1e293b; word-break: break-all; }
         .akun-info-box .atas-nama { font-size: 0.82rem; color: #64748b; }
-        .qris-img { max-width: 180px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .qris-img { max-width: 160px; width: 100%; border-radius: 8px; border: 1px solid #e2e8f0; }
 
         /* Filter bar */
         .filter-bar { background: #fff; border-radius: 12px; padding: 14px 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
@@ -54,25 +54,36 @@
         .btn-range:not(.active) { background: #fff; color: #495057; border-color: #dee2e6; }
         .btn-range:not(.active):hover { background: #f0faf5; border-color: var(--primary-green); color: var(--primary-green); }
 
-        /* Nav tabs pemasukan */
+        /* Nav tabs */
         .nav-tabs .nav-link { color: #6c757d; font-weight: 500; border-radius: 8px 8px 0 0; }
         .nav-tabs .nav-link.active { color: #198754; font-weight: 600; border-bottom-color: #fff; }
         .nav-tabs .nav-link:hover { color: #198754; }
 
         /* Modal murid */
-        #modal-murid-table tbody tr { cursor: default; }
         #modal-murid-table tbody tr:hover { background-color: #f0faf5; }
         .murid-loader { text-align: center; padding: 20px; color: #6c757d; }
 
-        /* Baris tersembunyi (lihat semua) */
+        /* Baris tersembunyi */
         .row-extra { display: none; }
 
         /* Mode Edit */
         .edit-mode-banner { background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 10px; padding: 10px 16px; display: none; margin-bottom: 14px; }
-        .edit-mode-banner.show { display: flex; align-items: center; gap: 10px; }
+        .edit-mode-banner.show { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .label-edited { font-size: 0.68rem; color: #6c757d; font-style: italic; display: block; margin-top: 2px; }
 
-        @media (max-width: 768px) { #content { padding: 15px; } }
+        /* ── Responsive ── */
+        @media (max-width: 991px) {
+            #content { padding: 16px 18px; }
+        }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            /* Filter bar: tanggal stack */
+            .filter-bar .date-range-row { flex-direction: column; align-items: stretch !important; }
+            .filter-bar .date-range-row input[type="date"] { width: 100% !important; }
+            .filter-bar .date-range-row .btn { width: 100%; }
+            /* Tabel laporan → scroll horizontal tetap, tapi font lebih kecil */
+            .table thead th, .table tbody td { font-size: 0.78rem; }
+        }
     </style>
 </head>
 <body>
@@ -84,11 +95,11 @@
         <div class="container-fluid">
 
             {{-- ══ Header ══ --}}
-            <div class="d-flex align-items-center mb-4 mt-2">
+            <div class="d-flex align-items-center mb-4 mt-2 flex-wrap gap-2">
                 <button type="button" id="sidebarCollapse" class="btn" onclick="toggleSidebar()">
                     <i class="bi bi-list fs-4"></i>
                 </button>
-                <h4 class="ms-3 mb-0 fw-bold text-success">
+                <h4 class="mb-0 fw-bold text-success">
                     <i class="bi bi-arrow-down-circle me-2"></i>Pemasukan Keuangan
                 </h4>
             </div>
@@ -380,28 +391,28 @@
                  SUMMARY CARDS (hanya data Tersedia)
             ══════════════════════════════════════════ --}}
             <div class="row g-3 mb-4">
-                <div class="col-md-6">
+                <div class="col-12 col-sm-6">
                     <div class="card summary-card p-3">
                         <div class="d-flex align-items-center gap-3">
                             <div class="summary-icon bg-success bg-opacity-10">
                                 <i class="bi bi-cash-stack text-success"></i>
                             </div>
-                            <div>
+                            <div class="min-width-0">
                                 <div class="text-muted small fw-semibold">Total Nominal Pemasukan</div>
-                                <div class="fw-bold fs-5 text-success">
+                                <div class="fw-bold fs-5 text-success text-truncate">
                                     Rp {{ number_format($totalNominal, 0, ',', '.') }}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-sm-6">
                     <div class="card summary-card p-3">
                         <div class="d-flex align-items-center gap-3">
                             <div class="summary-icon bg-primary bg-opacity-10">
                                 <i class="bi bi-activity text-primary"></i>
                             </div>
-                            <div>
+                            <div class="min-width-0">
                                 <div class="text-muted small fw-semibold">Total Aktivitas Pemasukan</div>
                                 <div class="fw-bold fs-5 text-primary">
                                     {{ number_format($totalAktifitas, 0, ',', '.') }} transaksi
@@ -441,26 +452,25 @@
                                 </button>
                             @endforeach
                         </div>
-                        <div class="d-flex flex-wrap align-items-center gap-2">
+                        <div class="d-flex flex-wrap align-items-center gap-2 date-range-row">
                             <span class="text-muted small fw-semibold">Atau pilih tanggal:</span>
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="date" name="date_from" id="inputDateFrom"
-                                       class="form-control form-control-sm" style="width:155px"
-                                       value="{{ $dateFrom }}">
-                                <span class="text-muted small">s/d</span>
-                                <input type="date" name="date_to" id="inputDateTo"
-                                       class="form-control form-control-sm" style="width:155px"
-                                       value="{{ $dateTo }}">
-                                <button type="submit" class="btn btn-outline-success btn-sm px-3 fw-semibold">
-                                    <i class="bi bi-funnel me-1"></i>Terapkan
-                                </button>
-                                @if($range !== '1bulan' || $dateFrom || $dateTo)
-                                    <a href="{{ route('keuangan.pemasukan.index') }}"
-                                       class="btn btn-outline-secondary btn-sm px-3">
-                                        <i class="bi bi-x-circle me-1"></i>Reset
-                                    </a>
-                                @endif
-                            </div>
+                            <input type="date" name="date_from" id="inputDateFrom"
+                                   class="form-control form-control-sm flex-fill" style="min-width:130px; max-width:180px;"
+                                   value="{{ $dateFrom }}">
+                            <span class="text-muted small">s/d</span>
+                            <input type="date" name="date_to" id="inputDateTo"
+                                   class="form-control form-control-sm flex-fill" style="min-width:130px; max-width:180px;"
+                                   value="{{ $dateTo }}">
+                            <button type="submit" class="btn btn-outline-success btn-sm px-3 fw-semibold">
+                                <i class="bi bi-funnel me-1"></i>Terapkan
+                            </button>
+                            @if($range !== '1bulan' || $dateFrom || $dateTo)
+                                <a href="{{ route('keuangan.pemasukan.index') }}"
+                                   class="btn btn-outline-secondary btn-sm px-3">
+                                    <i class="bi bi-x-circle me-1"></i>Reset
+                                </a>
+                            @endif
+                        </div>
                         </div>
                         {{-- Pertahankan tab aktif saat filter diapply --}}
                         <input type="hidden" name="range" id="inputRange" value="{{ $range }}">
@@ -708,7 +718,7 @@
      MODAL: PILIH MURID
 ══════════════════════════════════════════════ --}}
 <div class="modal fade" id="modalPilihMurid" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
         <div class="modal-content border-0 shadow">
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title fw-bold"><i class="bi bi-person-search me-2"></i>Pilih Murid</h5>
@@ -754,7 +764,7 @@
      MODAL: PILIH MURID (untuk form Edit)
 ══════════════════════════════════════════════ --}}
 <div class="modal fade" id="modalPilihMuridEdit" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
         <div class="modal-content border-0 shadow">
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title fw-bold"><i class="bi bi-person-search me-2"></i>Pilih / Ganti Murid</h5>
@@ -1255,3 +1265,6 @@ function clearMuridEdit() {
 </script>
 </body>
 </html>
+
+
+

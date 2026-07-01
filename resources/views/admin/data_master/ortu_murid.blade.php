@@ -15,20 +15,48 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f4f7f6; overflow-x: hidden; }
         .wrapper { display: flex; width: 100%; align-items: stretch; }
-        #content { width: 100%; padding: 25px; transition: all 0.3s; min-height: 100vh; }
+        #content { width: 100%; padding: 25px; transition: all 0.3s; min-height: 100vh; min-width: 0; }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
-        #sidebarCollapse { width: 45px; height: 45px; background: #198754; border: none; color: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(25,135,84,0.2); }
+        #sidebarCollapse { width: 45px; height: 45px; background: #198754; border: none; color: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(25,135,84,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .card { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .search-box { border-radius: 10px; border: 1px solid #e0e0e0; padding: 10px 15px; transition: 0.3s; }
         .search-box:focus { border-color: #198754; box-shadow: 0 0 0 0.25rem rgba(25,135,84,0.1); outline: none; }
         .table thead { background-color: #f8f9fa; border-bottom: 2px solid #198754; }
-        .table th { font-weight: 600; color: #444; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; }
-        .nav-tabs .nav-link { color: #6c757d; font-weight: 500; border-radius: 8px 8px 0 0; }
+        .table th { font-weight: 600; color: #444; text-transform: uppercase; font-size: 0.82rem; letter-spacing: 0.5px; white-space: nowrap; }
+        .nav-tabs .nav-link { color: #6c757d; font-weight: 500; border-radius: 8px 8px 0 0; font-size: 0.9rem; }
         .nav-tabs .nav-link.active { color: #198754; border-bottom-color: #fff; font-weight: 600; }
         .nav-tabs .nav-link:hover { color: #198754; }
         .row-hidden { display: none; }
-        @media (max-width: 768px) { #content { padding: 15px; } }
+
+        /* Mobile card */
+        .ortu-card-mobile { display: none; }
+        .ortu-card-item {
+            background: #fff; border-radius: 12px; padding: 14px 16px;
+            margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 4px solid #198754;
+        }
+        .ortu-card-item.nonaktif { border-left-color: #dc3545; }
+        .ortu-card-item .oc-name  { font-weight: 700; font-size: 0.97rem; color: #1a3a3a; }
+        .ortu-card-item .oc-meta  { font-size: 0.8rem; color: #6c757d; margin-top: 3px; }
+
+        /* ── Responsive ── */
+        @media (max-width: 991px) {
+            #content { padding: 16px 18px; }
+        }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            /* Header stack vertikal */
+            .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+            /* Search bar full width */
+            .search-row { flex-direction: column !important; }
+            .search-row .col-md-6 { width: 100%; }
+            /* Sembunyikan tabel, tampilkan card */
+            .table-ortu-desktop { display: none !important; }
+            .ortu-card-mobile   { display: block; }
+            /* Tab font */
+            .nav-tabs .nav-link { font-size: 0.82rem; padding: 6px 10px; }
+        }
     </style>
 </head>
 <body>
@@ -40,7 +68,7 @@
             <div class="container-fluid">
 
                 {{-- Header --}}
-                <div class="d-flex align-items-center justify-content-between mb-4 mt-2">
+                <div class="d-flex align-items-center justify-content-between mb-4 mt-2 flex-wrap gap-2 page-header">
                     <div class="d-flex align-items-center">
                         <button type="button" id="sidebarCollapse" class="btn">
                             <i class="bi bi-list fs-4"></i>
@@ -55,13 +83,13 @@
 
                 {{-- Search Bar --}}
                 <div class="card p-3 mb-4">
-                    <div class="row align-items-center">
-                        <div class="col-md-6">
+                    <div class="row align-items-center search-row g-2">
+                        <div class="col-12 col-md-6">
                             <p class="text-muted small mb-0">
                                 Cari berdasarkan Nama Murid, Nama Ayah, Nama Ibu, atau No. HP
                             </p>
                         </div>
-                        <div class="col-md-6 mt-2 mt-md-0">
+                        <div class="col-12 col-md-6">
                             <div class="input-group">
                                 <span class="input-group-text bg-white border-end-0 text-muted">
                                     <i class="bi bi-search"></i>
@@ -103,7 +131,8 @@
 
                         {{-- Tab Aktif --}}
                         <div class="tab-pane fade show active" id="tab-aktif" role="tabpanel">
-                            <div class="table-responsive">
+                            {{-- DESKTOP TABLE --}}
+                            <div class="table-responsive table-ortu-desktop">
                                 <table class="table align-middle">
                                     <thead>
                                         <tr>
@@ -136,6 +165,27 @@
                                     </tbody>
                                 </table>
                             </div>
+
+                            {{-- MOBILE CARD LIST --}}
+                            <div class="ortu-card-mobile" id="mobile-ortu-aktif">
+                                @forelse($dataAktif as $index => $row)
+                                <div class="ortu-card-item {{ $index >= 10 ? 'row-extra-ortu-aktif row-hidden' : '' }}">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="oc-name">{{ $row->nama_lengkap }}</div>
+                                        <span class="badge bg-success">Aktif</span>
+                                    </div>
+                                    <div class="oc-meta"><i class="bi bi-person me-1"></i>Ayah: {{ $row->ortu->nama_ayah ?? '-' }}</div>
+                                    <div class="oc-meta"><i class="bi bi-person me-1"></i>Ibu: {{ $row->ortu->nama_ibu ?? '-' }}</div>
+                                    <div class="oc-meta"><i class="bi bi-telephone me-1"></i>{{ $row->no_hp ?? '-' }}</div>
+                                </div>
+                                @empty
+                                <div class="text-center py-5 text-muted">
+                                    <i class="bi bi-people fs-3 d-block mb-2 text-secondary"></i>
+                                    Belum ada data ortu murid aktif
+                                </div>
+                                @endforelse
+                            </div>
+
                             {{-- Tombol Lihat Semua (Aktif) --}}
                             @if($dataAktif->count() > 10)
                             <div class="text-center mt-2" id="btn-lihat-semua-ortu-aktif">
@@ -150,7 +200,8 @@
 
                         {{-- Tab Nonaktif --}}
                         <div class="tab-pane fade" id="tab-nonaktif" role="tabpanel">
-                            <div class="table-responsive">
+                            {{-- DESKTOP TABLE --}}
+                            <div class="table-responsive table-ortu-desktop">
                                 <table class="table align-middle">
                                     <thead>
                                         <tr>
@@ -189,6 +240,27 @@
                                     </tbody>
                                 </table>
                             </div>
+
+                            {{-- MOBILE CARD LIST --}}
+                            <div class="ortu-card-mobile" id="mobile-ortu-nonaktif">
+                                @forelse($dataNonaktif as $index => $row)
+                                <div class="ortu-card-item nonaktif {{ $index >= 10 ? 'row-extra-ortu-nonaktif row-hidden' : '' }}">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="oc-name">{{ $row->nama_lengkap }}</div>
+                                        <span class="badge bg-danger">Nonaktif</span>
+                                    </div>
+                                    <div class="oc-meta"><i class="bi bi-person me-1"></i>Ayah: {{ $row->ortu->nama_ayah ?? '-' }}</div>
+                                    <div class="oc-meta"><i class="bi bi-person me-1"></i>Ibu: {{ $row->ortu->nama_ibu ?? '-' }}</div>
+                                    <div class="oc-meta"><i class="bi bi-telephone me-1"></i>{{ $row->no_hp ?? '-' }}</div>
+                                </div>
+                                @empty
+                                <div class="text-center py-5 text-muted">
+                                    <i class="bi bi-people fs-3 d-block mb-2 text-secondary"></i>
+                                    Tidak ada data ortu murid nonaktif
+                                </div>
+                                @endforelse
+                            </div>
+
                             {{-- Tombol Lihat Semua (Nonaktif) --}}
                             @if($dataNonaktif->count() > 10)
                             <div class="text-center mt-2" id="btn-lihat-semua-ortu-nonaktif">

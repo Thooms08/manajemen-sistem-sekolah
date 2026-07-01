@@ -22,8 +22,8 @@
         }
         body { font-family: 'Inter', sans-serif; background: #f4f7f6; overflow-x: hidden; }
         .wrapper { display: flex; width: 100%; align-items: stretch; }
-        #content { width: 100%; padding: 20px 30px; min-height: 100vh; }
-        #sidebarCollapse { width: 45px; height: 45px; background: var(--green); border: none; color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        #content { width: 100%; padding: 20px 30px; min-height: 100vh; min-width: 0; }
+        #sidebarCollapse { width: 45px; height: 45px; background: var(--green); border: none; color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .card { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
@@ -33,7 +33,7 @@
         .summary-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1) !important; }
         .summary-icon { width: 54px; height: 54px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
         .summary-label { font-size: 0.78rem; font-weight: 600; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; }
-        .summary-value { font-size: 1.3rem; font-weight: 700; line-height: 1.2; }
+        .summary-value { font-size: 1.2rem; font-weight: 700; line-height: 1.2; word-break: break-word; }
         .summary-sub { font-size: 0.75rem; color: #6c757d; margin-top: 2px; }
 
         /* ── Filter Bar ── */
@@ -51,20 +51,45 @@
 
         /* ── Tabel bulanan ── */
         .table thead { background: var(--green); color: #fff; }
-        .table thead th { font-size: 0.82rem; font-weight: 600; }
+        .table thead th { font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
         .badge-surplus  { background: #d1fae5; color: #065f46; font-size: 0.73rem; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
         .badge-defisit  { background: #fee2e2; color: #991b1b; font-size: 0.73rem; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
 
         /* ── Transaksi terakhir ── */
         .tx-item { border-radius: 10px; padding: 10px 14px; border: 1px solid #f0f0f0; margin-bottom: 8px; transition: background 0.15s; }
         .tx-item:hover { background: #f8f9fa; }
-        .tx-amount { font-weight: 700; font-size: 0.9rem; }
+        .tx-amount { font-weight: 700; font-size: 0.9rem; white-space: nowrap; }
 
         /* ── Saldo card warna ── */
         .saldo-positif { background: linear-gradient(135deg, #d1fae5, #a7f3d0); border: 1px solid #6ee7b7; }
         .saldo-negatif { background: linear-gradient(135deg, #fee2e2, #fecaca); border: 1px solid #fca5a5; }
 
-        @media (max-width: 768px) { #content { padding: 15px; } }
+        /* ── Responsive ── */
+        @media (max-width: 991px) {
+            #content { padding: 16px 18px; }
+            .summary-value { font-size: 1rem; }
+        }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            /* Header stack */
+            .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+            .page-header .ms-auto { margin-left: 0 !important; }
+            .page-header .btn { width: 100%; }
+            /* Filter bar: tanggal stack */
+            .filter-bar .date-range-row { flex-direction: column; align-items: stretch !important; }
+            .filter-bar .date-range-row input[type="date"] { width: 100% !important; max-width: 100% !important; }
+            .filter-bar .date-range-row .btn { width: 100%; }
+            /* Summary value lebih kecil di xs */
+            .summary-value { font-size: 0.95rem; }
+            .summary-icon { width: 44px; height: 44px; font-size: 1.2rem; }
+            /* Chart wrapper tinggi lebih kecil di mobile */
+            .chart-wrapper-tall { height: 220px !important; }
+            .chart-wrapper-short { height: 180px !important; }
+            /* Tabel font lebih kecil */
+            .table thead th, .table tbody td { font-size: 0.78rem; }
+            /* Transaksi terakhir row */
+            .tx-item { padding: 8px 10px; }
+        }
     </style>
 </head>
 <body>
@@ -76,11 +101,11 @@
         <div class="container-fluid">
 
             {{-- ══ Header ══ --}}
-            <div class="d-flex align-items-center mb-4 mt-2">
+            <div class="d-flex align-items-center mb-4 mt-2 flex-wrap gap-2 page-header">
                 <button type="button" id="sidebarCollapse" class="btn" onclick="toggleSidebar()">
                     <i class="bi bi-list fs-4"></i>
                 </button>
-                <div class="ms-3">
+                <div class="flex-grow-1">
                     <h4 class="mb-0 fw-bold text-success">
                         <i class="bi bi-bar-chart-line me-2"></i>Laporan Keuangan
                     </h4>
@@ -114,13 +139,13 @@
                             </button>
                         @endforeach
                     </div>
-                    <div class="d-flex flex-wrap align-items-center gap-2">
+                    <div class="d-flex flex-wrap align-items-center gap-2 date-range-row">
                         <span class="text-muted small fw-semibold">Atau rentang kustom:</span>
                         <input type="date" name="date_from" id="inputDateFrom"
-                               class="form-control form-control-sm" style="width:150px" value="{{ $dateFrom }}">
+                               class="form-control form-control-sm flex-fill" style="min-width:130px; max-width:175px;" value="{{ $dateFrom }}">
                         <span class="text-muted small">s/d</span>
                         <input type="date" name="date_to" id="inputDateTo"
-                               class="form-control form-control-sm" style="width:150px" value="{{ $dateTo }}">
+                               class="form-control form-control-sm flex-fill" style="min-width:130px; max-width:175px;" value="{{ $dateTo }}">
                         <button type="submit" class="btn btn-outline-success btn-sm px-3 fw-semibold">
                             <i class="bi bi-funnel me-1"></i>Terapkan
                         </button>
@@ -134,19 +159,18 @@
                 </div>
             </form>
 
-            {{-- ══ Summary Cards ══ --}}
             <div class="row g-3 mb-4">
 
                 {{-- Total Pemasukan --}}
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-lg-3">
                     <div class="card summary-card p-3 h-100">
                         <div class="d-flex align-items-center gap-3">
                             <div class="summary-icon bg-success bg-opacity-10">
                                 <i class="bi bi-arrow-down-circle text-success"></i>
                             </div>
-                            <div>
+                            <div class="min-width-0">
                                 <div class="summary-label">Total Pemasukan</div>
-                                <div class="summary-value text-success">
+                                <div class="summary-value text-success text-truncate">
                                     Rp {{ number_format($totalPemasukan, 0, ',', '.') }}
                                 </div>
                                 <div class="summary-sub">{{ number_format($jumlahTxPemasukan) }} transaksi</div>
@@ -156,15 +180,15 @@
                 </div>
 
                 {{-- Total Pengeluaran --}}
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-lg-3">
                     <div class="card summary-card p-3 h-100">
                         <div class="d-flex align-items-center gap-3">
                             <div class="summary-icon bg-danger bg-opacity-10">
                                 <i class="bi bi-arrow-up-circle text-danger"></i>
                             </div>
-                            <div>
+                            <div class="min-width-0">
                                 <div class="summary-label">Total Pengeluaran</div>
-                                <div class="summary-value text-danger">
+                                <div class="summary-value text-danger text-truncate">
                                     Rp {{ number_format($totalPengeluaran, 0, ',', '.') }}
                                 </div>
                                 <div class="summary-sub">{{ number_format($jumlahTxPengeluaran) }} transaksi</div>
@@ -174,15 +198,15 @@
                 </div>
 
                 {{-- Saldo Bersih --}}
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-lg-3">
                     <div class="card summary-card p-3 h-100 {{ $saldoBersih >= 0 ? 'saldo-positif' : 'saldo-negatif' }}">
                         <div class="d-flex align-items-center gap-3">
                             <div class="summary-icon {{ $saldoBersih >= 0 ? 'bg-success bg-opacity-20' : 'bg-danger bg-opacity-20' }}">
                                <i class="bi bi-cash-stack {{ $saldoBersih >= 0 ? 'text-success' : 'text-danger' }}"></i>
                             </div>
-                            <div>
+                            <div class="min-width-0">
                                 <div class="summary-label">Saldo Bersih</div>
-                                <div class="summary-value {{ $saldoBersih >= 0 ? 'text-success' : 'text-danger' }}">
+                                <div class="summary-value {{ $saldoBersih >= 0 ? 'text-success' : 'text-danger' }} text-truncate">
                                     {{ $saldoBersih >= 0 ? '' : '-' }}Rp {{ number_format(abs($saldoBersih), 0, ',', '.') }}
                                 </div>
                                 <div class="summary-sub">
@@ -198,13 +222,13 @@
                 </div>
 
                 {{-- Rasio Pengeluaran --}}
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-lg-3">
                     <div class="card summary-card p-3 h-100">
                         <div class="d-flex align-items-center gap-3">
                             <div class="summary-icon bg-info bg-opacity-10">
                                 <i class="bi bi-pie-chart text-info"></i>
                             </div>
-                            <div>
+                            <div class="min-width-0">
                                 <div class="summary-label">Rasio Pengeluaran</div>
                                 @php
                                     $rasio = $totalPemasukan > 0
@@ -224,7 +248,7 @@
             <div class="row g-3 mb-4">
 
                 {{-- Line/Bar Chart: Tren Bulanan --}}
-                <div class="col-lg-8">
+                <div class="col-12 col-lg-8">
                     <div class="card chart-card p-4 h-100">
                         <div class="d-flex align-items-center justify-content-between mb-3">
                             <div class="chart-title">
@@ -239,19 +263,19 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="chart-wrapper" style="height: 300px;">
+                        <div class="chart-wrapper chart-wrapper-tall" style="height: 300px;">
                             <canvas id="chartTren"></canvas>
                         </div>
                     </div>
                 </div>
 
                 {{-- Donut: Komposisi Pengeluaran --}}
-                <div class="col-lg-4">
+                <div class="col-12 col-lg-4">
                     <div class="card chart-card p-4 h-100">
                         <div class="chart-title mb-3">
                             <i class="bi bi-pie-chart me-2 text-danger"></i>Komposisi Pengeluaran
                         </div>
-                        <div class="chart-wrapper" style="height: 260px;">
+                        <div class="chart-wrapper chart-wrapper-short" style="height: 260px;">
                             <canvas id="chartDonutPengeluaran"></canvas>
                         </div>
                         {{-- Legend --}}
@@ -284,25 +308,23 @@
             {{-- ══ Bar Chart Pemasukan + Saldo Bulanan ══ --}}
             <div class="row g-3 mb-4">
 
-                {{-- Bar: Breakdown Jenis Pemasukan --}}
-                <div class="col-lg-5">
+                <div class="col-12 col-lg-5">
                     <div class="card chart-card p-4 h-100">
                         <div class="chart-title mb-3">
                             <i class="bi bi-bar-chart-steps me-2 text-success"></i>Breakdown Jenis Pemasukan
                         </div>
-                        <div class="chart-wrapper" style="height: 240px;">
+                        <div class="chart-wrapper chart-wrapper-short" style="height: 240px;">
                             <canvas id="chartBarPemasukan"></canvas>
                         </div>
                     </div>
                 </div>
 
-                {{-- Saldo Line Chart --}}
-                <div class="col-lg-7">
+                <div class="col-12 col-lg-7">
                     <div class="card chart-card p-4 h-100">
                         <div class="chart-title mb-3">
                             <i class="bi bi-activity me-2 text-primary"></i>Saldo Bersih per Bulan
                         </div>
-                        <div class="chart-wrapper" style="height: 240px;">
+                        <div class="chart-wrapper chart-wrapper-short" style="height: 240px;">
                             <canvas id="chartSaldo"></canvas>
                         </div>
                     </div>
@@ -404,7 +426,7 @@
             <div class="row g-3 mb-4">
 
                 {{-- 5 Pemasukan Terakhir --}}
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     <div class="card p-4">
                         <h6 class="fw-bold text-success mb-3">
                             <i class="bi bi-clock-history me-2"></i>5 Pemasukan Terakhir
@@ -432,7 +454,7 @@
                 </div>
 
                 {{-- 5 Pengeluaran Terakhir --}}
-                <div class="col-md-6">
+                <div class="col-12 col-md-6">
                     <div class="card p-4">
                         <h6 class="fw-bold text-danger mb-3">
                             <i class="bi bi-clock-history me-2"></i>5 Pengeluaran Terakhir

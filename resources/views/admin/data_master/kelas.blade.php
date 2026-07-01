@@ -37,9 +37,10 @@
             padding: 20px 30px;
             transition: all 0.3s;
             min-height: 100vh;
+            min-width: 0;
         }
 
-        /* Hamburger Button Styling */
+        /* Hamburger Button */
         #sidebarCollapse {
             width: 45px;
             height: 45px;
@@ -51,9 +52,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
 
-        /* Class Card Styling */
+        /* Class Card */
         .class-card {
             border: none;
             border-radius: 15px;
@@ -64,39 +66,31 @@
         }
 
         .class-card:hover {
-            transform: translateY(-8px);
+            transform: translateY(-6px);
             box-shadow: 0 12px 25px rgba(0,0,0,0.1) !important;
         }
 
-        /* Kondisi warning: ada wali tapi tidak ada murid → oranye */
+        /* Warning states */
         .class-card.warn-no-murid {
             border-bottom-color: #fd7e14;
             box-shadow: 0 4px 15px rgba(253,126,20,0.25) !important;
             outline: 2px solid #fd7e14;
         }
-        .class-card.warn-no-murid:hover {
-            box-shadow: 0 12px 25px rgba(253,126,20,0.35) !important;
-        }
+        .class-card.warn-no-murid:hover { box-shadow: 0 12px 25px rgba(253,126,20,0.35) !important; }
 
-        /* Kondisi warning: ada murid tapi tidak ada wali kelas → kuning */
         .class-card.warn-no-wali {
             border-bottom-color: #ffc107;
             box-shadow: 0 4px 15px rgba(255,193,7,0.3) !important;
             outline: 2px solid #ffc107;
         }
-        .class-card.warn-no-wali:hover {
-            box-shadow: 0 12px 25px rgba(255,193,7,0.45) !important;
-        }
+        .class-card.warn-no-wali:hover { box-shadow: 0 12px 25px rgba(255,193,7,0.45) !important; }
 
-        /* Kondisi kritis: tidak ada murid DAN tidak ada wali kelas → merah */
         .class-card.warn-empty {
             border-bottom-color: #dc3545;
             box-shadow: 0 4px 15px rgba(220,53,69,0.25) !important;
             outline: 2px solid #dc3545;
         }
-        .class-card.warn-empty:hover {
-            box-shadow: 0 12px 25px rgba(220,53,69,0.35) !important;
-        }
+        .class-card.warn-empty:hover { box-shadow: 0 12px 25px rgba(220,53,69,0.35) !important; }
 
         .card-body-link {
             text-decoration: none;
@@ -105,12 +99,12 @@
         }
 
         .icon-box {
-            font-size: 3rem;
+            font-size: 2.6rem;
             color: var(--primary-green);
             margin-bottom: 10px;
         }
 
-        /* Overlay for Mobile */
+        /* Overlay */
         #overlay {
             display: none;
             position: fixed;
@@ -121,13 +115,28 @@
             top: 0;
             left: 0;
         }
+        #overlay.active { display: block; }
 
-        #overlay.active {
-            display: block;
+        /* ── Responsive ── */
+        @media (max-width: 991px) {
+            #content { padding: 16px 18px; }
+            .icon-box { font-size: 2.2rem; }
         }
-
-        @media (max-width: 768px) {
-            #content { padding: 15px; }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            /* Header stack vertikal */
+            .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+            .page-header .btn-tambah { width: 100%; }
+            /* Card footer tombol sejajar */
+            .card-footer .btn { width: 100%; margin-bottom: 4px; }
+            .card-footer form { width: 100%; }
+            .card-footer form .btn { width: 100%; }
+            /* Badge teks lebih kecil */
+            .badge { font-size: 0.75rem; }
+        }
+        @media (max-width: 479px) {
+            /* Pada layar sangat kecil, 1 kolom penuh */
+            .row-kelas > div { flex: 0 0 100%; max-width: 100%; }
         }
     </style>
 </head>
@@ -141,17 +150,17 @@
         <div id="content">
             <div class="container-fluid">
                 
-                <div class="d-flex align-items-center justify-content-between mb-4 mt-2">
+                <div class="d-flex align-items-center justify-content-between mb-4 mt-2 flex-wrap gap-2 page-header">
                     <div class="d-flex align-items-center">
                         <button type="button" id="sidebarCollapse" class="btn">
                             <i class="bi bi-list fs-4"></i>
                         </button>
                         <div class="ms-3">
                             <h4 class="mb-0 fw-bold text-success">Manajemen Kelas</h4>
-                            <p class="text-muted small mb-0">Klik pada kelas untuk mengelola murid</p>
+                            <p class="text-muted small mb-0 d-none d-sm-block">Klik pada kelas untuk mengelola murid</p>
                         </div>
                     </div>
-                    <button class="btn btn-success px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambahKelas">
+                    <button class="btn btn-success px-4 shadow-sm fw-bold btn-tambah" data-bs-toggle="modal" data-bs-target="#modalTambahKelas">
                         <i class="bi bi-plus-lg me-2"></i>Tambah Kelas
                     </button>
                 </div>
@@ -163,14 +172,13 @@
                     </div>
                 @endif
 
-                <div class="row g-4">
+                <div class="row g-3 row-kelas">
                     @forelse($kelas as $k)
                     @php
                             $punyaMurid = $k->murid_count > 0;
                             $punyaWali  = !is_null($k->waliKelas);
 
                             if (!$punyaMurid && $punyaWali) {
-                                // Ada wali tapi tidak ada murid
                                 $cardClass  = 'warn-no-murid';
                                 $labelBadge = '<div class="mt-3">
                                                 <span class="badge text-wrap lh-base px-3 py-2" style="background-color:#fd7e14!important;color:#fff!important;">
@@ -178,7 +186,6 @@
                                                 </span>
                                             </div>';
                             } elseif ($punyaMurid && !$punyaWali) {
-                                // Ada murid tapi tidak ada wali kelas
                                 $cardClass  = 'warn-no-wali';
                                 $labelBadge = '<div class="mt-3">
                                                 <span class="badge bg-warning text-dark text-wrap lh-base px-3 py-2">
@@ -186,7 +193,6 @@
                                                 </span>
                                             </div>';
                             } elseif (!$punyaMurid && !$punyaWali) {
-                                // Tidak ada murid dan tidak ada wali kelas
                                 $cardClass  = 'warn-empty';
                                 $labelBadge = '<div class="mt-3">
                                                 <span class="badge bg-danger text-wrap lh-base px-3 py-2">
@@ -194,21 +200,20 @@
                                                 </span>
                                             </div>';
                             } else {
-                                // Lengkap: ada murid dan ada wali kelas
                                 $cardClass  = '';
                                 $labelBadge = '';
                             }
                         @endphp
-                    <div class="col-md-4 col-lg-3">
+                    <div class="col-6 col-sm-4 col-md-4 col-lg-3">
                         <div class="card class-card shadow-sm h-100 {{ $cardClass }}">
                             <a href="{{ route('kelas.show', $k->id) }}" class="card-body-link">
-                                <div class="card-body p-4 text-center">
+                                <div class="card-body p-3 p-md-4 text-center">
                                     <div class="icon-box">
                                         <i class="bi bi-door-open-fill"></i>
                                     </div>
-                                    <h5 class="fw-bold mb-1">{{ $k->nama_kelas }}</h5>
+                                    <h5 class="fw-bold mb-1 fs-6 fs-md-5">{{ $k->nama_kelas }}</h5>
                                     <p class="text-muted small mb-1">
-                                        <i class="bi bi-people me-1"></i>{{ $k->murid_count }} Murid Terdaftar
+                                        <i class="bi bi-people me-1"></i>{{ $k->murid_count }} Murid
                                     </p>
                                     @if($punyaWali)
                                     <p class="text-muted small mb-0">
@@ -220,15 +225,16 @@
                                     @endif
                                 </div>
                             </a>
-                            <div class="card-footer bg-white border-0 pb-3 text-center">
-                                <button class="btn btn-sm btn-outline-success border-0"
+                            <div class="card-footer bg-white border-0 pb-3 text-center px-2">
+                                <button class="btn btn-sm btn-outline-success border-0 w-100 mb-1"
                                     onclick="openEditModal('{{ $k->id }}', '{{ $k->nama_kelas }}')">
-                                    <i class="bi bi-pencil-square"></i> Edit Kelas
+                                    <i class="bi bi-pencil-square me-1"></i>Edit Kelas
                                 </button>
-                                <form action="{{ route('kelas.destroy', $k->id) }}" method="POST" onsubmit="return confirm('Hapus kelas ini? Semua data murid di dalamnya akan terlepas.')">
+                                <form action="{{ route('kelas.destroy', $k->id) }}" method="POST"
+                                      onsubmit="return confirm('Hapus kelas ini? Semua data murid di dalamnya akan terlepas.')">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold border-0">
-                                        <i class="bi bi-trash me-1"></i> Hapus Kelas
+                                    <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold border-0 w-100">
+                                        <i class="bi bi-trash me-1"></i>Hapus Kelas
                                     </button>
                                 </form>
                             </div>

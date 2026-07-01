@@ -15,15 +15,15 @@
     <style>
         body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
         .wrapper { display: flex; align-items: stretch; }
-        #content { flex: 1; padding: 24px 32px; min-height: 100vh; }
-        #sidebarCollapse { width: 42px; height: 42px; background: #198754; border: none; color: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        #content { flex: 1; padding: 24px 32px; min-height: 100vh; min-width: 0; }
+        #sidebarCollapse { width: 42px; height: 42px; background: #198754; border: none; color: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1040; }
         #overlay.active { display: block; }
 
         /* ── Navigasi hari ── */
         .hari-nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
         .hari-nav a {
-            padding: 8px 18px; border-radius: 50px; font-size: 0.88rem;
+            padding: 7px 16px; border-radius: 50px; font-size: 0.88rem;
             font-weight: 600; text-decoration: none; border: 2px solid #e2e8f0;
             background: #fff; color: #475569; transition: all .15s;
         }
@@ -48,58 +48,58 @@
 
         /* ── KOP ── */
         .poster-kop {
-            background: #14532d; padding: 26px 32px;
-            display: flex; align-items: center; gap: 18px;
+            background: #14532d; padding: 22px 28px;
+            display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
         }
         .poster-kop .logo-img {
-            width: 66px; height: 66px; border-radius: 50%; flex-shrink: 0;
+            width: 62px; height: 62px; border-radius: 50%; flex-shrink: 0;
             border: 3px solid rgba(255,255,255,.35);
             object-fit: contain; background: #fff; padding: 4px;
         }
         .poster-kop .logo-box {
-            width: 66px; height: 66px; border-radius: 50%; flex-shrink: 0;
+            width: 62px; height: 62px; border-radius: 50%; flex-shrink: 0;
             background: rgba(255,255,255,.15);
             display: flex; align-items: center; justify-content: center;
             font-size: 1.8rem; color: rgba(255,255,255,.7);
         }
-        .poster-kop .kop-info { flex: 1; }
-        .poster-kop .kop-nama { font-size: 1.35rem; font-weight: 800; color: #fff; line-height: 1.2; }
-        .poster-kop .kop-alamat { font-size: 0.83rem; color: rgba(255,255,255,.65); margin-top: 3px; }
+        .poster-kop .kop-info { flex: 1; min-width: 140px; }
+        .poster-kop .kop-nama { font-size: 1.2rem; font-weight: 800; color: #fff; line-height: 1.2; }
+        .poster-kop .kop-alamat { font-size: 0.81rem; color: rgba(255,255,255,.65); margin-top: 3px; }
         .poster-kop .kop-hari {
             background: rgba(255,255,255,.15); border: 1.5px solid rgba(255,255,255,.3);
-            border-radius: 12px; padding: 8px 20px; text-align: center;
+            border-radius: 12px; padding: 7px 18px; text-align: center;
             flex-shrink: 0;
         }
         .poster-kop .kop-hari .kop-hari-label { font-size: 0.72rem; color: rgba(255,255,255,.6); text-transform: uppercase; letter-spacing: 1px; }
-        .poster-kop .kop-hari .kop-hari-nama  { font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1.1; }
-        .poster-kop .kop-hari .kop-tanggal    { font-size: 0.78rem; color: rgba(255,255,255,.7); margin-top: 2px; }
+        .poster-kop .kop-hari .kop-hari-nama  { font-size: 1.3rem; font-weight: 800; color: #fff; line-height: 1.1; }
+        .poster-kop .kop-hari .kop-tanggal    { font-size: 0.77rem; color: rgba(255,255,255,.7); margin-top: 2px; }
 
         .stripe { display: flex; height: 5px; }
         .stripe span { flex: 1; }
 
         /* ── BODY POSTER ── */
-        .poster-body { padding: 24px 28px; }
+        .poster-body { padding: 20px 24px; }
         .poster-body .judul-hari {
-            font-size: 1rem; font-weight: 700; color: #374151;
-            margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+            font-size: 0.98rem; font-weight: 700; color: #374151;
+            margin-bottom: 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
         }
         .poster-body .judul-hari .dot {
-            width: 12px; height: 12px; border-radius: 50%; display: inline-block;
+            width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex-shrink: 0;
         }
 
         /* ── KARTU SESI ── */
         .sesi-list { display: flex; flex-direction: column; gap: 10px; }
         .sesi-card {
-            background: #f8fafc; border-radius: 12px; padding: 14px 18px;
-            display: grid; grid-template-columns: 100px 1fr auto;
-            align-items: center; gap: 16px;
+            background: #f8fafc; border-radius: 12px; padding: 12px 16px;
+            display: grid; grid-template-columns: 96px 1fr auto;
+            align-items: center; gap: 14px;
             border: 1.5px solid #e2e8f0;
         }
-        .sesi-jam { text-align: center; background: #dcfce7; border-radius: 10px; padding: 8px 6px; }
-        .sesi-jam .jam-besar { font-size: 1.15rem; font-weight: 800; color: #14532d; line-height: 1.1; }
+        .sesi-jam { text-align: center; background: #dcfce7; border-radius: 10px; padding: 7px 6px; }
+        .sesi-jam .jam-besar { font-size: 1.1rem; font-weight: 800; color: #14532d; line-height: 1.1; }
         .sesi-jam .jam-sep   { font-size: 0.68rem; color: #6b7280; margin: 1px 0; }
-        .sesi-info .mapel    { font-size: 1.05rem; font-weight: 700; color: #1e293b; }
-        .sesi-info .guru     { font-size: 0.86rem; color: #475569; margin-top: 3px; }
+        .sesi-info .mapel    { font-size: 1rem; font-weight: 700; color: #1e293b; }
+        .sesi-info .guru     { font-size: 0.84rem; color: #475569; margin-top: 3px; }
         .sesi-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
         .tag-kelas { background: #ede9fe; color: #4c1d95; border-radius: 8px; padding: 4px 12px; font-size: 0.82rem; font-weight: 700; white-space: nowrap; }
         .tag-ruang { background: #fef9c3; color: #78350f; border-radius: 8px; padding: 3px 10px; font-size: 0.78rem; white-space: nowrap; }
@@ -112,7 +112,7 @@
 
         /* ── FOOTER POSTER ── */
         .poster-footer {
-            border-top: 1px solid #e2e8f0; padding: 12px 28px;
+            border-top: 1px solid #e2e8f0; padding: 12px 24px;
             display: flex; justify-content: space-between; align-items: center;
             flex-wrap: wrap; gap: 8px; background: #f8fafc;
         }
@@ -127,17 +127,49 @@
         .dot-jumat  { background: #991b1b; }
         .dot-sabtu  { background: #0e7490; }
 
-        @media (max-width: 600px) {
-            .sesi-card { grid-template-columns: 84px 1fr; }
+        /* ── Responsive ── */
+        @media (max-width: 991px) {
+            #content { padding: 16px 18px; }
+        }
+        @media (max-width: 767px) {
+            #content { padding: 12px 10px; }
+            /* Navigasi hari scroll horizontal */
+            .hari-nav { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+            .hari-nav a { white-space: nowrap; padding: 6px 14px; font-size: 0.82rem; }
+            /* Header proporsional */
+            .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+            .page-header .btn-group-dl { width: 100%; display: flex; gap: 8px; }
+            .page-header .btn-group-dl .btn-dl-pdf,
+            .page-header .btn-group-dl .btn-dl-png { flex: 1; text-align: center; }
+            /* Poster kop — wrap hari box ke bawah pada layar sangat kecil */
+            .poster-kop { padding: 16px 16px; gap: 12px; }
+            .poster-kop .kop-nama { font-size: 1rem; }
+            .poster-kop .kop-hari { width: 100%; text-align: center; }
+            .poster-kop .kop-hari .kop-hari-nama { font-size: 1.1rem; }
+            /* Sesi card 2 kolom di mobile (meta tersembunyi) */
+            .sesi-card { grid-template-columns: 80px 1fr; gap: 10px; padding: 10px 12px; }
             .sesi-meta { display: none; }
-            #content { padding: 14px; }
-            .poster-kop { flex-wrap: wrap; }
+            /* Tampilkan tag kelas di bawah info */
+            .sesi-info .tag-kelas-mobile { display: inline-block !important; }
+            .poster-body { padding: 14px 14px; }
+            .poster-footer { padding: 10px 14px; flex-direction: column; align-items: flex-start; }
+            /* Filter form */
+            .filter-form-poster { flex-direction: column !important; }
+            .filter-form-poster > div { width: 100%; }
+            .filter-form-poster select { width: 100%; }
+        }
+        @media (max-width: 420px) {
+            .sesi-jam .jam-besar { font-size: 0.95rem; }
+            .sesi-info .mapel { font-size: 0.9rem; }
+            .sesi-card { grid-template-columns: 72px 1fr; }
         }
         @media print {
             .no-print, #sidebar, #overlay { display: none !important; }
             body { background: #fff; }
             #content { padding: 0; }
             #poster { box-shadow: none; border-radius: 0; max-width: 100%; }
+            .sesi-meta { display: flex !important; }
+            .sesi-card { grid-template-columns: 96px 1fr auto; }
         }
     </style>
 </head>
@@ -150,17 +182,17 @@
         <div style="max-width: 900px; margin: 0 auto;">
 
             {{-- ── Breadcrumb ── --}}
-            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-3 no-print">
+            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-3 no-print page-header">
                 <div class="d-flex align-items-center gap-3">
                     <button id="sidebarCollapse" class="btn p-0"><i class="bi bi-list fs-4"></i></button>
                     <div>
                         <h5 class="mb-0 fw-bold text-success">Jadwal Mengajar</h5>
-                        <p class="mb-0 text-muted" style="font-size:.8rem;">
+                        <p class="mb-0 text-muted d-none d-sm-block" style="font-size:.8rem;">
                             Jadwal hari ini · {{ now()->translatedFormat('l, d F Y') }}
                         </p>
                     </div>
                 </div>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 btn-group-dl">
                     <button class="btn-dl-pdf btn" onclick="unduhPDF(event)">
                         <i class="bi bi-file-earmark-pdf me-1"></i>PDF
                     </button>
@@ -193,11 +225,11 @@
             {{-- ── Filter guru & kelas ── --}}
             <div class="mb-3 no-print">
                 <form method="GET" action="{{ route('jadwal-mengajar.poster') }}"
-                      class="d-flex flex-wrap gap-2 align-items-end">
+                      class="d-flex flex-wrap gap-2 align-items-end filter-form-poster">
                     <input type="hidden" name="hari" value="{{ $hariDipilih }}">
-                    <div>
+                    <div style="flex: 1 1 150px; min-width: 130px;">
                         <label class="form-label fw-semibold mb-1" style="font-size:.8rem;">Guru</label>
-                        <select name="filter_guru" class="form-select form-select-sm" style="min-width:160px;">
+                        <select name="filter_guru" class="form-select form-select-sm w-100">
                             <option value="">Semua Guru</option>
                             @foreach($guruList as $g)
                                 <option value="{{ $g->id }}" {{ request('filter_guru')==$g->id?'selected':'' }}>
@@ -206,9 +238,9 @@
                             @endforeach
                         </select>
                     </div>
-                    <div>
+                    <div style="flex: 1 1 120px; min-width: 110px;">
                         <label class="form-label fw-semibold mb-1" style="font-size:.8rem;">Kelas</label>
-                        <select name="filter_kelas" class="form-select form-select-sm" style="min-width:130px;">
+                        <select name="filter_kelas" class="form-select form-select-sm w-100">
                             <option value="">Semua Kelas</option>
                             @foreach($kelasList as $k)
                                 <option value="{{ $k->id }}" {{ request('filter_kelas')==$k->id?'selected':'' }}>
@@ -217,13 +249,15 @@
                             @endforeach
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-success btn-sm px-4 fw-semibold">
-                        <i class="bi bi-funnel me-1"></i>Filter
-                    </button>
-                    <a href="{{ route('jadwal-mengajar.poster', ['hari' => $hariDipilih]) }}"
-                       class="btn btn-outline-secondary btn-sm px-3" title="Reset filter">
-                        <i class="bi bi-x-lg"></i>
-                    </a>
+                    <div class="d-flex gap-2" style="flex: 1 1 auto;">
+                        <button type="submit" class="btn btn-success btn-sm px-3 fw-semibold flex-fill flex-sm-grow-0">
+                            <i class="bi bi-funnel me-1"></i>Filter
+                        </button>
+                        <a href="{{ route('jadwal-mengajar.poster', ['hari' => $hariDipilih]) }}"
+                           class="btn btn-outline-secondary btn-sm px-3 flex-fill flex-sm-grow-0" title="Reset filter">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    </div>
                 </form>
             </div>
 
@@ -288,6 +322,13 @@
                                 <div class="mapel">{{ $j->mapel->nama_mapel ?? '-' }}</div>
                                 <div class="guru">
                                     <i class="bi bi-person-fill me-1"></i>{{ $j->guru->nama_guru ?? '-' }}
+                                </div>
+                                {{-- Hanya tampil di mobile saat sesi-meta tersembunyi --}}
+                                <div class="mt-1 d-none tag-kelas-mobile">
+                                    <span class="tag-kelas" style="font-size:0.75rem;">{{ $j->kelas->nama_kelas ?? '-' }}</span>
+                                    @if($j->ruangan)
+                                        <span class="tag-ruang ms-1" style="font-size:0.72rem;">{{ $j->ruangan }}</span>
+                                    @endif
                                 </div>
                             </div>
                             <div class="sesi-meta">

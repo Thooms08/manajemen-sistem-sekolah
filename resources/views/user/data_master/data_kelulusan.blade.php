@@ -13,15 +13,37 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        body { background-color: #f4f7f6; }
+        body { background-color: #f4f7f6; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         .wrapper { display: flex; width: 100%; }
-        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; }
+        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; min-height: 100vh; min-width: 0; }
         .card { border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .table thead { background-color: #198754; color: white; }
-        #sidebarCollapse { width: 40px; height: 40px; background: #198754; border: none; color: white; border-radius: 8px; }
+        .table thead th { white-space: nowrap; }
+        #sidebarCollapse { width: 40px; height: 40px; background: #198754; border: none; color: white; border-radius: 8px; flex-shrink: 0; }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
         input:focus, textarea:focus, select:focus { border-color: #198754 !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;}
+
+        .kelulusan-card-mobile { display: none; }
+        .kelulusan-card-item { background: #fff; border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid #198754; }
+        .kelulusan-card-item .kci-title { font-weight: 700; color: #1f2937; }
+        .kelulusan-card-item .kci-meta { font-size: 0.8rem; color: #6c757d; margin-top: 3px; }
+        .kelulusan-card-item .kci-actions { display: flex; gap: 8px; margin-top: 10px; }
+        .kelulusan-card-item .kci-actions .btn { flex: 1; font-size: 0.8rem; }
+
+        @media (max-width: 991px) {
+            #content { padding: 16px 18px; }
+        }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+            .search-bar-wrapper { flex-direction: column; align-items: stretch !important; }
+            .search-box-wrapper { width: 100%; max-width: 100%; }
+            .table-kelulusan-desktop { display: none !important; }
+            .kelulusan-card-mobile { display: block; }
+            .modal-footer { flex-direction: column-reverse; }
+            .modal-footer .btn { width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -36,7 +58,7 @@
         @include('user.sidebar')
         <div id="content">
             <div class="container-fluid">
-                <div class="d-flex align-items-center justify-content-between mb-4 mt-2">
+                <div class="d-flex align-items-center justify-content-between mb-4 mt-2 flex-wrap gap-2 page-header">
                     <div class="d-flex align-items-center">
                         <button type="button" id="sidebarCollapse" class="btn"><i class="bi bi-list fs-5"></i></button>
                         <h4 class="ms-3 mb-0 fw-bold text-success">Data Kelulusan Murid</h4>
@@ -44,9 +66,9 @@
                 </div>
 
                 <div class="card p-3 mb-4">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 search-bar-wrapper">
                         <span class="text-muted small">Kelola status kelulusan siswa beserta pengunggahan berkas ijazah, raport, & surat kelulusan.</span>
-                        <div class="input-group" style="width: 350px;">
+                        <div class="input-group search-box-wrapper" style="min-width: 240px;">
                             <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
                             <input type="text" id="search-kelulusan" class="form-control border-start-0 ps-0" placeholder="Cari Nama, NISN, atau NIS Baru...">
                         </div>
@@ -54,7 +76,7 @@
                 </div>
 
                 <div class="card p-4">
-                    <div class="table-responsive">
+                    <div class="table-responsive table-kelulusan-desktop">
                         <table class="table table-hover align-middle">
                             <thead>
                                 <tr>
@@ -127,6 +149,33 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+
+                <div class="kelulusan-card-mobile">
+                    @foreach($murids as $murid)
+                    <div class="kelulusan-card-item">
+                        <div class="kci-title">{{ $murid->nama_lengkap }}</div>
+                        <div class="kci-meta"><i class="bi bi-person-badge me-1"></i>NISN: {{ $murid->nisn }}</div>
+                        <div class="kci-meta"><i class="bi bi-mortarboard me-1"></i>Kelas: {{ $murid->kelas->pluck('nama_kelas')->implode(', ') ?: '-' }}</div>
+                        <div class="kci-meta"><i class="bi bi-award me-1"></i>Status: 
+                            @if(($murid->kelulusan->status ?? '') == 'lulus')
+                                <span class="badge bg-success">Lulus</span>
+                            @elseif(($murid->kelulusan->status ?? '') == 'tidak lulus')
+                                <span class="badge bg-danger">Tidak Lulus</span>
+                            @else
+                                <span class="badge bg-secondary">Belum Diatur</span>
+                            @endif
+                        </div>
+                        <div class="kci-actions">
+                            <button type="button" class="btn btn-outline-success" onclick="openEditKelulusan(this, '{{ $murid->kelulusan->uuid ?? '' }}')"
+                                data-ijazah="{{ (!empty($murid->kelulusan->ijazah) && !empty($murid->kelulusan->uuid)) ? route('kelulusan.view.ijazah', $murid->kelulusan->uuid) : '' }}"
+                                data-raport="{{ (!empty($murid->kelulusan->raport) && !empty($murid->kelulusan->uuid)) ? route('kelulusan.view.raport', $murid->kelulusan->uuid) : '' }}"
+                                data-surat="{{ (!empty($murid->kelulusan->surat_kelulusan) && !empty($murid->kelulusan->uuid)) ? route('kelulusan.view.surat', $murid->kelulusan->uuid) : '' }}">
+                                <i class="bi bi-pencil-square me-1"></i>Edit
+                            </button>
+                        </div>
+                    </div>
+                    @endforeach
                 </div>
             </div>
         </div>

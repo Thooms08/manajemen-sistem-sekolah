@@ -17,11 +17,11 @@
         :root { --primary-red: #dc3545; }
         body { font-family: 'Inter', sans-serif; background-color: #f4f7f6; overflow-x: hidden; }
         .wrapper { display: flex; width: 100%; align-items: stretch; }
-        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; min-height: 100vh; }
-        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary-red); border: none; color: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(220,53,69,0.2); display: flex; align-items: center; justify-content: center; }
+        #content { width: 100%; padding: 12px 12px; transition: all 0.3s; min-height: 100vh; min-width: 0; }
+        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary-red); border: none; color: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(220,53,69,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .card { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .table thead { background-color: var(--primary-red); color: white; }
-        .table thead th { font-size: 0.82rem; letter-spacing: 0.4px; font-weight: 600; }
+        .table thead th { font-size: 0.82rem; letter-spacing: 0.4px; font-weight: 600; white-space: nowrap; }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
         input:focus, textarea:focus, select:focus { border-color: #dc3545 !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(220,53,69,0.15) !important; }
@@ -29,7 +29,7 @@
         /* Summary cards */
         .summary-card { border-radius: 12px; border: none; transition: transform 0.2s; }
         .summary-card:hover { transform: translateY(-2px); }
-        .summary-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+        .summary-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
 
         /* Form labels */
         .form-label { font-weight: 600; font-size: 0.85rem; }
@@ -45,7 +45,7 @@
         /* Mode edit: highlight card */
         #formPengeluaran.mode-edit .card-form-inner { border: 2px solid #dc3545 !important; background: #fffbfb; }
         .edit-mode-banner { background: #fde8ea; border-radius: 8px; padding: 8px 14px; font-size: 0.83rem; color: #842029; font-weight: 600; display: none; }
-        .edit-mode-banner.show { display: flex; align-items: center; gap: 8px; }
+        .edit-mode-banner.show { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
         /* Upload foto — sistem satu-per-satu */
         .upload-area { border: 2px dashed #dee2e6; border-radius: 10px; padding: 14px; background: #fafafa; transition: border-color 0.2s; }
@@ -89,8 +89,19 @@
         .galeri-grid img { max-height: 220px; max-width: 100%; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s, transform 0.2s; object-fit: contain; background: #000; }
         .galeri-grid img:hover { border-color: #dc3545; transform: scale(1.03); }
         .galeri-empty { color: #aaa; text-align: center; padding: 30px; }
+        .page-header { gap: 10px; }
+        .summary-card .min-width-0 { min-width: 0; }
+        .filter-bar .date-range-row { flex-direction: column; align-items: stretch !important; }
+        .filter-bar .date-range-row > .d-flex { width: 100%; }
+        .filter-bar .date-range-row input[type="date"] { width: 100% !important; max-width: 100% !important; }
+        .filter-bar .date-range-row .btn { width: 100%; }
 
-        @media (max-width: 768px) { #content { padding: 15px; } }
+        @media (max-width: 991px) { #content { padding: 16px 18px; } }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            .page-header { flex-direction: column; align-items: flex-start !important; }
+            .table thead th, .table tbody td { font-size: 0.78rem; }
+        }
     </style>
 </head>
 <body>
@@ -108,13 +119,15 @@
         <div class="container-fluid">
 
             {{-- ══ Header ══ --}}
-            <div class="d-flex align-items-center mb-4 mt-2">
-                <button type="button" id="sidebarCollapse" class="btn" onclick="toggleSidebar()">
-                    <i class="bi bi-list fs-4"></i>
-                </button>
-                <h4 class="ms-3 mb-0 fw-bold text-danger">
-                    <i class="bi bi-arrow-up-circle me-2"></i>Pengeluaran Keuangan
-                </h4>
+            <div class="d-flex align-items-center justify-content-between mb-4 mt-2 flex-wrap gap-2 page-header">
+                <div class="d-flex align-items-center">
+                    <button type="button" id="sidebarCollapse" class="btn" onclick="toggleSidebar()">
+                        <i class="bi bi-list fs-4"></i>
+                    </button>
+                    <h4 class="ms-3 mb-0 fw-bold text-danger">
+                        <i class="bi bi-arrow-up-circle me-2"></i>Pengeluaran Keuangan
+                    </h4>
+                </div>
             </div>
 
             {{-- ══ Alert ══ --}}
@@ -170,7 +183,7 @@
                             </button>
                             <div class="row g-3 mt-1">
                                 {{-- Jenis Pengeluaran --}}
-                                <div class="col-md-4">
+                                <div class="col-12 col-sm-6 col-md-4">
                                     <label class="form-label">Jenis Pengeluaran <span class="text-danger">*</span></label>
                                     <select name="rows[0][jenis_pengeluaran]" class="form-select select-jenis" required
                                             onchange="handleJenisChange(this)">
@@ -182,38 +195,38 @@
                                     </select>
                                 </div>
                                 {{-- Keterangan Lainnya --}}
-                                <div class="col-md-4 section-lainnya d-none">
+                                <div class="col-12 col-sm-6 col-md-4 section-lainnya d-none">
                                     <label class="form-label">Keterangan Jenis <span class="text-danger">*</span></label>
                                     <input type="text" name="rows[0][keterangan_lainnya]" class="form-control"
                                            placeholder="Contoh: Biaya Konsumsi Rapat...">
                                 </div>
                                 {{-- Nama --}}
-                                <div class="col-md-4">
+                                <div class="col-12 col-sm-6 col-md-4">
                                     <label class="form-label">Nama Pengeluaran <span class="text-danger">*</span></label>
                                     <input type="text" name="rows[0][nama_pengeluaran]" class="form-control"
                                            placeholder="Contoh: Beli ATK..." required>
                                 </div>
                                 {{-- Nominal --}}
-                                <div class="col-md-3">
+                                <div class="col-12 col-sm-6 col-md-3">
                                     <label class="form-label">Nominal (Rp) <span class="text-danger">*</span></label>
                                     <input type="number" name="rows[0][nominal]" class="form-control input-nominal"
                                            placeholder="0" min="1" required oninput="hitungTotal(this)">
                                 </div>
                                 {{-- QTY --}}
-                                <div class="col-md-2">
+                                <div class="col-12 col-sm-6 col-md-2">
                                     <label class="form-label">QTY <span class="text-danger">*</span></label>
                                     <input type="number" name="rows[0][qty]" class="form-control input-qty"
                                            placeholder="1" min="1" value="1" required oninput="hitungTotal(this)">
                                 </div>
                                 {{-- Total --}}
-                                <div class="col-md-3">
+                                <div class="col-12 col-sm-6 col-md-3">
                                     <label class="form-label">Total (Rp)</label>
                                     <input type="number" name="rows[0][total]" class="form-control input-total bg-light"
                                            placeholder="0" readonly>
                                     <div class="hint-text"><i class="bi bi-info-circle me-1"></i>Otomatis: Nominal × QTY</div>
                                 </div>
                                 {{-- Tombol Tambah --}}
-                                <div class="col-md-4 d-flex align-items-end">
+                                <div class="col-12 col-sm-6 col-md-4 d-flex align-items-end">
                                     <button type="button" class="btn btn-outline-danger btn-sm px-3 fw-semibold"
                                             onclick="tambahRow()">
                                         <i class="bi bi-plus-lg me-1"></i>Tambah
@@ -245,8 +258,8 @@
                             </div>
                         </div>{{-- end row-pengeluaran --}}
                     </div>
-                    <div class="mt-3 text-end" id="btnStoreWrapper">
-                        <button type="submit" class="btn btn-danger px-5 shadow-sm fw-bold">
+                    <div class="mt-3 d-flex justify-content-end" id="btnStoreWrapper">
+                        <button type="submit" class="btn btn-danger px-5 shadow-sm fw-bold w-100 w-sm-auto">
                             <i class="bi bi-save me-2"></i>Simpan Semua Pengeluaran
                         </button>
                     </div>
@@ -263,7 +276,7 @@
                     <div class="row-pengeluaran card-form-inner" id="editRowWrapper">
                         {{-- Jenis Pengeluaran --}}
                         <div class="row g-3 mt-1">
-                            <div class="col-md-4">
+                            <div class="col-12 col-sm-6 col-md-4">
                                 <label class="form-label">Jenis Pengeluaran <span class="text-danger">*</span></label>
                                 <select name="jenis_pengeluaran" id="edit_jenis" class="form-select" required
                                         onchange="handleEditJenisChange(this)">
@@ -274,27 +287,27 @@
                                     <option value="lainnya">Lainnya</option>
                                 </select>
                             </div>
-                            <div class="col-md-4" id="edit_section_lainnya" style="display:none;">
+                            <div class="col-12 col-sm-6 col-md-4" id="edit_section_lainnya" style="display:none;">
                                 <label class="form-label">Keterangan Jenis <span class="text-danger">*</span></label>
                                 <input type="text" name="keterangan_lainnya" id="edit_keterangan_lainnya"
                                        class="form-control" placeholder="Contoh: Biaya Konsumsi Rapat...">
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-12 col-sm-6 col-md-4">
                                 <label class="form-label">Nama Pengeluaran <span class="text-danger">*</span></label>
                                 <input type="text" name="nama_pengeluaran" id="edit_nama"
                                        class="form-control" required>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-12 col-sm-6 col-md-3">
                                 <label class="form-label">Nominal (Rp) <span class="text-danger">*</span></label>
                                 <input type="number" name="nominal" id="edit_nominal"
                                        class="form-control" min="1" required oninput="hitungTotalEdit()">
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-12 col-sm-6 col-md-2">
                                 <label class="form-label">QTY <span class="text-danger">*</span></label>
                                 <input type="number" name="qty" id="edit_qty"
                                        class="form-control" min="1" value="1" required oninput="hitungTotalEdit()">
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-12 col-sm-6 col-md-3">
                                 <label class="form-label">Total (Rp)</label>
                                 <input type="number" name="total" id="edit_total"
                                        class="form-control bg-light" readonly>
@@ -329,11 +342,11 @@
                         </div>
                     </div>
 
-                    <div class="mt-3 d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-outline-secondary px-4" onclick="batalEdit()">
+                    <div class="mt-3 d-flex flex-column flex-sm-row justify-content-end gap-2">
+                        <button type="button" class="btn btn-outline-secondary px-4 w-100 w-sm-auto" onclick="batalEdit()">
                             <i class="bi bi-x-lg me-1"></i>Batal
                         </button>
-                        <button type="submit" class="btn btn-warning px-5 shadow-sm fw-bold text-dark">
+                        <button type="submit" class="btn btn-warning px-5 shadow-sm fw-bold text-dark w-100 w-sm-auto">
                             <i class="bi bi-pencil-square me-2"></i>Simpan Perubahan
                         </button>
                     </div>
@@ -359,7 +372,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-sm-6">
                     <div class="card summary-card p-3">
                         <div class="d-flex align-items-center gap-3">
                             <div class="summary-icon bg-warning bg-opacity-10">
@@ -402,20 +415,20 @@
                                         onclick="setRange('{{ $key }}')">{{ $label }}</button>
                             @endforeach
                         </div>
-                        <div class="d-flex flex-wrap align-items-center gap-2">
+                        <div class="d-flex flex-wrap align-items-center gap-2 date-range-row">
                             <span class="text-muted small fw-semibold">Atau pilih tanggal:</span>
-                            <div class="d-flex align-items-center gap-2">
+                            <div class="d-flex flex-wrap align-items-center gap-2 w-100 w-sm-auto">
                                 <input type="date" name="date_from" id="inputDateFrom"
                                        class="form-control form-control-sm" style="width:155px" value="{{ $dateFrom }}">
                                 <span class="text-muted small">s/d</span>
                                 <input type="date" name="date_to" id="inputDateTo"
                                        class="form-control form-control-sm" style="width:155px" value="{{ $dateTo }}">
-                                <button type="submit" class="btn btn-outline-danger btn-sm px-3 fw-semibold">
+                                <button type="submit" class="btn btn-outline-danger btn-sm px-3 fw-semibold w-100 w-sm-auto">
                                     <i class="bi bi-funnel me-1"></i>Terapkan
                                 </button>
                                 @if($range !== '1bulan' || $dateFrom || $dateTo)
                                     <a href="{{ route('keuangan.pengeluaran.index') }}"
-                                       class="btn btn-outline-secondary btn-sm px-3">
+                                       class="btn btn-outline-secondary btn-sm px-3 w-100 w-sm-auto">
                                         <i class="bi bi-x-circle me-1"></i>Reset
                                     </a>
                                 @endif

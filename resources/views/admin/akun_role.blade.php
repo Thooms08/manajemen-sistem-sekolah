@@ -26,13 +26,13 @@
             --shadow-md:     0 6px 24px rgba(25,135,84,.12);
             --radius:        14px;
         }
-        body { font-family: 'Inter', sans-serif; background: #f3f7f5; color: var(--text-main); }
+        body { font-family: 'Inter', sans-serif; background: #f3f7f5; color: var(--text-main); overflow-x: hidden; }
         .wrapper { display: flex; width: 100%; align-items: stretch; }
-        #content { width: 100%; padding: 24px 30px; min-height: 100vh; }
+        #content { width: 100%; padding: 24px 30px; min-height: 100vh; min-width: 0; }
         #sidebarCollapse {
             width: 42px; height: 42px; background: var(--green-primary);
             border: none; color: #fff; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
         #sidebarCollapse:hover { background: var(--green-dark); }
         #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1040; }
@@ -42,7 +42,7 @@
             border-radius: var(--radius); box-shadow: var(--shadow-sm);
         }
         .table thead { background: #1a3a3a; color: #fff; }
-        .table thead th { font-size: .82rem; font-weight: 600; letter-spacing: .3px; }
+        .table thead th { font-size: .82rem; font-weight: 600; letter-spacing: .3px; white-space: nowrap; }
         .table tbody tr:hover { background: var(--green-light); }
         .form-control:focus, .form-select:focus {
             border-color: var(--green-primary) !important;
@@ -79,7 +79,6 @@
             text-align: center; padding: 40px 20px; color: var(--text-muted);
         }
         .no-roles-msg i { font-size: 2.5rem; opacity: .35; margin-bottom: 10px; display: block; }
-        @media (max-width: 768px) { #content { padding: 15px; } }
         /* Username feedback */
         .username-feedback {
             font-size: .8rem; margin-top: 6px; padding: 7px 12px;
@@ -90,6 +89,34 @@
         .username-feedback.feedback-taken   { background: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
         .username-feedback.feedback-ok      { background: #d1e7dd; color: #0a3622; border: 1px solid #a3cfbb; }
         .username-feedback.feedback-checking{ background: #e9ecef; color: #495057; border: 1px solid #dee2e6; }
+
+        /* Mobile card list untuk tabel akun */
+        .akun-card-mobile { display: none; }
+        .akun-card-item {
+            background: #fff; border-radius: 12px; padding: 14px 16px;
+            margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.06);
+            border-left: 4px solid var(--green-primary);
+        }
+        .akun-card-item .ac-username { font-weight: 700; font-size: .95rem; color: #1a2e25; }
+        .akun-card-item .ac-meta     { font-size: .8rem; color: #6c8f7d; margin-top: 4px; }
+        .akun-card-item .ac-actions  { display: flex; gap: 8px; margin-top: 10px; }
+        .akun-card-item .ac-actions .btn { flex: 1; font-size: .82rem; }
+
+        /* Search box adaptif */
+        .search-wrapper { flex: 1 1 200px; max-width: 320px; }
+
+        /* ── Responsive ── */
+        @media (max-width: 991px) { #content { padding: 16px 18px; } }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+            .page-header .btn-tambah { width: 100%; }
+            .search-wrapper { max-width: 100%; }
+            .card-panel-header { flex-direction: column; align-items: stretch !important; }
+            /* Tabel → card mobile */
+            .table-akun-desktop { display: none !important; }
+            .akun-card-mobile   { display: block; }
+        }
     </style>
 </head>
 <body>
@@ -100,7 +127,7 @@
         <div class="container-fluid px-0">
 
             {{-- TOP BAR --}}
-            <div class="d-flex align-items-center justify-content-between mb-4 mt-1 flex-wrap gap-2">
+            <div class="d-flex align-items-center justify-content-between mb-4 mt-1 flex-wrap gap-2 page-header">
                 <div class="d-flex align-items-center gap-3">
                     <button type="button" id="sidebarCollapse" class="btn">
                         <i class="bi bi-list fs-4"></i>
@@ -109,10 +136,10 @@
                         <h5 class="mb-0 fw-bold">
                             <i class="bi bi-person-gear text-success me-2"></i>Akun Role
                         </h5>
-                        <small class="text-muted">Buat akun login untuk role yang telah dibuat</small>
+                        <small class="text-muted d-none d-sm-block">Buat akun login untuk role yang telah dibuat</small>
                     </div>
                 </div>
-                <button class="btn btn-success px-4 fw-bold shadow-sm"
+                <button class="btn btn-success px-4 fw-bold shadow-sm btn-tambah"
                     data-bs-toggle="modal" data-bs-target="#modalTambahAkun">
                     <i class="bi bi-person-plus me-2"></i>Buat Akun Baru
                 </button>
@@ -158,18 +185,19 @@
 
             {{-- TABEL AKUN --}}
             <div class="card-panel p-0 overflow-hidden">
-                <div class="p-4 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="p-4 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-3 card-panel-header">
                     <div class="fw-bold" style="font-size:.92rem;">
                         <i class="bi bi-table me-2 text-success"></i>Daftar Akun
                         <span class="badge bg-success ms-2">{{ $akuns->count() }}</span>
                     </div>
-                    <div class="input-group" style="max-width:300px;">
+                    <div class="input-group search-wrapper">
                         <span class="input-group-text bg-white"><i class="bi bi-search text-muted"></i></span>
                         <input type="text" id="searchAkun" class="form-control border-start-0"
                             placeholder="Cari username atau role...">
                     </div>
                 </div>
-                <div class="table-responsive">
+                {{-- DESKTOP TABLE --}}
+                <div class="table-responsive table-akun-desktop">
                     <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr>
@@ -225,6 +253,46 @@
                         </tbody>
                     </table>
                 </div>
+
+                {{-- MOBILE CARD LIST --}}
+                <div class="akun-card-mobile p-3" id="akunCardMobile">
+                    @forelse($akuns as $i => $u)
+                    @php
+                        $rd    = $u->role_data;
+                        $warna = $rd ? $rd->warna : 'secondary';
+                        $rNama = $rd ? $rd->nama  : $u->role;
+                    @endphp
+                    <div class="akun-card-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="ac-username">{{ $u->username }}</div>
+                            <span class="badge bg-{{ $warna }} rounded-pill px-2">
+                                <i class="bi bi-shield-check me-1"></i>{{ $rNama }}
+                            </span>
+                        </div>
+                        <div class="ac-meta">
+                            <i class="bi bi-clock me-1"></i>{{ $u->created_at->isoFormat('D MMM YYYY, HH:mm') }}
+                        </div>
+                        <div class="ac-actions">
+                            <button class="btn btn-outline-success btn-sm"
+                                onclick="openEditModal({{ $u->id }}, '{{ addslashes($u->username) }}', '{{ addslashes($u->role) }}')">
+                                <i class="bi bi-pencil-square me-1"></i>Edit
+                            </button>
+                            <form action="{{ route('akun-role.destroy', $u->id) }}" method="POST" class="flex-fill"
+                                onsubmit="return confirm('Hapus akun {{ addslashes($u->username) }}?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                                    <i class="bi bi-trash me-1"></i>Hapus
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox fs-3 d-block mb-2 opacity-40"></i>
+                        Belum ada akun.
+                    </div>
+                    @endforelse
+                </div>
             </div>{{-- end card-panel --}}
 
         </div>{{-- end container --}}
@@ -236,7 +304,7 @@
      Alur: Step 1 pilih role → Step 2 isi username + password
 ════════════════════════════════════════════════════════ --}}
 <div class="modal fade" id="modalTambahAkun" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable modal-fullscreen-sm-down">
         <div class="modal-content border-0 shadow">
             <form action="{{ route('akun-role.store') }}" method="POST" id="formTambahAkun">
                 @csrf
@@ -271,7 +339,7 @@
                     @else
                     <div class="row g-2 mb-4" id="rolePicker">
                         @foreach($roles as $role)
-                        <div class="col-sm-6 col-lg-4">
+                        <div class="col-12 col-sm-6 col-lg-4">
                             <input type="radio" name="role_slug" value="{{ $role->slug }}"
                                 id="role_{{ $role->slug }}" class="role-selector" required>
                             <label for="role_{{ $role->slug }}" class="role-opt w-100">
@@ -319,7 +387,7 @@
                                 <span id="usernameFeedbackText"></span>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6">
                             <label class="form-label fw-semibold small">
                                 Password <span class="text-danger">*</span>
                             </label>
@@ -331,7 +399,7 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6">
                             <label class="form-label fw-semibold small">
                                 Konfirmasi Password <span class="text-danger">*</span>
                             </label>
@@ -365,7 +433,7 @@
      MODAL: EDIT AKUN
 ════════════════════════════════════════════════════════ --}}
 <div class="modal fade" id="modalEditAkun" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable modal-fullscreen-sm-down">
         <div class="modal-content border-0 shadow">
             <form id="formEditAkun" method="POST">
                 @csrf @method('PUT')
@@ -384,7 +452,7 @@
                     </div>
                     <div class="row g-2 mb-4" id="rolePickerEdit">
                         @foreach($roles as $role)
-                        <div class="col-sm-6 col-lg-4">
+                        <div class="col-12 col-sm-6 col-lg-4">
                             <input type="radio" name="role_slug" value="{{ $role->slug }}"
                                 id="edit_role_{{ $role->slug }}" class="role-selector">
                             <label for="edit_role_{{ $role->slug }}" class="role-opt w-100">
@@ -424,7 +492,7 @@
                                 Kosongkan password jika tidak ingin menggantinya.
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6">
                             <label class="form-label fw-semibold small">Password Baru</label>
                             <div class="input-group">
                                 <input type="password" name="password" class="form-control pwd-field-edit"
@@ -434,7 +502,7 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6">
                             <label class="form-label fw-semibold small">Konfirmasi Password</label>
                             <div class="input-group">
                                 <input type="password" name="password_confirmation" class="form-control pwd-field-edit"

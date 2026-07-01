@@ -14,7 +14,7 @@
     <style>
         body { background-color: #f4f7f6; font-family: 'Inter', sans-serif; }
         .wrapper { display: flex; width: 100%; }
-        #content { width: 100%; padding: 20px 30px; }
+        #content { width: 100%; padding: 20px 30px; min-width: 0; }
         .card { border: none; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .btn-success { background-color: #198754; border: none; }
         .student-row:hover { background-color: #f8f9fa; }
@@ -60,7 +60,22 @@
             color: #1b5e20;
             margin: 3px 3px 3px 0;
         }
-        @media (max-width: 768px) { #content { padding: 15px; } }
+        @media (max-width: 991px) {
+            #content { padding: 16px 18px; }
+        }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+            .header-actions { width: 100%; }
+            .header-actions .btn { width: 100%; }
+            .card { border-radius: 12px; }
+            .table-responsive { font-size: 0.9rem; }
+            .student-row .btn { width: 100%; }
+        }
+        @media (max-width: 575px) {
+            .modal-footer { flex-direction: column-reverse; }
+            .modal-footer .btn { width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -83,9 +98,9 @@
                 </nav>
 
                 {{-- Header: Judul + Tombol --}}
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 page-header">
                     <h3 class="fw-bold text-success mb-0"><i class="bi bi-door-open me-2"></i>Kelas: {{ $kelas->nama_kelas }}</h3>
-                    <div class="d-flex gap-2 flex-wrap">
+                    <div class="d-flex gap-2 flex-wrap header-actions">
                         <button class="btn btn-outline-success px-4" data-bs-toggle="modal" data-bs-target="#modalWaliKelas">
                             <i class="bi bi-person-badge me-2"></i>+ Wali Kelas
                         </button>
@@ -122,7 +137,7 @@
                 {{-- Layout dua kolom: Kiri = wali kelas + guru, Kanan = card mapel --}}
                 <div class="row g-3 mb-4">
                     {{-- Kolom Kiri: Wali Kelas & Daftar Pengajar --}}
-                    <div class="col-lg-7">
+                    <div class="col-12 col-lg-7">
 
                         {{-- Wali Kelas --}}
                         @if($kelas->waliKelas)
@@ -134,8 +149,8 @@
                                 ->unique()->values();
                         @endphp
                         <div class="wali-badge mb-1">
-                            <i class="bi bi-person-check-fill text-success fs-5 mt-1 flex-shrink-0"></i>
-                            <div class="flex-grow-1">
+                            <i class="bi bi-person-check-fill text-success fs-5 mt-1 shrink-0"></i>
+                            <div class="grow">
                                 <div>
                                     <span class="text-muted small">Wali Kelas:</span>
                                     <span class="fw-bold text-dark ms-1">{{ $kelas->waliKelas->nama_guru }}</span>
@@ -149,7 +164,7 @@
                                 </div>
                                 @endif
                             </div>
-                            <form action="{{ route('kelas.removeWaliKelas', $kelas->id) }}" method="POST" class="m-0 flex-shrink-0">
+                            <form action="{{ route('kelas.removeWaliKelas', $kelas->id) }}" method="POST" class="m-0 shrink-0">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2"
                                         onclick="return confirm('Hapus wali kelas ini?')"
@@ -172,7 +187,7 @@
                             </p>
                             @foreach($pengajarPerGuru as $item)
                             <div class="guru-row">
-                                <i class="bi bi-person-fill text-secondary fs-6 mt-1 flex-shrink-0"></i>
+                                <i class="bi bi-person-fill text-secondary fs-6 mt-1 shrink-0"></i>
                                 <div>
                                     <span class="fw-semibold text-dark">{{ $item['guru']->nama_guru }}</span>
                                     @if($item['mapels']->isNotEmpty())
@@ -196,7 +211,7 @@
                     </div>
 
                     {{-- Kolom Kanan: Card Mapel --}}
-                    <div class="col-lg-5">
+                    <div class="col-12 col-lg-5">
                         <div class="mapel-card">
                             <p class="fw-bold text-success mb-3 small">
                                 <i class="bi bi-book-fill me-1"></i>Mata Pelajaran di Kelas Ini
@@ -283,7 +298,7 @@
                     {{-- Info keterangan tampil 5 --}}
                     @if(count($muridTersedia) > 5)
                     <div class="alert alert-info py-2 px-3 d-flex align-items-center small shadow-sm mb-3" role="alert" style="border-radius: 10px;">
-                        <i class="bi bi-info-circle-fill me-2 fs-5 flex-shrink-0"></i>
+                        <i class="bi bi-info-circle-fill me-2 fs-5 shrink-0"></i>
                         <div>
                             Menampilkan <strong>5 dari {{ count($muridTersedia) }} murid</strong> yang tersedia.
                             Gunakan kolom pencarian untuk menemukan murid lainnya.
@@ -345,7 +360,7 @@
                     {{-- Info keterangan tampil 5 --}}
                     @if(count($semuaGuru) > 5)
                     <div class="alert alert-info py-2 px-3 d-flex align-items-center small shadow-sm mb-3" role="alert" style="border-radius: 10px;">
-                        <i class="bi bi-info-circle-fill me-2 fs-5 flex-shrink-0"></i>
+                        <i class="bi bi-info-circle-fill me-2 fs-5 shrink-0"></i>
                         <div>
                             Menampilkan <strong>5 dari {{ count($semuaGuru) }} guru aktif</strong> yang tersedia.
                             Gunakan kolom pencarian untuk menemukan guru lainnya.

@@ -19,13 +19,14 @@
         :root { --primary-green: #198754; }
         body { font-family: 'Inter', sans-serif; background: #f4f7f6; overflow-x: hidden; }
         .wrapper { display: flex; width: 100%; align-items: stretch; }
-        #content { width: 100%; padding: 20px 30px; min-height: 100vh; transition: all 0.3s; }
-        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary-green); border: none; color: white; border-radius: 10px; }
+        #content { width: 100%; padding: 20px 30px; min-height: 100vh; min-width: 0; transition: all 0.3s; }
+        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary-green); border: none; color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .card { border: none; border-radius: 14px; box-shadow: 0 4px 18px rgba(0,0,0,0.05); }
         .section-card { background: white; border-radius: 14px; box-shadow: 0 4px 18px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
-        .section-header { padding: 16px 22px 14px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; }
+        .section-header { padding: 16px 22px 14px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
         .section-header h6 { margin: 0; font-weight: 700; font-size: 0.95rem; }
         .section-body { padding: 20px 22px; }
+        .page-header { gap: 12px; }
         input:focus, textarea:focus, select:focus { border-color: #198754 !important; box-shadow: 0 0 0 0.2rem rgba(25,135,84,.25) !important; outline: none !important; }
         /* Bagan organisasi */
         .bagan-card { background: white; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 14px 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 14px; transition: 0.2s; }
@@ -44,7 +45,22 @@
         #isi_catatan, #edit_isi_catatan { font-family: 'Courier New', monospace; font-size: 0.9rem; min-height: 200px; resize: vertical; background: #fdfdfd; }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
-        @media (max-width: 768px) { #content { padding: 15px; } }
+        .modal-footer { flex-wrap: wrap; gap: .5rem; }
+        @media (max-width: 991px) { #content { padding: 16px 18px; } }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            .page-header { flex-direction: column; align-items: flex-start !important; }
+            .section-header { align-items: flex-start; }
+            .section-header .btn { width: 100%; }
+            .section-body { padding: 16px; }
+            .bagan-card { flex-wrap: wrap; }
+            .bagan-card .d-flex.gap-1 { width: 100%; justify-content: flex-end; }
+            .catatan-card .d-flex { flex-wrap: wrap; gap: .5rem; }
+            .modal-footer .btn { width: 100%; }
+            .modal-body { padding: 1rem !important; }
+            #anggota-info-bar { flex-direction: column; align-items: flex-start !important; gap: .5rem; }
+            #anggota-info-bar .btn { width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -61,7 +77,7 @@
         <div class="container-fluid">
 
             {{-- Header --}}
-            <div class="d-flex align-items-center justify-content-between mb-4 mt-2 flex-wrap gap-3">
+            <div class="d-flex align-items-center justify-content-between mb-4 mt-2 flex-wrap gap-3 page-header">
                 <div class="d-flex align-items-center gap-3">
                     <button type="button" id="sidebarCollapse" class="btn"><i class="bi bi-list fs-4"></i></button>
                     <div>

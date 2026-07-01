@@ -11,80 +11,128 @@
     @endif
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #f4f7f6; font-family: 'Inter', sans-serif; }
-        .wrapper { display: flex; width: 100%; }
-        #content { width: 100%; padding: 20px 30px; }
+        :root { --primary-green: #198754; }
+        body { background-color: #f4f7f6; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .wrapper { display: flex; width: 100%; align-items: stretch; }
+        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; min-height: 100vh; min-width: 0; }
         .card { border: none; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .btn-success { background-color: #198754; border: none; }
+
+        /* Sidebar collapse button */
+        #sidebarCollapse {
+            width: 42px; height: 42px; background: var(--primary-green);
+            border: none; color: white; border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(25,135,84,0.2);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        #overlay { display: none; position: fixed; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5); z-index: 1040; top: 0; left: 0; }
+        #overlay.active { display: block; }
+
         .student-row:hover { background-color: #f8f9fa; }
+
+        /* Wali kelas badge */
         .wali-badge {
-            display: inline-flex;
-            align-items: flex-start;
-            gap: 10px;
-            background: #e8f5e9;
-            border: 1px solid #a5d6a7;
-            border-radius: 10px;
-            padding: 10px 14px;
-            font-size: 0.9rem;
-            width: 100%;
+            display: flex; align-items: flex-start; gap: 10px;
+            background: #e8f5e9; border: 1px solid #a5d6a7;
+            border-radius: 10px; padding: 12px 14px;
+            font-size: 0.9rem; width: 100%;
         }
+
+        /* Guru row */
         .guru-row {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 10px 14px;
-            font-size: 0.88rem;
-            margin-top: 8px;
+            display: flex; align-items: flex-start; gap: 10px;
+            background: #fff; border: 1px solid #e0e0e0;
+            border-radius: 10px; padding: 10px 14px;
+            font-size: 0.88rem; margin-top: 8px;
         }
+
+        /* Mapel card */
         .mapel-card {
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 15px;
-            padding: 18px 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.04);
-            height: 100%;
+            background: #fff; border: 1px solid #e0e0e0;
+            border-radius: 15px; padding: 18px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.04); height: 100%;
         }
         .mapel-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: #f0faf4;
-            border: 1px solid #b2dfdb;
-            border-radius: 20px;
-            padding: 5px 12px;
-            font-size: 0.82rem;
-            color: #1b5e20;
-            margin: 3px 3px 3px 0;
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #f0faf4; border: 1px solid #b2dfdb;
+            border-radius: 20px; padding: 5px 12px;
+            font-size: 0.82rem; color: #1b5e20; margin: 3px 3px 3px 0;
         }
-        @media (max-width: 768px) { #content { padding: 15px; } }
+
+        /* Tabel murid — mobile card */
+        .murid-card-mobile { display: none; }
+        .murid-card-item {
+            background: #fff; border-radius: 12px; padding: 12px 14px;
+            margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            border-left: 4px solid #198754;
+        }
+        .murid-card-item .mc-name { font-weight: 700; font-size: 0.95rem; color: #1a3a3a; }
+        .murid-card-item .mc-nisn { font-size: 0.8rem; color: #6c757d; margin-top: 2px; }
+
+        /* ── Responsive ── */
+        @media (max-width: 991px) {
+            #content { padding: 16px 18px; }
+            .mapel-card { height: auto; }
+        }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            /* Header tombol stack */
+            .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+            .page-header .btn-group-action { width: 100%; display: flex; gap: 8px; }
+            .page-header .btn-group-action .btn { flex: 1; }
+            /* Wali badge — tombol hapus mepet bawah di mobile kecil */
+            .wali-badge { flex-wrap: wrap; }
+            .wali-badge .flex-shrink-0 { margin-left: auto; }
+            /* Tabel murid → card mobile */
+            .table-murid-desktop { display: none !important; }
+            .murid-card-mobile   { display: block; }
+            /* Mapel pills lebih kecil */
+            .mapel-pill { font-size: 0.78rem; padding: 4px 10px; }
+        }
+        @media (max-width: 479px) {
+            .page-header .btn-group-action { flex-direction: column; }
+            .page-header .btn-group-action .btn { width: 100%; }
+        }
     </style>
 </head>
 <body>
+    <div id="overlay"></div>
     <div class="wrapper">
         @include('admin.sidebar')
 
         <div id="content">
             <div class="container-fluid">
-                <nav aria-label="breadcrumb" class="mb-4">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{ route('kelas.index') }}" class="text-success"><i class="bi bi-arrow-left"></i> Kembali</a></li>
-                        <li class="breadcrumb-item active">{{ $kelas->nama_kelas }}</li>
-                    </ol>
-                </nav>
+
+                {{-- Breadcrumb + Hamburger --}}
+                <div class="d-flex align-items-center gap-3 mb-3 mt-1 flex-wrap">
+                    <button type="button" id="sidebarCollapse" class="btn">
+                        <i class="bi bi-list fs-4"></i>
+                    </button>
+                    <nav aria-label="breadcrumb" class="mb-0">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item">
+                                <a href="{{ route('kelas.index') }}" class="text-success text-decoration-none">
+                                    <i class="bi bi-arrow-left me-1"></i>Kembali
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active">{{ $kelas->nama_kelas }}</li>
+                        </ol>
+                    </nav>
+                </div>
 
                 {{-- Header: Judul + Tombol --}}
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                    <h3 class="fw-bold text-success mb-0"><i class="bi bi-door-open me-2"></i>Kelas: {{ $kelas->nama_kelas }}</h3>
-                    <div class="d-flex gap-2 flex-wrap">
-                        <button class="btn btn-outline-success px-4" data-bs-toggle="modal" data-bs-target="#modalWaliKelas">
-                            <i class="bi bi-person-badge me-2"></i>+ Wali Kelas
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 page-header">
+                    <h4 class="fw-bold text-success mb-0">
+                        <i class="bi bi-door-open me-2"></i>Kelas: {{ $kelas->nama_kelas }}
+                    </h4>
+                    <div class="d-flex gap-2 flex-wrap btn-group-action">
+                        <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalWaliKelas">
+                            <i class="bi bi-person-badge me-1 me-md-2"></i><span>+ Wali Kelas</span>
                         </button>
-                        <button class="btn btn-success px-4" data-bs-toggle="modal" data-bs-target="#modalTambahMurid">
-                            <i class="bi bi-person-plus me-2"></i>+ Tambah Murid
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalTambahMurid">
+                            <i class="bi bi-person-plus me-1 me-md-2"></i><span>+ Tambah Murid</span>
                         </button>
                     </div>
                 </div>
@@ -116,12 +164,11 @@
                 {{-- Layout dua kolom: Kiri = wali kelas + guru, Kanan = card mapel --}}
                 <div class="row g-3 mb-4">
                     {{-- Kolom Kiri: Wali Kelas & Daftar Pengajar --}}
-                    <div class="col-lg-7">
+                    <div class="col-12 col-lg-7">
 
                         {{-- Wali Kelas --}}
                         @if($kelas->waliKelas)
                         @php
-                            // Mapel yang diajarkan wali kelas di kelas ini
                             $mapelWali = $kelas->pengajars
                                 ->filter(fn($p) => $p->id_guru === $kelas->waliKelas->id && $p->mapel !== null)
                                 ->map(fn($p) => $p->mapel->nama_mapel)
@@ -190,7 +237,7 @@
                     </div>
 
                     {{-- Kolom Kanan: Card Mapel --}}
-                    <div class="col-lg-5">
+                    <div class="col-12 col-md-6 col-lg-5">
                         <div class="mapel-card">
                             <p class="fw-bold text-success mb-3 small">
                                 <i class="bi bi-book-fill me-1"></i>Mata Pelajaran di Kelas Ini
@@ -218,16 +265,24 @@
                     <div class="alert alert-success border-0 shadow-sm mb-4">{{ session('success') }}</div>
                 @endif
 
-                <div class="card p-4">
-                    <h6 class="fw-bold mb-4">Daftar Murid Terdaftar</h6>
-                    <div class="table-responsive">
+                {{-- Kartu daftar murid --}}
+                <div class="card p-3 p-md-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <h6 class="fw-bold mb-0">
+                            <i class="bi bi-people me-2 text-success"></i>Daftar Murid Terdaftar
+                            <span class="badge bg-success bg-opacity-10 text-success ms-1">{{ $kelas->murid->count() }}</span>
+                        </h6>
+                    </div>
+
+                    {{-- DESKTOP TABLE --}}
+                    <div class="table-responsive table-murid-desktop">
                         <table class="table align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th>No</th>
+                                    <th width="50">No</th>
                                     <th>Nama Murid</th>
                                     <th>NISN</th>
-                                    <th class="text-center">Aksi</th>
+                                    <th width="140" class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -235,38 +290,70 @@
                                 <tr class="student-row">
                                     <td>{{ $index + 1 }}</td>
                                     <td class="fw-bold">{{ $m->nama_lengkap }}</td>
-                                    <td>{{ $m->nisn }}</td>
+                                    <td class="text-muted">{{ $m->nisn }}</td>
                                     <td class="text-center">
                                         <form action="{{ route('kelas.removeStudent', $m->id) }}" method="POST">
                                             @csrf @method('DELETE')
-                                            <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Keluarkan murid ini?')">
-                                                <i class="bi bi-x-circle me-1"></i> Keluarkan
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('Keluarkan murid ini dari kelas?')">
+                                                <i class="bi bi-x-circle me-1"></i>Keluarkan
                                             </button>
                                         </form>
                                     </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="4" class="text-center p-5 text-muted">Belum ada murid di kelas ini.</td>
+                                    <td colspan="4" class="text-center py-5 text-muted">
+                                        <i class="bi bi-people fs-2 d-block mb-2 opacity-25"></i>
+                                        Belum ada murid di kelas ini.
+                                    </td>
                                 </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
-                </div>
+
+                    {{-- MOBILE CARD LIST --}}
+                    <div class="murid-card-mobile">
+                        @forelse($kelas->murid as $index => $m)
+                        <div class="murid-card-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="mc-name">{{ $m->nama_lengkap }}</div>
+                                    <div class="mc-nisn"><i class="bi bi-credit-card me-1"></i>NISN: {{ $m->nisn }}</div>
+                                </div>
+                                <span class="badge bg-success bg-opacity-15 text-success">{{ $index + 1 }}</span>
+                            </div>
+                            <form action="{{ route('kelas.removeStudent', $m->id) }}" method="POST" class="mt-2">
+                                @csrf @method('DELETE')
+                                <button class="btn btn-sm btn-outline-danger w-100"
+                                        onclick="return confirm('Keluarkan murid ini dari kelas?')">
+                                    <i class="bi bi-x-circle me-1"></i>Keluarkan dari Kelas
+                                </button>
+                            </form>
+                        </div>
+                        @empty
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-people fs-2 d-block mb-2 opacity-25"></i>
+                            Belum ada murid di kelas ini.
+                        </div>
+                        @endforelse
+                    </div>
+
+                </div>{{-- end card --}}
             </div>
         </div>
     </div>
 
     {{-- ===== MODAL TAMBAH MURID ===== --}}
     <div class="modal fade" id="modalTambahMurid" tabindex="-1">
-        <div class="modal-dialog modal-md modal-dialog-scrollable">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-success text-white">
                     <h5 class="modal-title fw-bold"><i class="bi bi-person-plus me-2"></i>Pilih Murid Untuk Kelas Ini</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body p-3 p-md-4">
 
                     {{-- Search box --}}
                     <div class="input-group mb-3 shadow-sm rounded">
@@ -280,22 +367,22 @@
                         <i class="bi bi-info-circle-fill me-2 fs-5 flex-shrink-0"></i>
                         <div>
                             Menampilkan <strong>5 dari {{ count($muridTersedia) }} murid</strong> yang tersedia.
-                            Gunakan kolom pencarian untuk menemukan murid lainnya.
+                            Gunakan pencarian untuk menemukan murid lainnya.
                         </div>
                     </div>
                     @endif
 
                     {{-- Daftar murid --}}
-                    <div id="muridList" style="overflow-x: hidden;">
+                    <div id="muridList">
                         @forelse($muridTersedia as $index => $mt)
                         <div class="student-select-item p-3 border rounded mb-2 align-items-center justify-content-between {{ $index >= 5 ? 'd-none' : 'd-flex' }}"
                              data-name="{{ strtolower($mt->nama_lengkap) }} {{ $mt->nisn }}"
                              data-index="{{ $index }}">
-                            <div>
+                            <div class="flex-grow-1 me-2">
                                 <div class="fw-bold text-dark">{{ $mt->nama_lengkap }}</div>
                                 <small class="text-muted"><i class="bi bi-person-badge me-1"></i>NISN: {{ $mt->nisn }}</small>
                             </div>
-                            <form action="{{ route('kelas.addStudent') }}" method="POST" class="m-0">
+                            <form action="{{ route('kelas.addStudent') }}" method="POST" class="m-0 flex-shrink-0">
                                 @csrf
                                 <input type="hidden" name="id_kelas" value="{{ $kelas->id }}">
                                 <input type="hidden" name="id_murid" value="{{ $mt->id }}">
@@ -309,7 +396,6 @@
                         </div>
                         @endforelse
 
-                        {{-- Pesan tidak ditemukan saat search --}}
                         <div id="muridNotFound" class="text-center py-4 d-none">
                             <i class="bi bi-search fs-1 text-muted opacity-25"></i>
                             <p class="text-muted mt-2 mb-0">Murid tidak ditemukan.</p>
@@ -322,13 +408,13 @@
 
     {{-- ===== MODAL WALI KELAS ===== --}}
     <div class="modal fade" id="modalWaliKelas" tabindex="-1">
-        <div class="modal-dialog modal-md modal-dialog-scrollable">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-success text-white">
                     <h5 class="modal-title fw-bold"><i class="bi bi-person-badge me-2"></i>Pilih Wali Kelas</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body p-3 p-md-4">
 
                     {{-- Search box --}}
                     <div class="input-group mb-3 shadow-sm rounded">
@@ -342,25 +428,24 @@
                         <i class="bi bi-info-circle-fill me-2 fs-5 flex-shrink-0"></i>
                         <div>
                             Menampilkan <strong>5 dari {{ count($semuaGuru) }} guru aktif</strong> yang tersedia.
-                            Gunakan kolom pencarian untuk menemukan guru lainnya.
+                            Gunakan pencarian untuk menemukan guru lainnya.
                         </div>
                     </div>
                     @endif
 
                     {{-- Daftar guru --}}
-                    <div id="guruList" style="overflow-x: hidden;">
+                    <div id="guruList">
                         @forelse($semuaGuru as $index => $guru)
                         <div class="guru-select-item p-3 border rounded mb-2 align-items-center justify-content-between {{ $index >= 5 ? 'd-none' : 'd-flex' }}"
                              data-name="{{ strtolower($guru->nama_guru) }} {{ strtolower($guru->mapel ?? '') }}"
                              data-index="{{ $index }}">
-                            <div>
+                            <div class="flex-grow-1 me-2">
                                 <div class="fw-bold text-dark">{{ $guru->nama_guru }}</div>
                                 <small class="text-muted">
-                                    <i class="bi bi-book me-1"></i>
-                                    {{ $guru->mapel ?? '-' }}
+                                    <i class="bi bi-book me-1"></i>{{ $guru->mapel ?? '-' }}
                                 </small>
                             </div>
-                            <form action="{{ route('kelas.setWaliKelas', $kelas->id) }}" method="POST" class="m-0">
+                            <form action="{{ route('kelas.setWaliKelas', $kelas->id) }}" method="POST" class="m-0 flex-shrink-0">
                                 @csrf
                                 <input type="hidden" name="id_guru" value="{{ $guru->id }}">
                                 <button type="submit" class="btn btn-sm btn-success px-3 fw-medium">Pilih</button>
@@ -373,7 +458,6 @@
                         </div>
                         @endforelse
 
-                        {{-- Pesan tidak ditemukan saat search --}}
                         <div id="guruNotFound" class="text-center py-4 d-none">
                             <i class="bi bi-search fs-1 text-muted opacity-25"></i>
                             <p class="text-muted mt-2 mb-0">Guru tidak ditemukan.</p>
@@ -386,48 +470,57 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // ===== FUNGSI PENCARIAN GENERIK =====
+        // ── Sidebar Toggle ────────────────────────────────────────────
+        (function () {
+            const sidebar     = document.getElementById('sidebar');
+            const collapseBtn = document.getElementById('sidebarCollapse');
+            const overlay     = document.getElementById('overlay');
+            const closeBtn    = document.getElementById('close-sidebar');
+
+            function toggleSidebar() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.toggle('show-mobile');
+                    overlay.classList.toggle('active');
+                } else {
+                    sidebar.classList.toggle('inactive');
+                }
+            }
+
+            if (collapseBtn) collapseBtn.addEventListener('click', toggleSidebar);
+            if (closeBtn)    closeBtn.addEventListener('click', function () {
+                sidebar.classList.remove('show-mobile');
+                overlay.classList.remove('active');
+            });
+            if (overlay)     overlay.addEventListener('click', toggleSidebar);
+        })();
+
+        // ── Pencarian generik (murid & guru) ─────────────────────────
         function setupSearch(inputId, itemClass, notFoundId) {
             document.getElementById(inputId).addEventListener('keyup', function () {
                 const filter = this.value.toLowerCase().trim();
-                const items = document.querySelectorAll('.' + itemClass);
-                let visibleCount = 0;
+                const items  = document.querySelectorAll('.' + itemClass);
+                let visible  = 0;
 
                 items.forEach(function (item) {
                     const text  = item.getAttribute('data-name');
                     const index = parseInt(item.getAttribute('data-index'));
 
                     if (filter.length > 0) {
-                        // Mode pencarian: tampilkan semua yang cocok
-                        if (text.includes(filter)) {
-                            item.classList.remove('d-none');
-                            item.classList.add('d-flex');
-                            visibleCount++;
-                        } else {
-                            item.classList.remove('d-flex');
-                            item.classList.add('d-none');
-                        }
+                        const match = text.includes(filter);
+                        item.classList.toggle('d-none', !match);
+                        item.classList.toggle('d-flex', match);
+                        if (match) visible++;
                     } else {
-                        // Mode default: kembalikan ke 5 baris pertama saja
-                        if (index < 5) {
-                            item.classList.remove('d-none');
-                            item.classList.add('d-flex');
-                            visibleCount++;
-                        } else {
-                            item.classList.remove('d-flex');
-                            item.classList.add('d-none');
-                        }
+                        const show = index < 5;
+                        item.classList.toggle('d-none', !show);
+                        item.classList.toggle('d-flex', show);
+                        if (show) visible++;
                     }
                 });
 
-                // Tampilkan pesan "tidak ditemukan" jika 0 hasil
                 const notFound = document.getElementById(notFoundId);
                 if (notFound) {
-                    if (filter.length > 0 && visibleCount === 0) {
-                        notFound.classList.remove('d-none');
-                    } else {
-                        notFound.classList.add('d-none');
-                    }
+                    notFound.classList.toggle('d-none', !(filter.length > 0 && visible === 0));
                 }
             });
         }
@@ -435,16 +528,16 @@
         setupSearch('searchMurid', 'student-select-item', 'muridNotFound');
         setupSearch('searchGuru',  'guru-select-item',    'guruNotFound');
 
-        // Reset input pencarian ketika modal ditutup
+        // Reset pencarian saat modal ditutup
         document.getElementById('modalTambahMurid').addEventListener('hidden.bs.modal', function () {
-            const input = document.getElementById('searchMurid');
-            input.value = '';
-            input.dispatchEvent(new Event('keyup'));
+            const inp = document.getElementById('searchMurid');
+            inp.value = '';
+            inp.dispatchEvent(new Event('keyup'));
         });
         document.getElementById('modalWaliKelas').addEventListener('hidden.bs.modal', function () {
-            const input = document.getElementById('searchGuru');
-            input.value = '';
-            input.dispatchEvent(new Event('keyup'));
+            const inp = document.getElementById('searchGuru');
+            inp.value = '';
+            inp.dispatchEvent(new Event('keyup'));
         });
     </script>
 </body>

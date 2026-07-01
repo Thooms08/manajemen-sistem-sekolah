@@ -6,28 +6,70 @@
     <title>Manajemen Dokumen</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #f4f7f6; }
-        .wrapper { display: flex; width: 100%; }
-        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; }
+        :root { --primary-green: #198754; }
+        body { background-color: #f4f7f6; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .wrapper { display: flex; width: 100%; align-items: stretch; }
+        #content { width: 100%; padding: 12px 12px; transition: all 0.3s; min-height: 100vh; min-width: 0; }
         .card { border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        #sidebarCollapse { width: 40px; height: 40px; background: #198754; border: none; color: white; border-radius: 8px; }
-        
-        /* Grid File Styling */
-        .file-box { width: 140px; border: 1px solid #e0e0e0; border-radius: 12px; background: white; transition: 0.2s; cursor: pointer; position: relative; z-index: 1; }
-        .file-box:hover { background-color: #f1f9f5; border-color: #198754; box-shadow: 0 4px 10px rgba(25,135,84,0.1); z-index: 50; }
+        #sidebarCollapse {
+            width: 40px; height: 40px; background: var(--primary-green);
+            border: none; color: white; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 12px;
+        }
+        .file-box {
+            width: 100%; border: 1px solid #e0e0e0; border-radius: 12px; background: white;
+            transition: 0.2s; cursor: pointer; position: relative; z-index: 1;
+        }
+        .file-box:hover { background-color: #f1f9f5; border-color: var(--primary-green); box-shadow: 0 4px 10px rgba(25,135,84,0.12); z-index: 50; }
         .file-icon { height: 70px; display: flex; align-items: center; justify-content: center; }
         .file-thumbnail { width: 100%; height: 70px; object-fit: cover; border-radius: 8px; }
-        .file-name { font-size: 0.85rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 5px; }
-        .dropdown-menu { min-width: 120px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: none; }
-        .btn-kebab { position: absolute; top: 5px; right: 5px; z-index: 10; background: rgba(255,255,255,0.7); border-radius: 50%; }
-        .search-box-wrapper { width: 300px; }
+        .file-name {
+            font-size: 0.82rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            padding: 0 6px; color: #374151;
+        }
+        .dropdown-menu { min-width: 120px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border: none; border-radius: 10px; }
+        .btn-kebab { position: absolute; top: 5px; right: 5px; z-index: 10; background: rgba(255,255,255,0.8); border-radius: 50%; }
+        .toolbar-bar {
+            background: #fff; border-radius: 12px; padding: 12px 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 1rem;
+        }
+        .btn-back {
+            width: 34px; height: 34px; border-radius: 50%; background: #f3f4f6; border: 1px solid #e5e7eb;
+            display: flex; align-items: center; justify-content: center; color: #374151; text-decoration: none; flex-shrink: 0;
+        }
+        .btn-back:hover { background: #e8f5e9; border-color: var(--primary-green); color: var(--primary-green); }
+        .search-box-wrapper { flex: 1 1 180px; max-width: 320px; }
         .search-box-wrapper .input-group-text { border-radius: 8px 0 0 8px; border: 1px solid #ced4da; }
         .search-box-wrapper input { border-radius: 0 8px 8px 0; border: 1px solid #ced4da; }
-        .search-box-wrapper input:focus { box-shadow: none; border-color: #198754; }
+        .search-box-wrapper input:focus { box-shadow: none; border-color: var(--primary-green); }
+        .empty-state { grid-column: 1 / -1; text-align: center; padding: 3rem 1rem; color: #9ca3af; }
+        .empty-state i { font-size: 3.5rem; display: block; margin-bottom: 0.75rem; }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
-        input:focus, textarea:focus, select:focus { border-color: #198754 !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;}
+        input:focus, textarea:focus, select:focus { border-color: var(--primary-green) !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;}
+
+        @media (min-width: 576px) {
+            .file-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 14px; }
+        }
+        @media (min-width: 768px) {
+            .file-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px; }
+            #content { padding: 20px 30px; }
+        }
+        @media (max-width: 767px) {
+            .page-header { flex-direction: column; align-items: flex-start !important; }
+            .page-header .btn-group-action { width: 100%; display: flex; gap: 8px; }
+            .page-header .btn-group-action .btn { flex: 1; }
+            .toolbar-bar { flex-direction: column; align-items: stretch; }
+            .search-box-wrapper { max-width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -43,17 +85,22 @@
         @include('user.sidebar')
         <div id="content">
             <div class="container-fluid">
-                <div class="d-flex align-items-center justify-content-between mb-4 mt-2">
-                    <div class="d-flex align-items-center">
-                        <button type="button" id="sidebarCollapse" class="btn"><i class="bi bi-list fs-5"></i></button>
-                        <h4 class="ms-3 mb-0 fw-bold text-success">Drive Sekolah</h4>
-                    </div>
-                    <div>
-                        <button class="btn btn-outline-success fw-bold me-2" data-bs-toggle="modal" data-bs-target="#modalBuatFolder">
-                            <i class="bi bi-folder-plus"></i> Folder Baru
+                <div class="d-flex align-items-center justify-content-between mb-4 mt-1 flex-wrap gap-2 page-header">
+                    <div class="d-flex align-items-center gap-3">
+                        <button type="button" id="sidebarCollapse" class="btn">
+                            <i class="bi bi-list fs-5"></i>
                         </button>
-                        <button class="btn btn-success fw-bold shadow-sm" onclick="document.getElementById('input-upload').click()">
-                            <i class="bi bi-cloud-arrow-up"></i> Upload File
+                        <div>
+                            <h4 class="mb-0 fw-bold text-success">Drive Sekolah</h4>
+                            <p class="text-muted small mb-0 d-none d-sm-block">Kelola file dan folder dokumen sekolah</p>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap btn-group-action">
+                        <button class="btn btn-outline-success fw-semibold" data-bs-toggle="modal" data-bs-target="#modalBuatFolder">
+                            <i class="bi bi-folder-plus me-1"></i>Folder Baru
+                        </button>
+                        <button class="btn btn-success fw-semibold shadow-sm" onclick="document.getElementById('input-upload').click()">
+                            <i class="bi bi-cloud-arrow-up me-1"></i>Upload File
                         </button>
                         <form id="form-upload" action="{{ route('dokumen.file.store') }}" method="POST" enctype="multipart/form-data" class="d-none">
                             @csrf
@@ -63,38 +110,34 @@
                     </div>
                 </div>
 
-                <nav aria-label="breadcrumb">
-                    <div class="breadcrumb mb-4 p-3 bg-white rounded shadow-sm d-flex align-items-center">
-                        <a href="{{ $folder->parent_id ? route('dokumen.folder.detail', $folder->parent_id) : route('dokumen.index') }}" 
-                        class="btn btn-sm btn-light border me-3 rounded-circle" title="Kembali">
-                            <i class="bi bi-arrow-left"></i>
+                <div class="toolbar-bar">
+                    <div class="d-flex align-items-center gap-2 grow flex-wrap">
+                        <a href="{{ $folder->parent_id ? route('dokumen.folder.detail', $folder->parent_id) : route('dokumen.index') }}"
+                           class="btn-back" title="Kembali">
+                            <i class="bi bi-arrow-left small"></i>
                         </a>
-
-                        <ol class="breadcrumb mb-0 flex-grow-1">
-                            <li class="breadcrumb-item">
-                                <a href="{{ route('dokumen.index') }}" class="text-decoration-none fw-bold text-success">
-                                    <i class="bi bi-hdd-fill me-1"></i> My Drive
-                                </a>
-                            </li>
-                            <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page">{{ $folder->nama }}</li>
-                        </ol>
-
-                        <div class="search-box-wrapper ms-3">
-                            <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0">
-                                    <i class="bi bi-search text-muted"></i>
-                                </span>
-                                <input type="text" id="search-dokumen" class="form-control border-start-0" placeholder="Cari dokumen...">
-                            </div>
+                        <a href="{{ route('dokumen.index') }}" class="text-success fw-semibold text-decoration-none">
+                            <i class="bi bi-hdd-fill me-1"></i>My Drive
+                        </a>
+                        <i class="bi bi-chevron-right text-muted small"></i>
+                        <span class="text-dark fw-semibold text-truncate" style="max-width: 200px;">{{ $folder->nama }}</span>
+                    </div>
+                    <div class="search-box-wrapper">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="bi bi-search text-muted"></i>
+                            </span>
+                            <input type="text" id="search-dokumen" class="form-control border-start-0 ps-0" placeholder="Cari dokumen...">
                         </div>
                     </div>
-                </nav>
+                </div>
 
-                <div class="d-flex flex-wrap gap-3">
+                <div class="file-grid" id="file-grid-container">
                     @if($items->isEmpty())
-                        <div class="w-100 text-center text-muted py-5">
-                            <i class="bi bi-folder-x display-1"></i>
-                            <p class="mt-3">Belum ada file atau folder di sini.</p>
+                        <div class="empty-state">
+                            <i class="bi bi-folder-x"></i>
+                            <p class="fw-semibold">Folder ini masih kosong.</p>
+                            <p class="small">Buat folder baru atau upload file untuk memulai.</p>
                         </div>
                     @else
                        @foreach($items as $item)
@@ -163,9 +206,9 @@
                     <label class="form-label fw-bold">Nama Folder</label>
                     <input type="text" name="nama" class="form-control" placeholder="Masukkan nama folder..." required autofocus>
                 </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">Buat</button>
+                <div class="modal-footer bg-light flex-column flex-sm-row gap-2">
+                    <button type="button" class="btn btn-secondary rounded-pill px-3 w-100 w-sm-auto" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold w-100 w-sm-auto">Buat</button>
                 </div>
             </form>
         </div>
@@ -183,9 +226,9 @@
                     <label class="form-label fw-bold">Nama Baru</label>
                     <input type="text" id="inputRename" name="nama" class="form-control" required>
                 </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">Simpan</button>
+                <div class="modal-footer bg-light flex-column flex-sm-row gap-2">
+                    <button type="button" class="btn btn-secondary rounded-pill px-3 w-100 w-sm-auto" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold w-100 w-sm-auto">Simpan</button>
                 </div>
             </form>
         </div>

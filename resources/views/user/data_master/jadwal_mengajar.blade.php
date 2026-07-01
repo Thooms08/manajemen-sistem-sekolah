@@ -19,14 +19,13 @@
         :root { --primary-green: #198754; }
         body { font-family: 'Inter', sans-serif; background-color: #f4f7f6; overflow-x: hidden; }
         .wrapper { display: flex; width: 100%; align-items: stretch; }
-        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; min-height: 100vh; }
-        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary-green); border: none; color: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(25,135,84,0.2); display: flex; align-items: center; justify-content: center; }
+        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; min-height: 100vh; min-width: 0; }
+        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary-green); border: none; color: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(25,135,84,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .card { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         input:focus, textarea:focus, select:focus { border-color: #198754 !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(25,135,84,0.25) !important; }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
 
-        /* Tabel jadwal per hari */
         .hari-section { margin-bottom: 1.5rem; }
         .hari-header {
             background: var(--primary-green);
@@ -38,6 +37,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-wrap: wrap;
         }
         .hari-header .badge-count {
             background: rgba(255,255,255,0.25);
@@ -48,16 +48,39 @@
         }
         .table-jadwal { border-radius: 0 0 8px 8px; overflow: hidden; margin-bottom: 0; }
         .table-jadwal thead { background-color: #f0f9f4; }
-        .table-jadwal thead th { font-size: 0.8rem; font-weight: 600; color: #555; border-top: none; }
+        .table-jadwal thead th { font-size: 0.8rem; font-weight: 600; color: #555; border-top: none; white-space: nowrap; }
         .table-jadwal tbody tr:hover { background-color: #f8fff9; }
-        .jam-badge { background: #e8f5e9; color: #2e7d32; border-radius: 6px; padding: 3px 10px; font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+        .jam-badge { background: #e8f5e9; color: #2e7d32; border-radius: 6px; padding: 3px 10px; font-size: 0.82rem; font-weight: 600; white-space: nowrap; display: inline-block; }
         .empty-hari { background: #f8f9fa; padding: 12px 16px; border-radius: 0 0 8px 8px; color: #adb5bd; font-size: 0.85rem; text-align: center; border: 1px solid #dee2e6; border-top: none; }
 
-        /* Filter bar */
         .filter-bar { background: white; border-radius: 12px; padding: 16px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
         .select2-container { min-width: 160px; }
 
-        @media (max-width: 768px) { #content { padding: 15px; } }
+        .jadwal-card-mobile { display: none; }
+        .jadwal-card-item { background: #fff; border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); border-left: 3px solid #198754; }
+        .jadwal-card-item .jc-jam { font-weight: 700; color: #14532d; font-size: 0.92rem; }
+        .jadwal-card-item .jc-mapel { font-weight: 600; font-size: 0.9rem; color: #1e293b; }
+        .jadwal-card-item .jc-meta { font-size: 0.78rem; color: #6c757d; margin-top: 3px; }
+        .jadwal-card-item .jc-actions { display: flex; gap: 6px; margin-top: 8px; }
+        .jadwal-card-item .jc-actions .btn { flex: 1; font-size: 0.8rem; }
+
+        @media (max-width: 991px) {
+            #content { padding: 16px 18px; }
+            .filter-bar .row { row-gap: 8px; }
+        }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            .filter-bar { padding: 12px 14px; }
+            .table-jadwal-desktop { display: none !important; }
+            .jadwal-card-mobile { display: block; }
+            .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+            .page-header .btn-tambah { width: 100%; }
+            .filter-bar .col-auto { flex: 1 1 100%; }
+            .filter-bar .col-auto.ms-auto { flex: 0 0 auto; }
+            .filter-bar .btn { width: 100%; }
+            .filter-bar form { flex-direction: column; }
+            .hari-header { font-size: 0.85rem; padding: 7px 12px; }
+        }
     </style>
 </head>
 <body>
@@ -75,15 +98,15 @@
         <div class="container-fluid">
 
             {{-- Header --}}
-            <div class="d-flex align-items-center justify-content-between mb-4 mt-2 flex-wrap gap-3">
+            <div class="d-flex align-items-center justify-content-between mb-4 mt-2 flex-wrap gap-2 page-header">
                 <div class="d-flex align-items-center">
                     <button type="button" id="sidebarCollapse" class="btn"><i class="bi bi-list fs-4"></i></button>
                     <div class="ms-3">
                         <h4 class="mb-0 fw-bold text-success">Jadwal Mengajar</h4>
-                        <p class="text-muted small mb-0">Kelola jadwal mengajar guru per hari dan jam pelajaran</p>
+                        <p class="text-muted small mb-0 d-none d-sm-block">Kelola jadwal mengajar guru per hari dan jam pelajaran</p>
                     </div>
                 </div>
-                @if($__canCreate)<button class="btn btn-success px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambah">
+                @if($__canCreate)<button class="btn btn-success px-4 shadow-sm fw-bold btn-tambah" data-bs-toggle="modal" data-bs-target="#modalTambah">
                     <i class="bi bi-plus-circle me-2"></i>Tambah Jadwal
                 </button>@endif
             </div>
@@ -105,7 +128,7 @@
             {{-- Filter Bar --}}
             <div class="filter-bar">
                 <form method="GET" action="{{ route('jadwal-mengajar.index') }}" class="row g-2 align-items-end">
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-sm-6 col-md-3">
                         <label class="form-label small fw-semibold mb-1">Filter Guru</label>
                         <select name="filter_guru" class="form-select form-select-sm select2-filter">
                             <option value="">Semua Guru</option>
@@ -116,7 +139,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-sm-6 col-md-3">
                         <label class="form-label small fw-semibold mb-1">Filter Kelas</label>
                         <select name="filter_kelas" class="form-select form-select-sm select2-filter">
                             <option value="">Semua Kelas</option>
@@ -127,7 +150,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-md-2">
+                    <div class="col-12 col-sm-6 col-md-2">
                         <label class="form-label small fw-semibold mb-1">Filter Hari</label>
                         <select name="filter_hari" class="form-select form-select-sm">
                             <option value="">Semua Hari</option>
@@ -136,16 +159,16 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-success btn-sm px-4">
+                    <div class="col-12 col-sm-6 col-md-auto d-flex gap-2">
+                        <button type="submit" class="btn btn-success btn-sm px-3 flex-fill flex-md-grow-0">
                             <i class="bi bi-funnel me-1"></i>Filter
                         </button>
-                        <a href="{{ route('jadwal-mengajar.index') }}" class="btn btn-outline-secondary btn-sm px-3 ms-1">
+                        <a href="{{ route('jadwal-mengajar.index') }}" class="btn btn-outline-secondary btn-sm px-3 flex-fill flex-md-grow-0">
                             <i class="bi bi-x-circle me-1"></i>Reset
                         </a>
                     </div>
-                    <div class="col-auto ms-auto">
-                        <span class="badge bg-success bg-opacity-10 text-success px-3 py-2" style="font-size:0.85rem;">
+                    <div class="col-12 col-md-auto ms-md-auto">
+                        <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 d-inline-block w-100 text-center" style="font-size:0.85rem;">
                             <i class="bi bi-calendar3 me-1"></i>Total: {{ $jadwals->count() }} jadwal
                         </span>
                     </div>
@@ -168,7 +191,7 @@
                     </div>
 
                     @if($rowsHari->count() > 0)
-                    <div class="table-responsive">
+                    <div class="table-responsive table-jadwal-desktop">
                         <table class="table table-jadwal table-hover align-middle mb-0 border">
                             <thead>
                                 <tr>
@@ -224,6 +247,33 @@
                                 @endforeach
                             </tbody>
                         </table>
+                    </div>
+
+                    <div class="jadwal-card-mobile px-1 pt-1 pb-1" style="background:#f8f9fa; border:1px solid #dee2e6; border-top:none; border-radius:0 0 8px 8px;">
+                        @foreach($rowsHari as $i => $j)
+                        <div class="jadwal-card-item mt-2">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <span class="jam-badge jc-jam">
+                                    {{ \Carbon\Carbon::createFromFormat('H:i:s', $j->jam_mulai)->format('H:i') }}
+                                    – {{ \Carbon\Carbon::createFromFormat('H:i:s', $j->jam_selesai)->format('H:i') }}
+                                </span>
+                                @if($j->ruangan)
+                                    <span class="badge bg-warning bg-opacity-20 text-dark" style="font-size:0.75rem;">{{ $j->ruangan }}</span>
+                                @endif
+                            </div>
+                            <div class="jc-mapel mt-1">{{ $j->mapel->nama_mapel ?? '-' }}</div>
+                            <div class="jc-meta"><i class="bi bi-person me-1"></i>{{ $j->guru->nama_guru ?? '-' }}</div>
+                            <div class="jc-meta"><i class="bi bi-mortarboard me-1"></i>{{ $j->kelas->nama_kelas ?? '-' }}</div>
+                            <div class="jc-actions">
+                                @if($__canEdit)<button class="btn btn-outline-success btn-sm" onclick="openEditModal({{ $j->id }})">
+                                    <i class="bi bi-pencil-square me-1"></i>Edit
+                                </button>@endif
+                                <button class="btn btn-outline-danger btn-sm" onclick="hapusJadwal({{ $j->id }}, '{{ addslashes($j->guru->nama_guru ?? '') }}', '{{ $hari }}')">
+                                    <i class="bi bi-trash me-1"></i>Hapus
+                                </button>
+                            </div>
+                        </div>
+                        @endforeach
                     </div>
                     @else
                         <div class="empty-hari">

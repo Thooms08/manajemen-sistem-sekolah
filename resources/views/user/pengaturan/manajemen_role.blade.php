@@ -15,25 +15,38 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #198754; }
-        body { font-family: 'Inter', sans-serif; background: #f4f7f6; }
+        body { font-family: 'Inter', sans-serif; background: #f4f7f6; overflow-x: hidden; }
         .wrapper { display: flex; width: 100%; align-items: stretch; }
-        #content { width: 100%; padding: 24px 30px; min-height: 100vh; }
-        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary); border: none; color: white; border-radius: 10px; }
+        #content { width: 100%; padding: 24px 30px; min-height: 100vh; min-width: 0; }
+        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary); border: none; color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .card { border: none; border-radius: 14px; box-shadow: 0 4px 18px rgba(0,0,0,.05); }
         input:focus, textarea:focus, select:focus { border-color: #198754 !important; box-shadow: 0 0 0 .2rem rgba(25,135,84,.25) !important; outline: none !important; }
         /* Role card */
-        .role-card { border-radius: 12px; border: 1.5px solid #e2e8f0; background: white; padding: 20px; transition: .2s; position: relative; }
+        .role-card { border-radius: 12px; border: 1.5px solid #e2e8f0; background: white; padding: 20px; transition: .2s; position: relative; height: 100%; }
         .role-card:hover { border-color: var(--primary); box-shadow: 0 4px 16px rgba(25,135,84,.1); }
         .role-card.system-role { border-style: dashed; }
         .role-badge { font-size: .78rem; font-weight: 600; padding: 4px 12px; border-radius: 50px; }
         .system-label { position: absolute; top: 12px; right: 12px; font-size: .7rem; color: #aaa; }
         .perm-count { font-size: .82rem; color: #666; }
+        .role-action-group { display: flex; gap: .5rem; flex-wrap: wrap; }
+        .role-action-group > * { flex: 1 1 auto; min-width: 0; }
         /* Warna opsi */
         .warna-opt { width: 26px; height: 26px; border-radius: 50%; display: inline-block; border: 3px solid transparent; cursor: pointer; transition: .15s; }
         .warna-opt.selected, .warna-opt:hover { border-color: #333; transform: scale(1.15); }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
-        @media (max-width: 768px) { #content { padding: 15px; } }
+        .modal-footer { flex-wrap: wrap; gap: .5rem; }
+        @media (max-width: 991px) { #content { padding: 16px 18px; } }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+            .page-header .btn-tambah { width: 100%; }
+            .role-card .d-flex.align-items-center.gap-2 { flex-wrap: wrap; }
+            .role-action-group { flex-direction: column; }
+            .role-action-group > * { width: 100%; }
+            .modal-footer .btn { width: 100%; }
+            .modal-body { padding: 1rem !important; }
+        }
     </style>
 </head>
 <body>
@@ -44,15 +57,15 @@
         <div class="container-fluid">
 
             {{-- Header --}}
-            <div class="d-flex align-items-center justify-content-between mb-4 mt-1 flex-wrap gap-3">
+            <div class="d-flex align-items-center justify-content-between mb-4 mt-1 flex-wrap gap-3 page-header">
                 <div class="d-flex align-items-center gap-3">
                     <button id="sidebarCollapse" class="btn"><i class="bi bi-list fs-4"></i></button>
                     <div>
                         <h4 class="mb-0 fw-bold text-success">Manajemen Role & Hak Akses</h4>
-                        <p class="text-muted small mb-0">Buat role dinamis dan atur modul apa saja yang bisa diakses.</p>
+                        <p class="text-muted small mb-0 d-none d-sm-block">Buat role dinamis dan atur modul apa saja yang bisa diakses.</p>
                     </div>
                 </div>
-                <button class="btn btn-success px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambahRole">
+                <button class="btn btn-success px-4 fw-bold btn-tambah" data-bs-toggle="modal" data-bs-target="#modalTambahRole">
                     <i class="bi bi-plus-circle me-2"></i>Buat Role Baru
                 </button>
             </div>
@@ -82,8 +95,8 @@
             {{-- Role Cards --}}
             <div class="row g-3">
                 @forelse($roles as $role)
-                <div class="col-md-6 col-xl-4">
-                    <div class="role-card {{ $role->is_system ? 'system-role' : '' }}">
+                <div class="col-12 col-sm-6 col-xl-4">
+                    <div class="role-card {{ $role->is_system ? 'system-role' : '' }} h-100">
                         @if($role->is_system)
                             <span class="system-label"><i class="bi bi-lock-fill me-1"></i>Sistem</span>
                         @endif
@@ -117,7 +130,7 @@
                         </div>
 
                         {{-- Aksi --}}
-                        <div class="d-flex gap-2 flex-wrap">
+                        <div class="role-action-group">
                             @if($role->isAdmin())
                                 {{-- Role admin: semua tombol dikunci --}}
                                 <button class="btn btn-secondary btn-sm px-3 flex-grow-1" disabled title="Hak akses Administrator tidak dapat diubah">
@@ -177,7 +190,7 @@
 
 {{-- MODAL TAMBAH ROLE --}}
 <div class="modal fade" id="modalTambahRole" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
         <div class="modal-content border-0 shadow">
             <form action="{{ route('admin.manajemen-role.store') }}" method="POST">
                 @csrf
@@ -226,7 +239,7 @@
 
 {{-- MODAL EDIT ROLE --}}
 <div class="modal fade" id="modalEditRole" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
         <div class="modal-content border-0 shadow">
             <form id="formEditRole" method="POST">
                 @csrf @method('PUT')
@@ -266,7 +279,7 @@
 
 {{-- MODAL PREVIEW PERMISSION --}}
 <div class="modal fade" id="modalPreview" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable modal-fullscreen-sm-down">
         <div class="modal-content border-0 shadow">
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title fw-bold"><i class="bi bi-eye me-2"></i>Ringkasan Hak Akses</h5>

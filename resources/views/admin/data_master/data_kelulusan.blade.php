@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -15,13 +15,21 @@
     <style>
         body { background-color: #f4f7f6; }
         .wrapper { display: flex; width: 100%; }
-        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; }
+        #content { width: 100%; padding: 15px 15px; transition: all 0.3s; }
         .card { border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .table thead { background-color: #198754; color: white; }
         #sidebarCollapse { width: 40px; height: 40px; background: #198754; border: none; color: white; border-radius: 8px; }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
-        input:focus, textarea:focus, select:focus { border-color: #198754 !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;}
+        input:focus, textarea:focus, select:focus { border-color: #198754 !important; outline: none !important; box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25) !important;}
+        
+        @media (min-width: 768px) {
+            #content { padding: 20px 30px; }
+        }
+        
+        /* Proportional spacing and responsive tables */
+        .table th, .table td { padding: 12px 10px; }
+        .text-nowrap-custom { white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -30,17 +38,17 @@
         @include('admin.sidebar')
         <div id="content">
             <div class="container-fluid">
-                <div class="d-flex align-items-center justify-content-between mb-4 mt-2">
+                <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 mt-2 gap-3">
                     <div class="d-flex align-items-center">
                         <button type="button" id="sidebarCollapse" class="btn"><i class="bi bi-list fs-5"></i></button>
-                        <h4 class="ms-3 mb-0 fw-bold text-success">Data Kelulusan Murid</h4>
+                        <h4 class="ms-3 mb-0 fw-bold text-success fs-5 fs-md-4">Data Kelulusan Murid</h4>
                     </div>
                 </div>
 
                 <div class="card p-3 mb-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-muted small">Kelola status kelulusan siswa beserta pengunggahan berkas ijazah, raport, & surat kelulusan.</span>
-                        <div class="input-group" style="width: 350px;">
+                    <div class="d-flex flex-column flex-md-row gap-3 justify-content-between align-items-md-center align-items-stretch">
+                        <span class="text-muted small col-md-7 col-lg-8 p-0">Kelola status kelulusan siswa beserta pengunggahan berkas ijazah, raport, & surat kelulusan.</span>
+                        <div class="input-group col-md-5 col-lg-4 p-0" style="max-width: 380px; width: 100%;">
                             <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
                             <input type="text" id="search-kelulusan" class="form-control border-start-0 ps-0" placeholder="Cari Nama, NISN, atau NIS Baru...">
                         </div>
@@ -48,18 +56,19 @@
                 </div>
 
                 <div class="card p-4">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
+                    <div class="table-responsive border rounded-3">
+                        <table class="table table-hover align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th>NISN</th>
-                                    <th>NIS Baru</th>
+                                    <th class="text-nowrap-custom">NISN</th>
+                                    <th class="text-nowrap-custom">NIS Baru</th>
                                     <th>Nama Lengkap</th>
                                     <th>Kelas</th>
-                                    <th>Status</th>
-                                    <th class="text-center">Ijazah</th>
-                                    <th class="text-center">Raport</th>
-                                    <th class="text-center">Surat Kelulusan</th> <th class="text-center">Aksi</th>
+                                    <th class="text-nowrap-custom">Status</th>
+                                    <th class="text-center text-nowrap-custom">Ijazah</th>
+                                    <th class="text-center text-nowrap-custom">Raport</th>
+                                    <th class="text-center text-nowrap-custom">Surat Kelulusan</th>
+                                    <th class="text-center text-nowrap-custom" style="width: 100px;">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="table-body">
@@ -70,43 +79,43 @@
                                 @else
                                     @foreach($murids as $murid)
                                         <tr>
-                                            <td>{{ $murid->nisn }}</td>
-                                            <td>{{ $murid->nis_baru ?? '-' }}</td>
-                                            <td>{{ $murid->nama_lengkap }}</td>
+                                            <td class="text-nowrap-custom">{{ $murid->nisn }}</td>
+                                            <td class="text-nowrap-custom">{{ $murid->nis_baru ?? '-' }}</td>
+                                            <td class="fw-medium text-dark">{{ $murid->nama_lengkap }}</td>
                                             <td>{{ $murid->kelas->pluck('nama_kelas')->implode(', ') ?: '-' }}</td>
-                                            <td>
+                                            <td class="text-nowrap-custom">
                                                 @if(($murid->kelulusan->status ?? '') == 'lulus')
-                                                    <span class="badge bg-success">Lulus</span>
+                                                    <span class="badge bg-success px-2.5 py-1.5 rounded-pill">Lulus</span>
                                                 @elseif(($murid->kelulusan->status ?? '') == 'tidak lulus')
-                                                    <span class="badge bg-danger">Tidak Lulus</span>
+                                                    <span class="badge bg-danger px-2.5 py-1.5 rounded-pill">Tidak Lulus</span>
                                                 @else
-                                                    <span class="badge bg-secondary">Belum Diatur</span>
+                                                    <span class="badge bg-secondary px-2.5 py-1.5 rounded-pill">Belum Diatur</span>
                                                 @endif
                                             </td>
-                                            <td class="text-center">
+                                            <td class="text-center text-nowrap-custom">
                                                 @if(!empty($murid->kelulusan->ijazah))
-                                                    <a href="{{ route('kelulusan.view.ijazah', $murid->kelulusan->uuid) }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-file-earmark-pdf"></i></a>
+                                                    <a href="{{ route('kelulusan.view.ijazah', $murid->kelulusan->uuid) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Lihat Ijazah"><i class="bi bi-file-earmark-pdf"></i></a>
                                                 @else
-                                                    -
+                                                    <span class="text-muted small">-</span>
                                                 @endif
                                             </td>
-                                            <td class="text-center">
+                                            <td class="text-center text-nowrap-custom">
                                                 @if(!empty($murid->kelulusan->raport))
-                                                    <a href="{{ route('kelulusan.view.raport', $murid->kelulusan->uuid) }}" target="_blank" class="btn btn-sm btn-outline-danger"><i class="bi bi-file-earmark-text"></i></a>
+                                                    <a href="{{ route('kelulusan.view.raport', $murid->kelulusan->uuid) }}" target="_blank" class="btn btn-sm btn-outline-danger" title="Lihat Raport"><i class="bi bi-file-earmark-text"></i></a>
                                                 @else
-                                                    -
+                                                    <span class="text-muted small">-</span>
                                                 @endif
                                             </td>
-                                            <td class="text-center">
+                                            <td class="text-center text-nowrap-custom">
                                                 @if(!empty($murid->kelulusan->surat_kelulusan) && !empty($murid->kelulusan->uuid))
-                                                    <a href="{{ route('kelulusan.view.surat', $murid->kelulusan->uuid) }}" target="_blank" class="btn btn-sm btn-outline-success">
+                                                    <a href="{{ route('kelulusan.view.surat', $murid->kelulusan->uuid) }}" target="_blank" class="btn btn-sm btn-outline-success" title="Lihat Surat Kelulusan">
                                                         <i class="bi bi-file-earmark-check-fill"></i>
                                                     </a>
                                                 @else
-                                                    -
+                                                    <span class="text-muted small">-</span>
                                                 @endif
                                             </td>
-                                            <td class="text-center">
+                                            <td class="text-center text-nowrap-custom">
                                                 <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" 
                                                     onclick="openEditKelulusan(this, '{{ $murid->kelulusan->uuid ?? '' }}')"
                                                     data-ijazah="{{ (!empty($murid->kelulusan->ijazah) && !empty($murid->kelulusan->uuid)) ? route('kelulusan.view.ijazah', $murid->kelulusan->uuid) : '' }}"
@@ -143,12 +152,12 @@
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body p-4">
-                        <div class="mb-3 bg-light p-3 rounded">
-                            <div class="row g-2">
-                                <div class="col-6 small"><strong>Nama:</strong> <span id="view-nama">-</span></div>
-                                <div class="col-6 small"><strong>Kelas:</strong> <span id="view-kelas">-</span></div>
-                                <div class="col-6 small"><strong>NISN:</strong> <span id="view-nisn">-</span></div>
-                                <div class="col-6 small"><strong>NIS Baru:</strong> <span id="view-nisbaru">-</span></div>
+                        <div class="mb-3 bg-light p-3 rounded border border-light-subtle">
+                            <div class="row g-3">
+                                <div class="col-12 col-sm-6 small"><strong>Nama:</strong> <div id="view-nama" class="text-muted mt-1">-</div></div>
+                                <div class="col-12 col-sm-6 small"><strong>Kelas:</strong> <div id="view-kelas" class="text-muted mt-1">-</div></div>
+                                <div class="col-12 col-sm-6 small"><strong>NISN:</strong> <div id="view-nisn" class="text-muted mt-1">-</div></div>
+                                <div class="col-12 col-sm-6 small"><strong>NIS Baru:</strong> <div id="view-nisbaru" class="text-muted mt-1">-</div></div>
                             </div>
                         </div>
 
@@ -163,14 +172,14 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Tahun Lulus</label>
-                            <input type="number" id="edit-tahun" name="tahun_lulus" class="form-select text-start" required>
+                            <input type="number" id="edit-tahun" name="tahun_lulus" class="form-control" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold">File Ijazah <small class="text-muted">(Max 5MB - PDF/JPG)</small></label>
                             <input type="file" id="edit-ijazah" name="ijazah" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
                             
-                            <div id="container-old-ijazah" class="mt-2 small d-none p-2 bg-light rounded d-flex align-items-center justify-content-between">
+                            <div id="container-old-ijazah" class="mt-2 small d-none p-2 bg-light rounded border border-light-subtle flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-2">
                                 <div>
                                     <span class="text-muted">Berkas saat ini: </span>
                                     <a id="link-old-ijazah" href="#" target="_blank" class="text-primary fw-bold text-decoration-none">
@@ -190,7 +199,7 @@
                             <label class="form-label fw-semibold">File Raport <small class="text-muted">(Max 10MB - PDF/JPG)</small></label>
                             <input type="file" id="edit-raport" name="raport" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
                             
-                            <div id="container-old-raport" class="mt-2 small d-none p-2 bg-light rounded d-flex align-items-center justify-content-between">
+                            <div id="container-old-raport" class="mt-2 small d-none p-2 bg-light rounded border border-light-subtle flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-2">
                                 <div>
                                     <span class="text-muted">Berkas saat ini: </span>
                                     <a id="link-old-raport" href="#" target="_blank" class="text-danger fw-bold text-decoration-none">
@@ -210,7 +219,7 @@
                             <label class="form-label fw-semibold">Surat Kelulusan <small class="text-muted">(Max 5MB - PDF/JPG)</small></label>
                             <input type="file" id="edit-surat-kelulusan" name="surat_kelulusan" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
                             
-                            <div id="container-old-surat" class="mt-2 small d-none p-2 bg-light rounded d-flex align-items-center justify-content-between">
+                            <div id="container-old-surat" class="mt-2 small d-none p-2 bg-light rounded border border-light-subtle flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-2">
                                 <div>
                                     <span class="text-muted">Berkas saat ini: </span>
                                     <a id="link-old-surat" href="#" target="_blank" class="text-success fw-bold text-decoration-none">
@@ -227,7 +236,7 @@
                         </div>
 
                     </div>
-                    <div class="modal-footer bg-light">
+                    <div class="modal-footer bg-light border-top">
                         <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold">Simpan Perubahan</button>
                     </div>

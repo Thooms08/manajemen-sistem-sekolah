@@ -17,26 +17,40 @@
         :root { --primary-green: #198754; }
         body { font-family: 'Inter', sans-serif; background-color: #f4f7f6; overflow-x: hidden; }
         .wrapper { display: flex; width: 100%; align-items: stretch; }
-        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; min-height: 100vh; }
-        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary-green); border: none; color: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(25,135,84,0.2); display: flex; align-items: center; justify-content: center; }
+        #content { width: 100%; padding: 12px 12px; transition: all 0.3s; min-height: 100vh; min-width: 0; }
+        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary-green); border: none; color: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(25,135,84,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .card  { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .table thead { background-color: var(--primary-green); color: white; }
-        .table thead th { font-size: 0.82rem; letter-spacing: 0.4px; font-weight: 600; }
+        .table thead th { font-size: 0.82rem; letter-spacing: 0.4px; font-weight: 600; white-space: nowrap; }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
         input:focus, textarea:focus, select:focus { border-color: #198754 !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(25,135,84,0.25) !important; }
         .form-label { font-weight: 600; font-size: 0.85rem; }
 
-        /* Badge metode bayar */
         .badge-rekening { background-color: #e8f5e9; color: #1b5e20; border: 1px solid #a5d6a7; }
         .badge-cash     { background-color: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
         .badge-qris     { background-color: #e3f2fd; color: #0d47a1; border: 1px solid #90caf9; }
 
-        /* Nama valid/invalid realtime */
         .name-ok   { border-color: #198754 !important; }
         .name-fail { border-color: #dc3545 !important; }
 
-        @media (max-width: 768px) { #content { padding: 15px; } }
+        .biaya-card-mobile { display: none; }
+        .biaya-card-item { background: #fff; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid var(--primary-green); }
+        .biaya-card-item .bc-name { font-weight: 700; font-size: 0.95rem; color: #1a3a3a; }
+        .biaya-card-item .bc-nominal { font-size: 0.88rem; color: #198754; font-weight: 600; margin-top: 3px; }
+        .biaya-card-item .bc-meta { font-size: 0.8rem; color: #6c757d; margin-top: 3px; }
+        .biaya-card-item .bc-actions { display: flex; gap: 8px; margin-top: 10px; }
+        .biaya-card-item .bc-actions .btn { flex: 1; font-size: 0.82rem; }
+
+        @media (max-width: 991px) { #content { padding: 16px 18px; } }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+            .page-header .btn-group-action { width: 100%; display: flex; gap: 8px; }
+            .page-header .btn-group-action .btn { flex: 1; font-size: 0.82rem; }
+            .table-biaya-desktop { display: none !important; }
+            .biaya-card-mobile { display: block; }
+        }
     </style>
 </head>
 <body>
@@ -54,21 +68,24 @@
         <div class="container-fluid">
 
             {{-- ══ Header ══ --}}
-            <div class="d-flex align-items-center justify-content-between mb-4 mt-2">
+            <div class="d-flex align-items-center justify-content-between mb-4 mt-2 flex-wrap gap-2 page-header">
                 <div class="d-flex align-items-center">
                     <button type="button" id="sidebarCollapse" class="btn" onclick="toggleSidebar()">
                         <i class="bi bi-list fs-4"></i>
                     </button>
-                    <h4 class="ms-3 mb-0 fw-bold text-success">
-                        <i class="bi bi-cash-stack me-2"></i>Kelola Biaya Murid
-                    </h4>
+                    <div class="ms-3">
+                        <h4 class="mb-0 fw-bold text-success">
+                            <i class="bi bi-cash-stack me-2"></i>Kelola Biaya Murid
+                        </h4>
+                        <p class="text-muted small mb-0 d-none d-sm-block">Atur biaya PPDB dan pembayaran murid</p>
+                    </div>
                 </div>
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 flex-wrap btn-group-action">
                     <a href="{{ route('akun-pembayaran.index') }}" class="btn btn-outline-success shadow-sm">
-                        <i class="bi bi-bank me-2"></i>Atur Akun Rekening
+                        <i class="bi bi-bank me-1"></i>Akun Rekening
                     </a>
                     @if($__canCreate)<button class="btn btn-success shadow-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#modalTambahBiaya">
-                        <i class="bi bi-plus-circle me-2"></i>Tambah Biaya
+                        <i class="bi bi-plus-circle me-1"></i>Tambah Biaya
                     </button>@endif
                 </div>
             </div>
@@ -116,7 +133,7 @@
                     </p>
                 </div>
 
-                <div class="table-responsive">
+                <div class="table-responsive table-biaya-desktop">
                     <table class="table table-hover align-middle">
                         <thead>
                             <tr>
@@ -191,6 +208,61 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="biaya-card-mobile">
+                    @forelse($biayas as $i => $b)
+                    <div class="biaya-card-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="bc-name">{{ $b->name }}</div>
+                            @if($b->account)
+                                @if($b->account->is_qris)
+                                    <span class="badge badge-qris px-2">QRIS</span>
+                                @else
+                                    <span class="badge badge-rekening px-2">Bank</span>
+                                @endif
+                            @else
+                                <span class="badge badge-cash px-2">Cash</span>
+                            @endif
+                        </div>
+                        <div class="bc-nominal">
+                            <i class="bi bi-cash me-1"></i>Rp {{ number_format($b->amount, 0, ',', '.') }}
+                        </div>
+                        @if($b->account)
+                        <div class="bc-meta">
+                            <i class="bi bi-bank me-1"></i>{{ $b->account->bank_name }}
+                            @if(!$b->account->is_qris && $b->account->account_number)
+                                ({{ $b->account->account_number }})
+                            @endif
+                            @if(!$b->account->is_qris && $b->account->account_holder)
+                                — a.n. {{ $b->account->account_holder }}
+                            @endif
+                        </div>
+                        @endif
+                        <div class="bc-actions">
+                            <button class="btn btn-outline-success btn-sm"
+                                    onclick="bukaModalEdit({{ $b->id }},'{{ addslashes($b->name) }}','{{ $b->amount }}','{{ $b->account_id ?? '' }}')">
+                                <i class="bi bi-pencil-square me-1"></i>Edit
+                            </button>
+                            <form action="{{ route('biaya-murid.destroy', $b->id) }}" method="POST" class="flex-fill"
+                                  onsubmit="return confirm('Hapus biaya ini?')">
+                                @csrf @method('DELETE')
+                                <button class="btn btn-outline-danger btn-sm w-100">
+                                    <i class="bi bi-trash me-1"></i>Hapus
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-cash-stack fs-3 d-block mb-2 text-secondary"></i>
+                        Belum ada biaya yang terdaftar.
+                        <div class="mt-2">
+                            @if($__canCreate)<button class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalTambahBiaya">
+                                Tambah Biaya Pertama
+                            </button>@endif
+                        </div>
+                    </div>
+                    @endforelse
+                </div>
             </div>
 
         </div>{{-- end container --}}
@@ -202,7 +274,7 @@
      MODAL: TAMBAH BIAYA
 ══════════════════════════════════════════════ --}}
 <div class="modal fade" id="modalTambahBiaya" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
         <div class="modal-content border-0 shadow">
             <form action="{{ route('biaya-murid.store') }}" method="POST" id="formTambahBiaya" novalidate>
                 @csrf
@@ -269,9 +341,9 @@
                     </div>
 
                 </div>
-                <div class="modal-footer border-0 pt-0">
-                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-success px-4 shadow-sm" id="btnTambahSubmit">
+                <div class="modal-footer border-0 pt-0 flex-column flex-sm-row gap-2">
+                    <button type="button" class="btn btn-light border w-100 w-sm-auto" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success px-4 shadow-sm w-100 w-sm-auto" id="btnTambahSubmit">
                         <i class="bi bi-save me-2"></i>Simpan Biaya
                     </button>
                 </div>
@@ -285,7 +357,7 @@
      MODAL: EDIT BIAYA (satu modal, diisi via JS)
 ══════════════════════════════════════════════ --}}
 <div class="modal fade" id="modalEditBiaya" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
         <div class="modal-content border-0 shadow">
             <form id="formEditBiaya" method="POST" novalidate>
                 @csrf @method('PUT')
@@ -345,9 +417,9 @@
                     <input type="hidden" id="editBiayaId" value="">
 
                 </div>
-                <div class="modal-footer border-0 pt-0">
-                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-success px-4 shadow-sm">
+                <div class="modal-footer border-0 pt-0 flex-column flex-sm-row gap-2">
+                    <button type="button" class="btn btn-light border w-100 w-sm-auto" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success px-4 shadow-sm w-100 w-sm-auto">
                         <i class="bi bi-save me-2"></i>Perbarui Biaya
                     </button>
                 </div>

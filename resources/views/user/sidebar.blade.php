@@ -48,10 +48,35 @@
     .logout-section { border-top: 1px solid rgba(255,255,255,.1); padding: 15px; }
     .btn-logout { width: 100%; text-align: left; padding: 12px 15px; background: transparent; border: none; color: #ff8080; display: flex; align-items: center; transition: 0.2s; border-radius: 8px; }
     .btn-logout:hover { background: rgba(255,77,77,.1); color: #ff4d4d; }
+
+    /* Gaya untuk parent dropdown saat aktif */
+    .dropdown-toggle.active {
+        background-color: rgba(25, 135, 84, 0.05);
+    }
+
+    /* --- RESPONSIVE MOBILE LOGIC --- */
     @media (max-width: 768px) {
-        #sidebar { position: fixed; left: -280px; margin-left: 0 !important; }
-        #sidebar.show-mobile { left: 0; }
-        #close-sidebar { display: block; }
+        #sidebar {
+            min-width: 260px;
+            max-width: 260px;
+            position: fixed;
+            left: -260px;
+            margin-left: 0 !important;
+        }
+
+        #sidebar.show-mobile {
+            left: 0;
+        }
+
+        #close-sidebar {
+            display: block;
+        }
+
+        /* Kurangi padding di mobile sedikit */
+        #sidebar ul li a {
+            padding: 10px 15px;
+            font-size: 0.9rem;
+        }
     }
 </style>
 
@@ -75,6 +100,16 @@
         </div>
         <button id="close-sidebar" title="Tutup Menu"><i class="bi bi-x-lg"></i></button>
     </div>
+
+    {{-- Data tersembunyi untuk JS — URL badge PPDB --}}
+    @if(canAny('notifikasi_ppdb'))
+    <meta id="ppdb-config" data-url="{{ route('admin.ppdb.count') }}">
+    @endif
+
+    {{-- Data tersembunyi untuk JS — pesan error permission --}}
+    @if(session('permission_error'))
+    <meta id="permission-error-msg" data-message="{{ session('permission_error') }}">
+    @endif
 
     <ul class="list-unstyled components">
 
@@ -305,29 +340,36 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        @if(canAny('notifikasi_ppdb'))
-        function updatePpdbBadge() {
-            fetch("{{ route('admin.ppdb.count') }}")
-                .then(r => r.json())
-                .then(data => {
-                    const badge = document.getElementById('ppdb-badge');
-                    if (badge) {
-                        if (data.count > 0) { badge.innerText = data.count; badge.style.display = 'block'; }
-                        else { badge.style.display = 'none'; }
-                    }
-                }).catch(() => {});
+        // --- PPDB Badge polling (hanya aktif jika #ppdb-badge ada di DOM) ---
+        const ppdbBadge = document.getElementById('ppdb-badge');
+        const ppdbConfig = document.getElementById('ppdb-config');
+        if (ppdbBadge && ppdbConfig) {
+            const ppdbUrl = ppdbConfig.getAttribute('data-url');
+            function updatePpdbBadge() {
+                fetch(ppdbUrl)
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        if (data.count > 0) {
+                            ppdbBadge.innerText = data.count;
+                            ppdbBadge.style.display = 'block';
+                        } else {
+                            ppdbBadge.style.display = 'none';
+                        }
+                    })
+                    .catch(function () {});
+            }
+            updatePpdbBadge();
+            setInterval(updatePpdbBadge, 10000);
         }
-        updatePpdbBadge();
-        setInterval(updatePpdbBadge, 10000);
-        @endif
 
-        const sidebar  = document.getElementById('sidebar');
-        const closeBtn = document.getElementById('close-sidebar');
+        // --- Sidebar hamburger toggle ---
+        var sidebar  = document.getElementById('sidebar');
+        var closeBtn = document.getElementById('close-sidebar');
 
         window.toggleSidebar = function () {
             if (window.innerWidth <= 768) {
                 sidebar.classList.toggle('show-mobile');
-                const overlay = document.getElementById('overlay');
+                var overlay = document.getElementById('overlay');
                 if (overlay) overlay.classList.toggle('active');
             } else {
                 sidebar.classList.toggle('inactive');
@@ -337,8 +379,23 @@
         if (closeBtn) {
             closeBtn.addEventListener('click', function () {
                 sidebar.classList.remove('show-mobile');
-                const overlay = document.getElementById('overlay');
+                var overlay = document.getElementById('overlay');
                 if (overlay) overlay.classList.remove('active');
+            });
+        }
+
+        // --- Alert permission_error (tampil otomatis jika ada flash message) ---
+        var errMeta = document.getElementById('permission-error-msg');
+        if (errMeta) {
+            var errMsg = errMeta.getAttribute('data-message');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Akses Ditolak',
+                text: errMsg,
+                confirmButtonColor: '#198754',
+                confirmButtonText: 'Mengerti',
+                timer: 6000,
+                timerProgressBar: true
             });
         }
     });
@@ -354,21 +411,8 @@
             confirmButtonText: 'Ya, Log Out!',
             cancelButtonText: 'Batal',
             reverseButtons: true
-        }).then(r => { if (r.isConfirmed) document.getElementById('logout-form').submit(); });
-    }
-
-    // ── Alert permission_error (tampil otomatis jika ada flash message) ──
-    @if(session('permission_error'))
-    document.addEventListener('DOMContentLoaded', function () {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Akses Ditolak',
-            text: {!! json_encode(session('permission_error')) !!},
-            confirmButtonColor: '#198754',
-            confirmButtonText: 'Mengerti',
-            timer: 6000,
-            timerProgressBar: true,
+        }).then(function (r) {
+            if (r.isConfirmed) document.getElementById('logout-form').submit();
         });
-    });
-    @endif
+    }
 </script>

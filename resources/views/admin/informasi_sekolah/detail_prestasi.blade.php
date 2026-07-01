@@ -15,14 +15,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #198754; }
-        body { font-family: 'Inter', sans-serif; background: #f4f7f6; }
+        body { font-family: 'Inter', sans-serif; background: #f4f7f6; overflow-x: hidden; }
         .wrapper { display: flex; width: 100%; align-items: stretch; }
-        #content { width: 100%; padding: 24px 30px; min-height: 100vh; transition: all .3s; }
-        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary); border: none; color: white; border-radius: 10px; }
+        #content { width: 100%; padding: 24px 30px; min-height: 100vh; min-width: 0; transition: all .3s; }
+        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary); border: none; color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .sec { background: white; border-radius: 14px; box-shadow: 0 4px 18px rgba(0,0,0,.05); margin-bottom: 1.5rem; overflow: hidden; }
-        .sec-head { padding: 14px 20px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; background: #fafafa; }
+        .sec-head { padding: 14px 20px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; background: #fafafa; flex-wrap: wrap; gap: 8px; }
         .sec-head h6 { margin: 0; font-weight: 700; font-size: .93rem; }
         .sec-body { padding: 20px; }
+        .page-header { gap: 12px; }
+        .jenis-options { display: flex; gap: 1rem; flex-wrap: wrap; }
         input:focus, textarea:focus, select:focus { border-color: #198754 !important; box-shadow: 0 0 0 .2rem rgba(25,135,84,.25) !important; outline: none !important; }
         .catatan-card { border: 1px solid #e9ecef; border-left: 4px solid var(--primary); border-radius: 8px; padding: 14px 18px; margin-bottom: 12px; background: #fff; }
         .catatan-judul { font-weight: 700; font-size: .9rem; margin-bottom: 6px; }
@@ -35,7 +37,20 @@
         #murid-search-result .murid-item.selected { background: #dcfce7; border-color: var(--primary); }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
-        @media (max-width: 768px) { #content { padding: 15px; } }
+        .modal-footer { flex-wrap: wrap; gap: .5rem; }
+        @media (max-width: 991px) { #content { padding: 16px 18px; } }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            .page-header { flex-direction: column; align-items: flex-start !important; }
+            .page-header > .badge { width: 100%; justify-content: center; }
+            .sec-head { align-items: flex-start; }
+            .sec-head .btn { width: 100%; }
+            .sec-body { padding: 16px; }
+            .jenis-options { flex-direction: column; gap: .5rem; }
+            .modal-footer .btn { width: 100%; }
+            .modal-body { padding: 1rem !important; }
+            .table-responsive { font-size: .8rem; }
+        }
     </style>
 </head>
 <body>
@@ -46,7 +61,7 @@
         <div class="container-fluid">
 
             {{-- Header --}}
-            <div class="d-flex align-items-center justify-content-between mb-4 mt-1 flex-wrap gap-3">
+            <div class="d-flex align-items-center justify-content-between mb-4 mt-1 flex-wrap gap-3 page-header">
                 <div class="d-flex align-items-center gap-3">
                     <button id="sidebarCollapse" class="btn"><i class="bi bi-list fs-4"></i></button>
                     <div>
@@ -96,7 +111,7 @@
                                     {{-- Jenis Prestasi --}}
                                     <div class="col-12">
                                         <label class="form-label fw-semibold small">Jenis Prestasi <span class="text-danger">*</span></label>
-                                        <div class="d-flex gap-3">
+                                        <div class="jenis-options">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="jenis" id="jenis_murid" value="murid"
                                                     {{ (!$det || $det->jenis === 'murid') ? 'checked' : '' }}
@@ -305,7 +320,7 @@
 
 {{-- MODAL TAMBAH MURID --}}
 <div class="modal fade" id="modalTambahMurid" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
         <div class="modal-content border-0 shadow">
             <form action="{{ route('prestasi.murid.store', $prestasi->id) }}" method="POST" id="formTambahMurid">
                 @csrf
@@ -363,7 +378,7 @@
 
 {{-- MODAL TAMBAH CATATAN --}}
 <div class="modal fade" id="modalTambahCatatan" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
         <div class="modal-content border-0 shadow">
             <form action="{{ route('prestasi.catatan.store', $prestasi->id) }}" method="POST">
                 @csrf
@@ -395,7 +410,7 @@
 
 {{-- MODAL EDIT CATATAN --}}
 <div class="modal fade" id="modalEditCatatan" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-sm-down">
         <div class="modal-content border-0 shadow">
             <form id="formEditCatatan" method="POST">
                 @csrf @method('PUT')

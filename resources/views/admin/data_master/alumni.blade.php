@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -15,13 +15,21 @@
     <style>
         body { background-color: #f4f7f6; }
         .wrapper { display: flex; width: 100%; }
-        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; }
+        #content { width: 100%; padding: 15px 15px; transition: all 0.3s; }
         .card { border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .table thead { background-color: #198754; color: white; }
         #sidebarCollapse { width: 40px; height: 40px; background: #198754; border: none; color: white; border-radius: 8px; }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
-        select:focus, input:focus { border-color: #198754 !important; box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25) !important; }
+        select:focus, input:focus { border-color: #198754 !important; outline: none !important; box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25) !important; }
+
+        @media (min-width: 768px) {
+            #content { padding: 20px 30px; }
+        }
+
+        /* Proportional spacing and responsive tables */
+        .table th, .table td { padding: 12px 10px; }
+        .text-nowrap-custom { white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -30,24 +38,24 @@
         @include('admin.sidebar')
         <div id="content">
             <div class="container-fluid">
-                <div class="d-flex align-items-center justify-content-between mb-4 mt-2">
+                <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 mt-2 gap-3">
                     <div class="d-flex align-items-center">
                         <button type="button" id="sidebarCollapse" class="btn"><i class="bi bi-list fs-5"></i></button>
-                        <h4 class="ms-3 mb-0 fw-bold text-success">Data Alumni Murid</h4>
+                        <h4 class="ms-3 mb-0 fw-bold text-success fs-5 fs-md-4">Data Alumni Murid</h4>
                     </div>
                 </div>
 
                 <div class="card p-3 mb-4">
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <span class="text-muted small">Direktori khusus siswa yang telah dinyatakan lulus beserta berkas digital (Read-Only).</span>
-                        <div class="d-flex gap-2">
-                            <select id="filter-tahun" class="form-select" style="width: 170px;">
+                    <div class="d-flex flex-column flex-lg-row gap-3 justify-content-between align-items-lg-center align-items-stretch">
+                        <span class="text-muted small col-lg-6 col-xl-7 p-0">Direktori khusus siswa yang telah dinyatakan lulus beserta berkas digital (Read-Only).</span>
+                        <div class="d-flex flex-column flex-sm-row gap-2 col-lg-6 col-xl-5 p-0 justify-content-lg-end" style="width: 100%; max-width: 500px;">
+                            <select id="filter-tahun" class="form-select flex-sm-grow-0" style="min-width: 150px;">
                                 <option value="">-- Semua Tahun --</option>
                                 @foreach($years as $year)
                                     <option value="{{ $year }}">{{ $year }}</option>
                                 @endforeach
                             </select>
-                            <div class="input-group" style="width: 320px;">
+                            <div class="input-group flex-sm-grow-1" style="max-width: 350px;">
                                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
                                 <input type="text" id="search-alumni" class="form-control border-start-0 ps-0" placeholder="Cari Nama, NISN, atau NIS Baru...">
                             </div>
@@ -56,17 +64,17 @@
                 </div>
 
                 <div class="card p-4">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
+                    <div class="table-responsive border rounded-3">
+                        <table class="table table-hover align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th>NISN</th>
-                                    <th>NIS Baru</th>
+                                    <th class="text-nowrap-custom">NISN</th>
+                                    <th class="text-nowrap-custom">NIS Baru</th>
                                     <th>Nama Murid</th>
-                                    <th class="text-center">Tahun Lulus</th>
-                                    <th class="text-center">Surat Kelulusan</th>
-                                    <th class="text-center">Ijazah</th>
-                                    <th class="text-center">Raport</th>
+                                    <th class="text-center text-nowrap-custom">Tahun Lulus</th>
+                                    <th class="text-center text-nowrap-custom">Surat Kelulusan</th>
+                                    <th class="text-center text-nowrap-custom">Ijazah</th>
+                                    <th class="text-center text-nowrap-custom">Raport</th>
                                 </tr>
                             </thead>
                             <tbody id="table-body">
@@ -80,35 +88,35 @@
                                             $kelulusanUuid = $alumni->kelulusan->uuid ?? '';
                                         @endphp
                                         <tr>
-                                            <td>{{ $alumni->nisn }}</td>
-                                            <td>{{ $alumni->nis_baru ?? '-' }}</td>
-                                            <td>{{ $alumni->nama_lengkap }}</td>
-                                            <td class="text-center">{{ $alumni->kelulusan->tahun_lulus ?? '-' }}</td>
-                                            <td class="text-center">
+                                            <td class="text-nowrap-custom">{{ $alumni->nisn }}</td>
+                                            <td class="text-nowrap-custom">{{ $alumni->nis_baru ?? '-' }}</td>
+                                            <td class="fw-medium text-dark">{{ $alumni->nama_lengkap }}</td>
+                                            <td class="text-center text-nowrap-custom">{{ $alumni->kelulusan->tahun_lulus ?? '-' }}</td>
+                                            <td class="text-center text-nowrap-custom">
                                                 @if(!empty($alumni->kelulusan->surat_kelulusan) && $kelulusanUuid)
-                                                    <a href="{{ route('kelulusan.view.surat', $kelulusanUuid) }}" target="_blank" class="btn btn-sm btn-outline-success">
+                                                    <a href="{{ route('kelulusan.view.surat', $kelulusanUuid) }}" target="_blank" class="btn btn-sm btn-outline-success" title="Lihat Surat Kelulusan">
                                                         <i class="bi bi-file-earmark-check-fill"></i>
                                                     </a>
                                                 @else
-                                                    -
+                                                    <span class="text-muted small">-</span>
                                                 @endif
                                             </td>
-                                            <td class="text-center">
+                                            <td class="text-center text-nowrap-custom">
                                                 @if(!empty($alumni->kelulusan->ijazah) && $kelulusanUuid)
-                                                    <a href="{{ route('kelulusan.view.ijazah', $kelulusanUuid) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                    <a href="{{ route('kelulusan.view.ijazah', $kelulusanUuid) }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Lihat Ijazah">
                                                         <i class="bi bi-file-earmark-pdf"></i>
                                                     </a>
                                                 @else
-                                                    -
+                                                    <span class="text-muted small">-</span>
                                                 @endif
                                             </td>
-                                            <td class="text-center">
+                                            <td class="text-center text-nowrap-custom">
                                                 @if(!empty($alumni->kelulusan->raport) && $kelulusanUuid)
-                                                    <a href="{{ route('kelulusan.view.raport', $kelulusanUuid) }}" target="_blank" class="btn btn-sm btn-outline-danger">
+                                                    <a href="{{ route('kelulusan.view.raport', $kelulusanUuid) }}" target="_blank" class="btn btn-sm btn-outline-danger" title="Lihat Raport">
                                                         <i class="bi bi-file-earmark-text"></i>
                                                     </a>
                                                 @else
-                                                    -
+                                                    <span class="text-muted small">-</span>
                                                 @endif
                                             </td>
                                         </tr>

@@ -24,11 +24,38 @@
         .search-box:focus { border-color: #198754; box-shadow: 0 0 0 0.25rem rgba(25,135,84,0.1); outline: none; }
         .table thead { background-color: #f8f9fa; border-bottom: 2px solid #198754; }
         .table th { font-weight: 600; color: #444; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; }
-        .nav-tabs .nav-link { color: #6c757d; font-weight: 500; border-radius: 8px 8px 0 0; }
+        .nav-tabs { flex-wrap: wrap; gap: 4px; }
+        .nav-tabs .nav-link { color: #6c757d; font-weight: 500; border-radius: 8px 8px 0 0; white-space: nowrap; }
         .nav-tabs .nav-link.active { color: #198754; border-bottom-color: #fff; font-weight: 600; }
         .nav-tabs .nav-link:hover { color: #198754; }
         .row-hidden { display: none; }
-        @media (max-width: 768px) { #content { padding: 15px; } }
+        .wali-card-mobile { display: none; }
+        .wali-card-item {
+            background: #fff; border-radius: 12px; padding: 14px 16px;
+            margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 4px solid #198754;
+        }
+        .wali-card-item.nonaktif { border-left-color: #dc3545; }
+        .wali-card-item .wc-name { font-weight: 700; font-size: 0.97rem; color: #1a3a3a; }
+        .wali-card-item .wc-meta { font-size: 0.8rem; color: #6c757d; margin-top: 3px; }
+        .wali-card-item .wc-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+        .wali-card-item .wc-actions .btn { flex: 1; font-size: 0.8rem; min-width: 80px; }
+        @media (max-width: 991px) { #content { padding: 16px 18px; } }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+            .search-row { flex-direction: column !important; }
+            .search-row .col-md-6 { width: 100%; }
+            .table-wali-desktop { display: none !important; }
+            .wali-card-mobile { display: block; }
+            .nav-tabs .nav-link { font-size: 0.82rem; padding: 6px 10px; }
+            .card { border-radius: 12px; }
+        }
+        @media (max-width: 575px) {
+            .card { padding: 1rem !important; }
+            .wali-card-item { padding: 12px 13px; }
+            .wali-card-item .wc-actions .btn { flex: 1 1 100%; }
+        }
     </style>
 </head>
 <body>
@@ -60,8 +87,8 @@
                 @endif
 
                 {{-- Search Bar --}}
-                <div class="card p-3 mb-4">
-                    <div class="row align-items-center">
+                <div class="card p-3 p-md-4 mb-4">
+                    <div class="row align-items-center search-row g-2">
                         <div class="col-md-6">
                             <p class="text-muted small mb-0">
                                 Cari berdasarkan Nama Murid, Nama Wali, Hubungan, Pekerjaan, atau No. HP
@@ -81,7 +108,7 @@
                 </div>
 
                 {{-- Tab + Tabel --}}
-                <div class="card p-4">
+                <div class="card p-3 p-md-4">
 
                     {{-- Tab Nav --}}
                     <ul class="nav nav-tabs mb-3" id="waliTab" role="tablist">
@@ -109,7 +136,7 @@
 
                         {{-- Tab Aktif --}}
                         <div class="tab-pane fade show active" id="tab-aktif" role="tabpanel">
-                            <div class="table-responsive">
+                            <div class="table-responsive table-wali-desktop">
                                 <table class="table align-middle">
                                     <thead>
                                         <tr>
@@ -152,6 +179,26 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <div class="wali-card-mobile" id="mobile-wali-aktif">
+                                @forelse($dataAktif as $index => $row)
+                                <div class="wali-card-item {{ $index >= 10 ? 'row-extra-wali-aktif row-hidden' : '' }}">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="wc-name">{{ $row->nama_lengkap }}</div>
+                                        <span class="badge bg-success">Aktif</span>
+                                    </div>
+                                    <div class="wc-meta"><i class="bi bi-person me-1"></i>Wali: {{ $row->wali->nama_wali ?? '-' }}</div>
+                                    <div class="wc-meta"><i class="bi bi-diagram-3 me-1"></i>Hubungan: {{ $row->wali->hubungan_wali ?? '-' }}</div>
+                                    <div class="wc-meta"><i class="bi bi-briefcase me-1"></i>Pekerjaan: {{ $row->wali->pekerjaan_wali ?? '-' }}</div>
+                                    <div class="wc-meta"><i class="bi bi-telephone me-1"></i>No. HP: {{ $row->no_hp ?? '-' }}</div>
+                                </div>
+                                @empty
+                                <div class="text-center py-5 text-muted">
+                                    <i class="bi bi-person-badge fs-3 d-block mb-2 text-secondary"></i>
+                                    Belum ada data wali murid aktif
+                                </div>
+                                @endforelse
+                            </div>
+
                             {{-- Tombol Lihat Semua (Aktif) --}}
                             @if($dataAktif->count() > 10)
                             <div class="text-center mt-2" id="btn-lihat-semua-wali-aktif">
@@ -166,7 +213,7 @@
 
                         {{-- Tab Nonaktif --}}
                         <div class="tab-pane fade" id="tab-nonaktif" role="tabpanel">
-                            <div class="table-responsive">
+                            <div class="table-responsive table-wali-desktop">
                                 <table class="table align-middle">
                                     <thead>
                                         <tr>
@@ -215,6 +262,26 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <div class="wali-card-mobile" id="mobile-wali-nonaktif">
+                                @forelse($dataNonaktif as $index => $row)
+                                <div class="wali-card-item nonaktif {{ $index >= 10 ? 'row-extra-wali-nonaktif row-hidden' : '' }}">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="wc-name">{{ $row->nama_lengkap }}</div>
+                                        <span class="badge bg-danger">Nonaktif</span>
+                                    </div>
+                                    <div class="wc-meta"><i class="bi bi-person me-1"></i>Wali: {{ $row->wali->nama_wali ?? '-' }}</div>
+                                    <div class="wc-meta"><i class="bi bi-diagram-3 me-1"></i>Hubungan: {{ $row->wali->hubungan_wali ?? '-' }}</div>
+                                    <div class="wc-meta"><i class="bi bi-briefcase me-1"></i>Pekerjaan: {{ $row->wali->pekerjaan_wali ?? '-' }}</div>
+                                    <div class="wc-meta"><i class="bi bi-telephone me-1"></i>No. HP: {{ $row->no_hp ?? '-' }}</div>
+                                </div>
+                                @empty
+                                <div class="text-center py-5 text-muted">
+                                    <i class="bi bi-person-x fs-3 d-block mb-2 text-secondary"></i>
+                                    Tidak ada data wali murid nonaktif
+                                </div>
+                                @endforelse
+                            </div>
+
                             {{-- Tombol Lihat Semua (Nonaktif) --}}
                             @if($dataNonaktif->count() > 10)
                             <div class="text-center mt-2" id="btn-lihat-semua-wali-nonaktif">

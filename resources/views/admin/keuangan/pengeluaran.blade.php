@@ -17,11 +17,11 @@
         :root { --primary-red: #dc3545; }
         body { font-family: 'Inter', sans-serif; background-color: #f4f7f6; overflow-x: hidden; }
         .wrapper { display: flex; width: 100%; align-items: stretch; }
-        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; min-height: 100vh; }
-        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary-red); border: none; color: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(220,53,69,0.2); display: flex; align-items: center; justify-content: center; }
+        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; min-height: 100vh; min-width: 0; }
+        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary-red); border: none; color: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(220,53,69,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .card { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .table thead { background-color: var(--primary-red); color: white; }
-        .table thead th { font-size: 0.82rem; letter-spacing: 0.4px; font-weight: 600; }
+        .table thead th { font-size: 0.82rem; letter-spacing: 0.4px; font-weight: 600; white-space: nowrap; }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
         input:focus, textarea:focus, select:focus { border-color: #dc3545 !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(220,53,69,0.15) !important; }
@@ -29,7 +29,7 @@
         /* Summary cards */
         .summary-card { border-radius: 12px; border: none; transition: transform 0.2s; }
         .summary-card:hover { transform: translateY(-2px); }
-        .summary-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+        .summary-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
 
         /* Form labels */
         .form-label { font-weight: 600; font-size: 0.85rem; }
@@ -42,22 +42,19 @@
         .btn-hapus-row { position: absolute; top: 10px; right: 12px; background: none; border: none; color: #dc3545; font-size: 1.2rem; cursor: pointer; opacity: 0.7; transition: opacity 0.2s; }
         .btn-hapus-row:hover { opacity: 1; }
 
-        /* Mode edit: highlight card */
-        #formPengeluaran.mode-edit .card-form-inner { border: 2px solid #dc3545 !important; background: #fffbfb; }
+        /* Mode edit */
         .edit-mode-banner { background: #fde8ea; border-radius: 8px; padding: 8px 14px; font-size: 0.83rem; color: #842029; font-weight: 600; display: none; }
-        .edit-mode-banner.show { display: flex; align-items: center; gap: 8px; }
+        .edit-mode-banner.show { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
-        /* Upload foto — sistem satu-per-satu */
+        /* Upload foto */
         .upload-area { border: 2px dashed #dee2e6; border-radius: 10px; padding: 14px; background: #fafafa; transition: border-color 0.2s; }
         .upload-area:hover { border-color: #dc3545; }
         .foto-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-        /* Wrapper tiap foto preview */
         .foto-item { position: relative; width: 80px; height: 80px; }
         .foto-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #dee2e6; cursor: pointer; transition: border-color 0.2s; display: block; }
         .foto-item img:hover { border-color: #dc3545; }
         .foto-item .btn-hapus-foto { position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; background: #dc3545; border: none; border-radius: 50%; color: #fff; font-size: 0.7rem; line-height: 1; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2; padding: 0; }
         .foto-item .btn-hapus-foto:hover { background: #b02a37; }
-        /* Badge "sudah ada" (foto dari DB saat edit) */
         .foto-item .badge-existing { position: absolute; bottom: 2px; left: 2px; font-size: 0.6rem; background: rgba(0,0,0,0.55); color: #fff; border-radius: 3px; padding: 1px 4px; }
 
         /* Filter bar */
@@ -90,7 +87,22 @@
         .galeri-grid img:hover { border-color: #dc3545; transform: scale(1.03); }
         .galeri-empty { color: #aaa; text-align: center; padding: 30px; }
 
-        @media (max-width: 768px) { #content { padding: 15px; } }
+        /* ── Responsive ── */
+        @media (max-width: 991px) {
+            #content { padding: 16px 18px; }
+        }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            /* Filter bar: tanggal stack */
+            .filter-bar .date-range-row { flex-direction: column; align-items: stretch !important; }
+            .filter-bar .date-range-row input[type="date"] { width: 100% !important; max-width: 100% !important; }
+            .filter-bar .date-range-row .btn { width: 100%; }
+            /* Form multi-baris: kolom nominal/qty stack */
+            .row-pengeluaran .row.g-3 .col-md-3,
+            .row-pengeluaran .row.g-3 .col-md-2 { flex: 0 0 50%; max-width: 50%; }
+            /* Tabel font lebih kecil */
+            .table thead th, .table tbody td { font-size: 0.78rem; }
+        }
     </style>
 </head>
 <body>
@@ -102,11 +114,11 @@
         <div class="container-fluid">
 
             {{-- ══ Header ══ --}}
-            <div class="d-flex align-items-center mb-4 mt-2">
+            <div class="d-flex align-items-center mb-4 mt-2 flex-wrap gap-2">
                 <button type="button" id="sidebarCollapse" class="btn" onclick="toggleSidebar()">
                     <i class="bi bi-list fs-4"></i>
                 </button>
-                <h4 class="ms-3 mb-0 fw-bold text-danger">
+                <h4 class="mb-0 fw-bold text-danger">
                     <i class="bi bi-arrow-up-circle me-2"></i>Pengeluaran Keuangan
                 </h4>
             </div>
@@ -338,28 +350,28 @@
                  SUMMARY CARDS
             ══════════════════════════════════════════ --}}
             <div class="row g-3 mb-4">
-                <div class="col-md-6">
+                <div class="col-12 col-sm-6">
                     <div class="card summary-card p-3">
                         <div class="d-flex align-items-center gap-3">
                             <div class="summary-icon bg-danger bg-opacity-10">
                                 <i class="bi bi-cash-stack text-danger"></i>
                             </div>
-                            <div>
+                            <div class="min-width-0">
                                 <div class="text-muted small fw-semibold">Total Nominal Pengeluaran</div>
-                                <div class="fw-bold fs-5 text-danger">
+                                <div class="fw-bold fs-5 text-danger text-truncate">
                                     Rp {{ number_format($totalNominal, 0, ',', '.') }}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-12 col-sm-6">
                     <div class="card summary-card p-3">
                         <div class="d-flex align-items-center gap-3">
                             <div class="summary-icon bg-warning bg-opacity-10">
                                 <i class="bi bi-activity text-warning"></i>
                             </div>
-                            <div>
+                            <div class="min-width-0">
                                 <div class="text-muted small fw-semibold">Total Aktivitas Pengeluaran</div>
                                 <div class="fw-bold fs-5 text-warning">
                                     {{ number_format($totalAktifitas, 0, ',', '.') }} transaksi
@@ -396,24 +408,22 @@
                                         onclick="setRange('{{ $key }}')">{{ $label }}</button>
                             @endforeach
                         </div>
-                        <div class="d-flex flex-wrap align-items-center gap-2">
+                        <div class="d-flex flex-wrap align-items-center gap-2 date-range-row">
                             <span class="text-muted small fw-semibold">Atau pilih tanggal:</span>
-                            <div class="d-flex align-items-center gap-2">
-                                <input type="date" name="date_from" id="inputDateFrom"
-                                       class="form-control form-control-sm" style="width:155px" value="{{ $dateFrom }}">
-                                <span class="text-muted small">s/d</span>
-                                <input type="date" name="date_to" id="inputDateTo"
-                                       class="form-control form-control-sm" style="width:155px" value="{{ $dateTo }}">
-                                <button type="submit" class="btn btn-outline-danger btn-sm px-3 fw-semibold">
-                                    <i class="bi bi-funnel me-1"></i>Terapkan
-                                </button>
-                                @if($range !== '1bulan' || $dateFrom || $dateTo)
-                                    <a href="{{ route('keuangan.pengeluaran.index') }}"
-                                       class="btn btn-outline-secondary btn-sm px-3">
-                                        <i class="bi bi-x-circle me-1"></i>Reset
-                                    </a>
-                                @endif
-                            </div>
+                            <input type="date" name="date_from" id="inputDateFrom"
+                                   class="form-control form-control-sm flex-fill" style="min-width:130px; max-width:180px;" value="{{ $dateFrom }}">
+                            <span class="text-muted small">s/d</span>
+                            <input type="date" name="date_to" id="inputDateTo"
+                                   class="form-control form-control-sm flex-fill" style="min-width:130px; max-width:180px;" value="{{ $dateTo }}">
+                            <button type="submit" class="btn btn-outline-danger btn-sm px-3 fw-semibold">
+                                <i class="bi bi-funnel me-1"></i>Terapkan
+                            </button>
+                            @if($range !== '1bulan' || $dateFrom || $dateTo)
+                                <a href="{{ route('keuangan.pengeluaran.index') }}"
+                                   class="btn btn-outline-secondary btn-sm px-3">
+                                    <i class="bi bi-x-circle me-1"></i>Reset
+                                </a>
+                            @endif
                         </div>
                         <input type="hidden" name="range" id="inputRange" value="{{ $range }}">
                         <input type="hidden" name="tab" value="{{ $tab }}">
@@ -661,7 +671,7 @@
      MODAL: GALERI BUKTI FOTO
 ══════════════════════════════════ --}}
 <div class="modal fade" id="modalGaleriBukti" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable modal-fullscreen-sm-down">
         <div class="modal-content border-0 shadow">
             <div class="modal-header" style="background:#1a1a2e; color:#fff;">
                 <h6 class="modal-title fw-bold">

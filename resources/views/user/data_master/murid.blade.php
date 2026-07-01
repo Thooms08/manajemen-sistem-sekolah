@@ -13,21 +13,22 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        body { background-color: #f4f7f6; }
+        body { background-color: #f4f7f6; font-family: 'Inter', sans-serif; }
         .wrapper { display: flex; width: 100%; }
-        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; }
+        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; min-width: 0; }
         .card { border: none; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .table thead { background-color: #198754; color: white; }
-        #sidebarCollapse { width: 40px; height: 40px; background: #198754; border: none; color: white; border-radius: 8px; }
+        .table thead th { font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+        #sidebarCollapse { width: 40px; height: 40px; background: #198754; border: none; color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
 
         /* Tab style */
-        .nav-tabs .nav-link { color: #555; font-weight: 500; }
+        .nav-tabs .nav-link { color: #555; font-weight: 500; font-size: 0.9rem; }
         .nav-tabs .nav-link.active { color: #198754; font-weight: 700; border-bottom: 3px solid #198754; }
         .nav-tabs .nav-link .badge { font-size: 0.7rem; }
 
-        /* Modal Detail Style */
+        /* Modal Detail */
         .table-detail th { background-color: #f8f9fa; width: 35%; color: #555; font-size: 0.85rem; }
         .table-detail td { font-size: 0.85rem; color: #333; }
         .section-title { font-size: 0.9rem; font-weight: bold; color: #198754;
@@ -35,9 +36,48 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .spin { display: inline-block; animation: spin 0.8s linear infinite; }
 
-        /* Info banner tampil default */
         .info-limit-banner { background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 10px;
             padding: 10px 16px; font-size: 0.85rem; color: #2e7d32; }
+
+        /* Search input adaptif */
+        .search-input-wrapper { flex: 1 1 220px; max-width: 340px; }
+        .page-header .btn-tambah { min-width: 140px; justify-content: center; }
+
+        /* Mobile card */
+        .murid-card-mobile { display: none; }
+        .murid-card-item {
+            background: #fff; border-radius: 12px; padding: 14px 16px;
+            margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 4px solid #198754;
+        }
+        .murid-card-item.nonaktif { border-left-color: #dc3545; }
+        .murid-card-item .mc-name  { font-weight: 700; font-size: 0.97rem; color: #1a3a3a; }
+        .murid-card-item .mc-meta  { font-size: 0.8rem; color: #6c757d; margin-top: 3px; }
+        .murid-card-item .mc-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+        .murid-card-item .mc-actions .btn { flex: 1; font-size: 0.8rem; min-width: 80px; }
+
+        /* ── Responsive ── */
+        @media (max-width: 991px) {
+            #content { padding: 16px 18px; }
+        }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+            .page-header .btn-tambah { width: 100%; min-width: 100%; }
+            .search-bar-flex { flex-direction: column; align-items: stretch !important; gap: 10px; }
+            .search-input-wrapper { max-width: 100%; width: 100%; }
+            .table-murid-desktop { display: none !important; }
+            .murid-card-mobile { display: block; }
+            .nav-tabs { flex-wrap: wrap; gap: 4px; }
+            .nav-tabs .nav-link { font-size: 0.82rem; padding: 6px 10px; white-space: nowrap; }
+            .murid-card-item .mc-actions .btn { flex: 1 1 calc(50% - 6px); }
+        }
+        @media (max-width: 575px) {
+            .card { border-radius: 10px; }
+            .murid-card-item { padding: 12px 13px; }
+            .murid-card-item .mc-actions { gap: 8px; }
+            .murid-card-item .mc-actions .btn { flex: 1 1 100%; }
+        }
     </style>
 </head>
 <body>
@@ -53,12 +93,12 @@
         <div id="content">
             <div class="container-fluid">
                 {{-- Header --}}
-                <div class="d-flex align-items-center justify-content-between mb-4 mt-2">
+                <div class="d-flex align-items-center justify-content-between mb-4 mt-2 flex-wrap gap-2 page-header">
                     <div class="d-flex align-items-center">
                         <button type="button" id="sidebarCollapse" class="btn"><i class="bi bi-list fs-5"></i></button>
                         <h4 class="ms-3 mb-0 fw-bold text-success">Daftar Murid</h4>
                     </div>
-                    <a href="{{ route('murid.create') }}" class="btn btn-success px-4 fw-bold shadow-sm">
+                    <a href="{{ route('murid.create') }}" class="btn btn-success px-4 fw-bold shadow-sm btn-tambah">
                         <i class="bi bi-person-plus me-2"></i>+ Murid
                     </a>
                 </div>
@@ -95,16 +135,16 @@
                     {{-- =================== TAB AKTIF =================== --}}
                     <div class="tab-pane fade show active" id="tab-aktif" role="tabpanel">
                         <div class="card p-3 mb-3" style="border-radius: 0 12px 12px 12px;">
-                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 search-bar-flex">
                                 <span class="text-muted small">Kelola data siswa aktif.</span>
-                                <div class="input-group" style="width: 320px;">
+                                <div class="input-group search-input-wrapper">
                                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
                                     <input type="text" id="search-aktif" class="form-control border-start-0 ps-0" placeholder="Cari Nama, NISN, atau No. HP...">
                                 </div>
                             </div>
                         </div>
 
-                        <div class="card p-4" style="border-radius: 0 12px 12px 12px;">
+                        <div class="card p-3 p-md-4" style="border-radius: 0 12px 12px 12px;">
 
                             {{-- Info banner: hanya tampil jika total > 20 --}}
                             @if($muridsAktif->count() > 20)
@@ -118,7 +158,8 @@
                             </div>
                             @endif
 
-                            <div class="table-responsive">
+                            {{-- DESKTOP TABLE --}}
+                            <div class="table-responsive table-murid-desktop">
                                 <table class="table table-hover align-middle">
                                     <thead>
                                         <tr>
@@ -165,22 +206,56 @@
                                     </tbody>
                                 </table>
                             </div>
+
+                            {{-- MOBILE CARD LIST --}}
+                            <div class="murid-card-mobile" id="mobile-list-aktif">
+                                @forelse($muridsAktif as $index => $m)
+                                <div class="murid-card-item {{ $index >= 20 ? 'd-none row-aktif-hidden' : 'row-aktif-visible' }}">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="mc-name">{{ $m->nama_lengkap }}</div>
+                                        <span class="badge bg-success">Aktif</span>
+                                    </div>
+                                    <div class="mc-meta"><i class="bi bi-credit-card me-1"></i>NISN: {{ $m->nisn }}</div>
+                                    <div class="mc-meta"><i class="bi bi-telephone me-1"></i>{{ $m->no_hp }}</div>
+                                    <div class="mc-actions">
+                                        <button class="btn btn-outline-info btn-sm"
+                                                onclick="viewDetail('{{ $m->uuid }}')">
+                                            <i class="bi bi-person-vcard me-1"></i>Detail
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm"
+                                                onclick="downloadPdf('{{ $m->uuid }}', '{{ addslashes($m->nama_lengkap) }}', this)">
+                                            <i class="bi bi-file-earmark-pdf-fill me-1"></i>PDF
+                                        </button>
+                                        <a href="{{ route('murid.edit', $m->uuid) }}" class="btn btn-outline-success btn-sm">
+                                            <i class="bi bi-pencil me-1"></i>Edit
+                                        </a>
+                                        <button class="btn btn-outline-danger btn-sm"
+                                                onclick="bukaModalHapus('{{ $m->uuid }}', '{{ addslashes($m->nama_lengkap) }}')">
+                                            <i class="bi bi-trash me-1"></i>Nonaktif
+                                        </button>
+                                    </div>
+                                </div>
+                                @empty
+                                <div class="text-center py-4 text-muted">Belum ada data murid aktif.</div>
+                                @endforelse
+                            </div>
+
                         </div>
                     </div>
 
                     {{-- =================== TAB NONAKTIF =================== --}}
                     <div class="tab-pane fade" id="tab-nonaktif" role="tabpanel">
                         <div class="card p-3 mb-3" style="border-radius: 0 12px 12px 12px;">
-                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 search-bar-flex">
                                 <span class="text-muted small">Data murid yang telah dinonaktifkan (pindahan, dikeluarkan, dll).</span>
-                                <div class="input-group" style="width: 320px;">
+                                <div class="input-group search-input-wrapper">
                                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
                                     <input type="text" id="search-nonaktif" class="form-control border-start-0 ps-0" placeholder="Cari Nama, NISN, atau No. HP...">
                                 </div>
                             </div>
                         </div>
 
-                        <div class="card p-4" style="border-radius: 0 12px 12px 12px;">
+                        <div class="card p-3 p-md-4" style="border-radius: 0 12px 12px 12px;">
 
                             {{-- Info banner nonaktif --}}
                             @if($muridsNonaktif->count() > 20)
@@ -194,7 +269,8 @@
                             </div>
                             @endif
 
-                            <div class="table-responsive">
+                            {{-- DESKTOP TABLE --}}
+                            <div class="table-responsive table-murid-desktop">
                                 <table class="table table-hover align-middle">
                                     <thead>
                                         <tr>
@@ -245,6 +321,46 @@
                                     </tbody>
                                 </table>
                             </div>
+
+                            {{-- MOBILE CARD LIST --}}
+                            <div class="murid-card-mobile" id="mobile-list-nonaktif">
+                                @forelse($muridsNonaktif as $index => $m)
+                                <div class="murid-card-item nonaktif {{ $index >= 20 ? 'd-none row-nonaktif-hidden' : 'row-nonaktif-visible' }}">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="mc-name">{{ $m->nama_lengkap }}</div>
+                                        <span class="badge bg-danger">Nonaktif</span>
+                                    </div>
+                                    <div class="mc-meta"><i class="bi bi-credit-card me-1"></i>NISN: {{ $m->nisn }}</div>
+                                    <div class="mc-meta"><i class="bi bi-telephone me-1"></i>{{ $m->no_hp }}</div>
+                                    <div class="mc-meta mt-1">
+                                        <span class="badge bg-secondary">{{ $m->alasan_nonaktif }}</span>
+                                        @if($m->tanggal_nonaktif)
+                                            <span class="ms-1 text-muted" style="font-size:0.75rem;">{{ \Carbon\Carbon::parse($m->tanggal_nonaktif)->format('d M Y') }}</span>
+                                        @endif
+                                    </div>
+                                    <div class="mc-actions">
+                                        <button class="btn btn-outline-info btn-sm" onclick="viewDetail('{{ $m->uuid }}')">
+                                            <i class="bi bi-person-vcard me-1"></i>Detail
+                                        </button>
+                                        @if($m->surat_pernyataan)
+                                        <a href="{{ route('murid.download-surat', $m->uuid) }}" class="btn btn-outline-secondary btn-sm">
+                                            <i class="bi bi-file-earmark-arrow-down me-1"></i>Surat
+                                        </a>
+                                        @endif
+                                        <form action="{{ route('murid.restore', $m->uuid) }}" method="POST" class="flex-fill">
+                                            @csrf
+                                            <button type="submit" class="btn btn-outline-success btn-sm w-100"
+                                                    onclick="return confirm('Pulihkan murid ini?')">
+                                                <i class="bi bi-arrow-counterclockwise me-1"></i>Pulihkan
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                @empty
+                                <div class="text-center py-4 text-muted">Belum ada data murid nonaktif.</div>
+                                @endforelse
+                            </div>
+
                         </div>
                     </div>
 
@@ -397,7 +513,7 @@
             }
             $.ajax({
                 type: 'GET',
-                url: "{{ route('murid.search') }}",
+                url: '/murid/search',
                 data: { search: val, tab: 'aktif' },
                 success: function (data) { $('#table-body-aktif').html(data); },
                 error: function (err) { console.error('Search error:', err); }
@@ -413,7 +529,7 @@
             }
             $.ajax({
                 type: 'GET',
-                url: "{{ route('murid.search') }}",
+                url: '/murid/search',
                 data: { search: val, tab: 'nonaktif' },
                 success: function (data) { $('#table-body-nonaktif').html(data); },
                 error: function (err) { console.error('Search error:', err); }
@@ -492,7 +608,7 @@
 
             bootstrap.Modal.getOrCreateInstance(document.getElementById('modalDetail')).show();
 
-            fetch(`{{ url('murid') }}/${uuid}/detail`)
+            fetch('/murid/' + uuid + '/detail')
                 .then(res => res.json())
                 .then(data => {
                     const m        = data.murid        || {};
@@ -596,7 +712,7 @@
             btn.disabled = true;
             icon.className = 'bi bi-arrow-repeat spin';
 
-            fetch(`{{ url('murid') }}/${uuid}/pdf`, { method: 'GET' })
+            fetch('/murid/' + uuid + '/pdf', { method: 'GET' })
                 .then(response => {
                     if (!response.ok) throw new Error('Server error: ' + response.status);
                     return response.blob();

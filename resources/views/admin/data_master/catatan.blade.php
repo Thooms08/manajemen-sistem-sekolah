@@ -28,7 +28,7 @@
         }
         body { font-family: 'Inter', sans-serif; background: #f3f7f5; color: var(--text-main); }
         .wrapper { display: flex; width: 100%; align-items: stretch; }
-        #content { width: 100%; padding: 24px 30px; min-height: 100vh; }
+        #content { width: 100%; padding: 15px 15px; min-height: 100vh; transition: all 0.3s; }
         #sidebarCollapse {
             width: 42px; height: 42px;
             background: var(--green-primary); border: none; color: #fff;
@@ -43,7 +43,7 @@
             background: var(--surface);
             border: 1.5px solid var(--border);
             border-radius: var(--radius);
-            padding: 22px 24px;
+            padding: 16px 18px;
             cursor: pointer;
             transition: transform .2s, box-shadow .2s, border-color .2s;
             text-decoration: none;
@@ -83,7 +83,7 @@
             background: var(--surface);
             border: 1.5px solid var(--border);
             border-radius: var(--radius);
-            padding: 20px 22px;
+            padding: 16px 18px;
             transition: box-shadow .2s, border-color .2s;
             position: relative;
         }
@@ -114,11 +114,11 @@
             background: var(--surface);
             border: 1.5px solid var(--border);
             border-radius: var(--radius);
-            padding: 24px;
+            padding: 20px;
         }
         .form-control:focus {
             border-color: var(--green-primary) !important;
-            box-shadow: 0 0 0 .2rem rgba(25,135,84,.2) !important;
+            box-shadow: 0 0 0 .25rem rgba(25,135,84,.2) !important;
         }
 
         /* ── Empty State ── */
@@ -133,7 +133,12 @@
             border-radius: 10px; padding: 14px 20px;
         }
 
-        @media (max-width: 768px) { #content { padding: 15px; } }
+        @media (min-width: 768px) {
+            #content { padding: 24px 30px; }
+            .user-card { padding: 22px 24px; }
+            .catatan-card { padding: 20px 22px; }
+            .form-card { padding: 24px; }
+        }
     </style>
 </head>
 <body>
@@ -145,9 +150,9 @@
         <div class="container-fluid px-0">
 
             {{-- ── TOP BAR ── --}}
-            <div class="d-flex align-items-center justify-content-between mb-4 mt-1 flex-wrap gap-2">
+            <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center justify-content-between mb-4 mt-1 gap-3">
                 <div class="d-flex align-items-center gap-3">
-                    <button type="button" id="sidebarCollapse" class="btn">
+                    <button type="button" id="sidebarCollapse" class="btn flex-shrink-0">
                         <i class="bi bi-list fs-4"></i>
                     </button>
                     <div>
@@ -168,7 +173,7 @@
 
                 @auth
                     {{-- Admin juga bisa tambah catatan sendiri --}}
-                    <button class="btn btn-success px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#modalTambahCatatan">
+                    <button class="btn btn-success px-4 fw-bold shadow-sm w-100 w-sm-auto flex-shrink-0 align-self-start align-self-sm-center" data-bs-toggle="modal" data-bs-target="#modalTambahCatatan">
                         <i class="bi bi-plus-circle me-2"></i>Tambah Catatan Saya
                     </button>
                 @endauth
@@ -268,13 +273,15 @@
                 <div class="fw-bold mb-3" style="font-size:.88rem;">
                     <i class="bi bi-people text-success me-2"></i>Catatan Pengguna Lain
                 </div>
-                <div class="filter-bar mb-4 d-flex align-items-center gap-3 flex-wrap">
-                    <i class="bi bi-search text-muted"></i>
-                    <input type="text" id="searchUserCard" class="form-control border-0 shadow-none p-0"
-                        style="max-width:300px; background:transparent;"
-                        placeholder="Cari nama pengguna...">
-                    <span class="ms-auto text-muted" style="font-size:.82rem;">
-                        {{ isset($usersWithCatatan) ? $usersWithCatatan->count() : 0 }} pengguna memiliki catatan
+                <div class="filter-bar mb-4 d-flex flex-column flex-md-row gap-3 justify-content-between align-items-stretch align-items-md-center">
+                    <div class="d-flex align-items-center gap-2 flex-grow-1" style="max-width: 400px;">
+                        <i class="bi bi-search text-muted flex-shrink-0"></i>
+                        <input type="text" id="searchUserCard" class="form-control border-0 shadow-none p-0 flex-grow-1"
+                            style="background:transparent;"
+                            placeholder="Cari nama pengguna...">
+                    </div>
+                    <span class="text-muted small flex-shrink-0" style="font-size:.82rem;">
+                        <i class="bi bi-people-fill me-1"></i>{{ isset($usersWithCatatan) ? $usersWithCatatan->count() : 0 }} pengguna memiliki catatan
                     </span>
                 </div>
 
@@ -285,18 +292,18 @@
                     <div class="col-sm-6 col-lg-4 col-xl-3 user-card-col" data-name="{{ strtolower($u->username) }}">
                         <a href="{{ route('catatan.by-user', $u->id) }}" class="user-card">
                             <div class="d-flex align-items-center gap-3 mb-3">
-                                <div class="user-avatar">
+                                <div class="user-avatar flex-shrink-0">
                                     {{ strtoupper(substr($u->username, 0, 1)) }}
                                 </div>
                                 <div class="flex-grow-1 overflow-hidden">
-                                    <div class="fw-bold text-truncate">{{ $u->username }}</div>
-                                    <div>
-                                        <span class="catatan-count-badge">
+                                    <div class="fw-bold text-truncate" title="{{ $u->username }}">{{ $u->username }}</div>
+                                    <div class="mt-1">
+                                        <span class="catatan-count-badge text-nowrap">
                                             <i class="bi bi-journal-text me-1"></i>{{ $u->catatans_count }} catatan
                                         </span>
                                     </div>
                                 </div>
-                                <i class="bi bi-chevron-right text-muted"></i>
+                                <i class="bi bi-chevron-right text-muted flex-shrink-0"></i>
                             </div>
 
                             {{-- Preview catatan terbaru --}}
@@ -331,19 +338,20 @@
             @else
 
                 {{-- Filter Label --}}
-                <div class="filter-bar mb-4 d-flex align-items-center gap-3 flex-wrap">
-                    <i class="bi bi-filter text-muted"></i>
-                    <span class="text-muted small fw-semibold">Filter:</span>
-                    <button class="btn btn-sm btn-success px-3 filter-btn active" data-filter="semua">Semua</button>
-                    @if(isset($catatans))
-                        @foreach($catatans->pluck('label')->unique() as $lbl)
-                        <button class="btn btn-sm btn-outline-success px-3 filter-btn" data-filter="{{ $lbl }}">
-                            {{ $lbl }}
-                        </button>
-                        @endforeach
-                    @endif
-                    <span class="ms-auto text-muted" style="font-size:.82rem;">
-                        {{ isset($catatans) ? $catatans->count() : 0 }} catatan
+                <div class="filter-bar mb-4 d-flex flex-column flex-md-row gap-3 justify-content-between align-items-stretch align-items-md-center">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="text-muted small fw-semibold me-1"><i class="bi bi-filter me-1"></i>Filter:</span>
+                        <button class="btn btn-sm btn-success px-3 filter-btn active" data-filter="semua">Semua</button>
+                        @if(isset($catatans))
+                            @foreach($catatans->pluck('label')->unique() as $lbl)
+                            <button class="btn btn-sm btn-outline-success px-3 filter-btn" data-filter="{{ $lbl }}">
+                                {{ $lbl }}
+                            </button>
+                            @endforeach
+                        @endif
+                    </div>
+                    <span class="text-muted small flex-shrink-0" style="font-size:.82rem;">
+                        <i class="bi bi-journal-text me-1"></i>{{ isset($catatans) ? $catatans->count() : 0 }} catatan
                     </span>
                 </div>
 

@@ -16,17 +16,40 @@
         :root { --primary-green: #198754; }
         body { font-family: 'Inter', sans-serif; background-color: #f4f7f6; overflow-x: hidden; }
         .wrapper { display: flex; width: 100%; align-items: stretch; }
-        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; min-height: 100vh; }
-        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary-green); border: none; color: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(25,135,84,0.2); display: flex; align-items: center; justify-content: center; }
+        #content { width: 100%; padding: 20px 30px; transition: all 0.3s; min-height: 100vh; min-width: 0; }
+        #sidebarCollapse { width: 45px; height: 45px; background: var(--primary-green); border: none; color: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(25,135,84,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .card { border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .table thead { background-color: var(--primary-green); color: white; }
-        .table thead th { font-size: 0.82rem; letter-spacing: 0.4px; font-weight: 600; }
+        .table thead th { font-size: 0.82rem; letter-spacing: 0.4px; font-weight: 600; white-space: nowrap; }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
-        .search-box-wrapper { max-width: 400px; }
+        .search-box-wrapper { min-width: 200px; flex: 1 1 220px; max-width: 420px; }
         input:focus, textarea:focus { border-color: #198754 !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(25,135,84,0.25) !important; }
         .row-hidden { display: none; }
-        @media (max-width: 768px) { #content { padding: 15px; } }
+
+        .mapel-card-mobile { display: none; }
+        .mapel-card-item {
+            background: #fff; border-radius: 12px; padding: 14px 16px;
+            margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 4px solid #198754;
+        }
+        .mapel-card-item .mc-name { font-weight: 700; font-size: 0.97rem; color: #1a3a3a; }
+        .mapel-card-item .mc-desc { font-size: 0.82rem; color: #6c757d; margin-top: 3px; }
+        .mapel-card-item .mc-actions { display: flex; gap: 8px; margin-top: 10px; }
+        .mapel-card-item .mc-actions .btn { flex: 1; font-size: 0.82rem; }
+
+        @media (max-width: 991px) {
+            #content { padding: 16px 18px; }
+        }
+        @media (max-width: 767px) {
+            #content { padding: 12px 12px; }
+            .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
+            .page-header .btn-tambah { width: 100%; }
+            .search-bar-wrapper { flex-direction: column; align-items: stretch !important; }
+            .search-box-wrapper { max-width: 100%; }
+            .table-mapel-desktop { display: none !important; }
+            .mapel-card-mobile { display: block; }
+        }
     </style>
 </head>
 <body>
@@ -44,12 +67,12 @@
         <div class="container-fluid">
 
             {{-- Header --}}
-            <div class="d-flex align-items-center justify-content-between mb-4 mt-2">
+            <div class="d-flex align-items-center justify-content-between mb-4 mt-2 flex-wrap gap-2 page-header">
                 <div class="d-flex align-items-center">
                     <button type="button" id="sidebarCollapse" class="btn"><i class="bi bi-list fs-4"></i></button>
                     <h4 class="ms-3 mb-0 fw-bold text-success">Data Mapel</h4>
                 </div>
-                @if($__canCreate)<button class="btn btn-success px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambahMapel">
+                @if($__canCreate)<button class="btn btn-success px-4 shadow-sm fw-bold btn-tambah" data-bs-toggle="modal" data-bs-target="#modalTambahMapel">
                     <i class="bi bi-journal-plus me-2"></i>Tambah Mapel
                 </button>@endif
             </div>
@@ -73,7 +96,7 @@
 
             {{-- Search Bar --}}
             <div class="card p-3 mb-4 shadow-sm">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 search-bar-wrapper">
                     <p class="text-muted small mb-0">Kelola data mata pelajaran (Mapel) sekolah dengan mudah.</p>
                     <div class="input-group search-box-wrapper">
                         <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
@@ -84,7 +107,7 @@
 
             {{-- Tabel Data --}}
             <div class="card p-4">
-                <div class="table-responsive">
+                <div class="table-responsive table-mapel-desktop">
                     <table class="table table-hover align-middle">
                         <thead>
                             <tr>
@@ -126,6 +149,37 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+
+                <div class="mapel-card-mobile" id="mobile-list-mapel">
+                    @forelse($mapels as $index => $m)
+                    <div class="mapel-card-item {{ $index >= 10 ? 'row-extra row-hidden' : '' }}">
+                        <div class="mc-name">{{ $m->nama_mapel }}</div>
+                        @if($m->deskripsi)
+                            <div class="mc-desc">{{ Str::limit($m->deskripsi, 100) }}</div>
+                        @else
+                            <div class="mc-desc fst-italic">Tidak ada deskripsi</div>
+                        @endif
+                        <div class="mc-actions">
+                            @if($__canEdit)<button class="btn btn-outline-success btn-sm"
+                                onclick="openEditModal('{{ $m->id }}', '{{ addslashes($m->nama_mapel) }}', '{{ addslashes($m->deskripsi) }}')">
+                                <i class="bi bi-pencil-square me-1"></i>Edit
+                            </button>@endif
+                            <form action="{{ route('mapel.destroy', $m->id) }}" method="POST" class="flex-fill"
+                                  onsubmit="return confirm('Hapus mapel {{ addslashes($m->nama_mapel) }}?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                                    <i class="bi bi-trash me-1"></i>Hapus
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-journal-x fs-3 d-block mb-2 text-secondary"></i>
+                        Belum ada data mata pelajaran.
+                    </div>
+                    @endforelse
                 </div>
 
                 {{-- Tombol Lihat Semua --}}
