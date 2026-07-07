@@ -4,11 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detail Kelas {{ $kelas->nama_kelas }}</title>
-    @if(isset($sekolah->logo))
-    <link rel="icon" type="image/png" href="{{ \App\Helpers\ImageHelper::url($sekolah->logo) }}">
-    @else
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/default-favicon.png') }}">
-    @endif
+        @include('favicon')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -94,6 +90,15 @@
         @media (max-width: 479px) {
             .page-header .btn-group-action { flex-direction: column; }
             .page-header .btn-group-action .btn { width: 100%; }
+        }
+        .selected-btn {
+            min-width: 75px;
+            transition: all 0.2s ease;
+        }
+        .selected-btn:hover {
+            background-color: #dc3545 !important;
+            border-color: #dc3545 !important;
+            color: white !important;
         }
     </style>
 </head>
@@ -190,7 +195,7 @@
                                 </div>
                                 @endif
                             </div>
-                            <form action="{{ route('kelas.removeWaliKelas', $kelas->id) }}" method="POST" class="m-0 flex-shrink-0">
+                            <form action="{{ route('kelas.removeWaliKelas', $kelas->uuid) }}" method="POST" class="m-0 flex-shrink-0">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2"
                                         onclick="return confirm('Hapus wali kelas ini?')"
@@ -344,11 +349,12 @@
             </div>
         </div>
     </div>
-
     {{-- ===== MODAL TAMBAH MURID ===== --}}
     <div class="modal fade" id="modalTambahMurid" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
-            <div class="modal-content border-0 shadow">
+            <form action="{{ route('kelas.addStudent') }}" method="POST" class="modal-content border-0 shadow m-0">
+                @csrf
+                <input type="hidden" name="id_kelas" value="{{ $kelas->id }}">
                 <div class="modal-header bg-success text-white">
                     <h5 class="modal-title fw-bold"><i class="bi bi-person-plus me-2"></i>Pilih Murid Untuk Kelas Ini</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -382,12 +388,10 @@
                                 <div class="fw-bold text-dark">{{ $mt->nama_lengkap }}</div>
                                 <small class="text-muted"><i class="bi bi-person-badge me-1"></i>NISN: {{ $mt->nisn }}</small>
                             </div>
-                            <form action="{{ route('kelas.addStudent') }}" method="POST" class="m-0 flex-shrink-0">
-                                @csrf
-                                <input type="hidden" name="id_kelas" value="{{ $kelas->id }}">
-                                <input type="hidden" name="id_murid" value="{{ $mt->id }}">
-                                <button type="submit" class="btn btn-sm btn-success px-3 fw-medium">Pilih</button>
-                            </form>
+                            <div class="flex-shrink-0">
+                                <input type="checkbox" name="id_murid[]" value="{{ $mt->id }}" id="chk-murid-{{ $mt->id }}" class="d-none murid-checkbox" onchange="toggleStudentSelection(this, 'btn-murid-{{ $mt->id }}')">
+                                <button type="button" id="btn-murid-{{ $mt->id }}" class="btn btn-sm btn-outline-success px-3 fw-medium murid-select-btn" onclick="toggleCheckboxClick('chk-murid-{{ $mt->id }}')">Pilih</button>
+                            </div>
                         </div>
                         @empty
                         <div class="text-center py-5">
@@ -402,14 +406,20 @@
                         </div>
                     </div>
                 </div>
-            </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success" id="btnSimpanMurid" disabled><i class="bi bi-save me-1"></i>Simpan</button>
+                </div>
+            </form>
         </div>
     </div>
 
     {{-- ===== MODAL WALI KELAS ===== --}}
     <div class="modal fade" id="modalWaliKelas" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
-            <div class="modal-content border-0 shadow">
+            <form action="{{ route('kelas.setWaliKelas', $kelas->uuid) }}" method="POST" class="modal-content border-0 shadow m-0">
+                @csrf
+                <input type="hidden" name="id_guru" id="selected_id_guru" value="">
                 <div class="modal-header bg-success text-white">
                     <h5 class="modal-title fw-bold"><i class="bi bi-person-badge me-2"></i>Pilih Wali Kelas</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -445,11 +455,9 @@
                                     <i class="bi bi-book me-1"></i>{{ $guru->mapel ?? '-' }}
                                 </small>
                             </div>
-                            <form action="{{ route('kelas.setWaliKelas', $kelas->id) }}" method="POST" class="m-0 flex-shrink-0">
-                                @csrf
-                                <input type="hidden" name="id_guru" value="{{ $guru->id }}">
-                                <button type="submit" class="btn btn-sm btn-success px-3 fw-medium">Pilih</button>
-                            </form>
+                            <div class="flex-shrink-0">
+                                <button type="button" id="btn-guru-{{ $guru->id }}" class="btn btn-sm btn-outline-success px-3 fw-medium guru-select-btn" onclick="selectGuru('{{ $guru->id }}', 'btn-guru-{{ $guru->id }}')">Pilih</button>
+                            </div>
                         </div>
                         @empty
                         <div class="text-center py-5">
@@ -464,7 +472,11 @@
                         </div>
                     </div>
                 </div>
-            </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success" id="btnSimpanGuru" disabled><i class="bi bi-save me-1"></i>Simpan</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -493,6 +505,82 @@
             });
             if (overlay)     overlay.addEventListener('click', toggleSidebar);
         })();
+
+        // ── Selection & Toggle Logic ──────────────────────────────────
+        function toggleCheckboxClick(checkboxId) {
+            const checkbox = document.getElementById(checkboxId);
+            checkbox.checked = !checkbox.checked;
+            checkbox.dispatchEvent(new Event('change'));
+        }
+
+        function toggleStudentSelection(checkbox, buttonId) {
+            const btn = document.getElementById(buttonId);
+            if (checkbox.checked) {
+                btn.classList.remove('btn-outline-success');
+                btn.classList.add('btn-success', 'selected-btn');
+                btn.innerHTML = '<i class="bi bi-check-lg"></i>';
+            } else {
+                btn.classList.remove('btn-success', 'selected-btn', 'btn-danger');
+                btn.classList.add('btn-outline-success');
+                btn.innerHTML = 'Pilih';
+            }
+            updateSubmitButtonState('modalTambahMurid', '.murid-checkbox');
+        }
+
+        function selectGuru(guruId, buttonId) {
+            const hiddenInput = document.getElementById('selected_id_guru');
+            const allButtons = document.querySelectorAll('.guru-select-btn');
+            const targetBtn = document.getElementById(buttonId);
+
+            if (hiddenInput.value == guruId) {
+                // Deselect
+                hiddenInput.value = '';
+                targetBtn.classList.remove('btn-success', 'selected-btn', 'btn-danger');
+                targetBtn.classList.add('btn-outline-success');
+                targetBtn.innerHTML = 'Pilih';
+            } else {
+                // Select this one, deselect others
+                hiddenInput.value = guruId;
+                allButtons.forEach(btn => {
+                    btn.classList.remove('btn-success', 'selected-btn', 'btn-danger');
+                    btn.classList.add('btn-outline-success');
+                    btn.innerHTML = 'Pilih';
+                });
+                targetBtn.classList.remove('btn-outline-success');
+                targetBtn.classList.add('btn-success', 'selected-btn');
+                targetBtn.innerHTML = '<i class="bi bi-check-lg"></i>';
+            }
+            updateSubmitButtonState('modalWaliKelas', '#selected_id_guru');
+        }
+
+        function updateSubmitButtonState(modalId, selector) {
+            const modal = document.getElementById(modalId);
+            const submitBtn = modal.querySelector('button[type="submit"]');
+            if (selector === '#selected_id_guru') {
+                const val = document.getElementById('selected_id_guru').value;
+                submitBtn.disabled = val === '';
+            } else {
+                const checkedCount = modal.querySelectorAll('.murid-checkbox:checked').length;
+                submitBtn.disabled = checkedCount === 0;
+            }
+        }
+
+        // Hover events for selected buttons to show 'x'
+        document.addEventListener('mouseenter', function(e) {
+            if (e.target && e.target.classList.contains('selected-btn')) {
+                e.target.classList.remove('btn-success');
+                e.target.classList.add('btn-danger');
+                e.target.innerHTML = '<i class="bi bi-x-lg"></i>';
+            }
+        }, true);
+
+        document.addEventListener('mouseleave', function(e) {
+            if (e.target && e.target.classList.contains('selected-btn')) {
+                e.target.classList.remove('btn-danger');
+                e.target.classList.add('btn-success');
+                e.target.innerHTML = '<i class="bi bi-check-lg"></i>';
+            }
+        }, true);
 
         // ── Pencarian generik (murid & guru) ─────────────────────────
         function setupSearch(inputId, itemClass, notFoundId) {
@@ -528,16 +616,32 @@
         setupSearch('searchMurid', 'student-select-item', 'muridNotFound');
         setupSearch('searchGuru',  'guru-select-item',    'guruNotFound');
 
-        // Reset pencarian saat modal ditutup
+        // Reset pencarian & seleksi saat modal ditutup
         document.getElementById('modalTambahMurid').addEventListener('hidden.bs.modal', function () {
             const inp = document.getElementById('searchMurid');
             inp.value = '';
             inp.dispatchEvent(new Event('keyup'));
+            
+            const checkboxes = this.querySelectorAll('.murid-checkbox');
+            checkboxes.forEach(chk => {
+                chk.checked = false;
+                chk.dispatchEvent(new Event('change'));
+            });
         });
         document.getElementById('modalWaliKelas').addEventListener('hidden.bs.modal', function () {
             const inp = document.getElementById('searchGuru');
             inp.value = '';
             inp.dispatchEvent(new Event('keyup'));
+
+            const hiddenInput = document.getElementById('selected_id_guru');
+            hiddenInput.value = '';
+            const allButtons = this.querySelectorAll('.guru-select-btn');
+            allButtons.forEach(btn => {
+                btn.classList.remove('btn-success', 'selected-btn', 'btn-danger');
+                btn.classList.add('btn-outline-success');
+                btn.innerHTML = 'Pilih';
+            });
+            updateSubmitButtonState('modalWaliKelas', '#selected_id_guru');
         });
     </script>
 </body>

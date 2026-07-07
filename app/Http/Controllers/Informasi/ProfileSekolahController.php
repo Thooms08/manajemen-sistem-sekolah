@@ -56,9 +56,9 @@ class ProfileSekolahController extends Controller
         return redirect()->back()->with('success', 'Data berhasil ditambahkan!');
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $uuid)
     {
-        $profile = ProfileSekolah::findOrFail($id);
+        $profile = ProfileSekolah::where('uuid', $uuid)->firstOrFail();
 
         $request->validate([
             'nama_sekolah' => 'required|string|max:255',
@@ -84,9 +84,9 @@ class ProfileSekolahController extends Controller
         return redirect()->back()->with('success', 'Data berhasil diperbarui!');
     }
 
-    public function destroy($id)
+    public function destroy($uuid)
     {
-        $profile = ProfileSekolah::findOrFail($id);
+        $profile = ProfileSekolah::where('uuid', $uuid)->firstOrFail();
 
         $this->deleteStorageFile($profile->logo);
         $this->deleteStorageFile($profile->foto_sekolah);
@@ -95,9 +95,9 @@ class ProfileSekolahController extends Controller
         return redirect()->back()->with('success', 'Data berhasil dihapus!');
     }
 
-    public function deleteImage(Request $request, $id)
+    public function deleteImage(Request $request, $uuid)
     {
-        $profile = ProfileSekolah::findOrFail($id);
+        $profile = ProfileSekolah::where('uuid', $uuid)->firstOrFail();
         $type    = $request->query('type'); // 'logo' atau 'foto_sekolah'
 
         if (in_array($type, ['logo', 'foto_sekolah'])) {

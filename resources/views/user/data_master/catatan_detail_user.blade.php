@@ -1,15 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Catatan — {{ $pemilik->username }}</title>
-    @if(isset($sekolah->logo))
-    <link rel="icon" type="image/png" href="{{ \App\Helpers\ImageHelper::url($sekolah->logo) }}">
-    @else
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/default-favicon.png') }}">
-    @endif
+        @include('favicon')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -46,8 +42,9 @@
             padding: 16px 18px;
             color: #fff;
             display: flex;
-            flex-direction: column;
-            gap: 12px;
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
         }
         .owner-avatar {
             width: 56px; height: 56px; border-radius: 14px;
@@ -61,6 +58,16 @@
             border: 1px solid rgba(255,255,255,.3);
             border-radius: 50px;
             padding: 3px 12px; font-size: .75rem; font-weight: 600;
+            white-space: nowrap;
+        }
+        .owner-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .owner-info .fw-bold {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         /* ── Catatan Card ── */
@@ -114,24 +121,17 @@
 
         @media (min-width: 768px) {
             #content { padding: 24px 30px; }
-            .owner-banner {
-                padding: 22px 28px;
-                flex-direction: row;
-                align-items: center;
-                gap: 18px;
-            }
+            .owner-banner { padding: 22px 28px; gap: 20px; }
             .catatan-card { padding: 20px 22px; }
             .filter-bar { padding: 14px 20px; }
         }
 
         @media (max-width: 576px) {
-            .top-bar { flex-wrap: wrap; align-items: flex-start !important; }
+            .owner-banner { gap: 12px; }
+            .owner-avatar { width: 46px; height: 46px; font-size: 1.2rem; }
             .filter-bar .filter-btn { width: 100%; }
             .input-group { max-width: 100% !important; }
-            .catatan-card-footer {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+            .catatan-card-footer { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
@@ -144,18 +144,21 @@
         <div class="container-fluid px-0">
 
             {{-- ── TOP BAR ── --}}
-            <div class="top-bar d-flex align-items-center gap-3 mb-4 mt-1">
-                <button type="button" id="sidebarCollapse" class="btn">
-                    <i class="bi bi-list fs-4"></i>
-                </button>
-                <div>
-                    <a href="{{ route('catatan.index') }}" class="text-muted text-decoration-none small">
-                        <i class="bi bi-arrow-left-circle me-1"></i>Kembali ke Semua Catatan
-                    </a>
-                    <h5 class="mb-0 fw-bold mt-1">
-                        <i class="bi bi-journal-text text-success me-2"></i>
-                        Catatan dari <span class="text-success">{{ $pemilik->username }}</span>
-                    </h5>
+            <div class="top-bar d-flex align-items-center justify-content-between mb-4 mt-1 gap-2 flex-wrap">
+                <div class="d-flex align-items-center gap-3 flex-shrink-0" style="min-width:0;">
+                    <button type="button" id="sidebarCollapse" class="btn flex-shrink-0">
+                        <i class="bi bi-list fs-4"></i>
+                    </button>
+                    <div style="min-width:0;">
+                        <a href="{{ route('catatan.index') }}" class="text-muted text-decoration-none small d-flex align-items-center gap-1">
+                            <i class="bi bi-arrow-left-circle"></i>
+                            <span>Kembali ke Semua Catatan</span>
+                        </a>
+                        <h5 class="mb-0 fw-bold mt-1 text-truncate">
+                            <i class="bi bi-journal-text text-success me-2"></i>Catatan —
+                            <span class="text-success">{{ $pemilik->username }}</span>
+                        </h5>
+                    </div>
                 </div>
             </div>
 
@@ -168,11 +171,11 @@
             @endif
 
             {{-- ── OWNER BANNER ── --}}
-            <div class="owner-banner mb-4 align-items-center align-items-md-start text-center text-sm-start">
+            <div class="owner-banner mb-4">
                 <div class="owner-avatar">{{ strtoupper(substr($pemilik->username, 0, 1)) }}</div>
-                <div class="w-100">
-                    <div class="fw-bold fs-5">{{ $pemilik->username }}</div>
-                    <div class="d-flex align-items-center justify-content-center justify-content-sm-start gap-2 mt-1 flex-wrap">
+                <div class="owner-info">
+                    <div class="fw-bold fs-5" title="{{ $pemilik->username }}">{{ $pemilik->username }}</div>
+                    <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
                         <span class="owner-role-badge">
                             <i class="bi bi-shield-check me-1"></i>{{ $pemilik->role ?? $pemilik->rules ?? 'user' }}
                         </span>

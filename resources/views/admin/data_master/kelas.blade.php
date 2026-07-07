@@ -4,11 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Kelas</title>
-    @if(isset($sekolah->logo))
-    <link rel="icon" type="image/png" href="{{ \App\Helpers\ImageHelper::url($sekolah->logo) }}">
-    @else
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/default-favicon.png') }}">
-    @endif
+        @include('favicon')
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -206,7 +202,7 @@
                         @endphp
                     <div class="col-6 col-sm-4 col-md-4 col-lg-3">
                         <div class="card class-card shadow-sm h-100 {{ $cardClass }}">
-                            <a href="{{ route('kelas.show', $k->id) }}" class="card-body-link">
+                            <a href="{{ route('kelas.show', $k->uuid) }}" class="card-body-link">
                                 <div class="card-body p-3 p-md-4 text-center">
                                     <div class="icon-box">
                                         <i class="bi bi-door-open-fill"></i>
@@ -227,10 +223,10 @@
                             </a>
                             <div class="card-footer bg-white border-0 pb-3 text-center px-2">
                                 <button class="btn btn-sm btn-outline-success border-0 w-100 mb-1"
-                                    onclick="openEditModal('{{ $k->id }}', '{{ $k->nama_kelas }}')">
+                                    onclick="openEditModal('{{ $k->uuid }}', '{{ $k->nama_kelas }}')">
                                     <i class="bi bi-pencil-square me-1"></i>Edit Kelas
                                 </button>
-                                <form action="{{ route('kelas.destroy', $k->id) }}" method="POST"
+                                <form action="{{ route('kelas.destroy', $k->uuid) }}" method="POST"
                                       onsubmit="return confirm('Hapus kelas ini? Semua data murid di dalamnya akan terlepas.')">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-outline-danger fw-semibold border-0 w-100">

@@ -1,15 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Jadwal Mengajar</title>
-    @if(isset($sekolah->logo))
-    <link rel="icon" type="image/png" href="{{ \App\Helpers\ImageHelper::url($sekolah->logo) }}">
-    @else
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/default-favicon.png') }}">
-    @endif
+        @include('favicon')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -25,71 +21,36 @@
         input:focus, textarea:focus, select:focus { border-color: #198754 !important; outline: none !important; box-shadow: 0 0 0 0.2rem rgba(25,135,84,0.25) !important; }
         #overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1040; top: 0; left: 0; }
         #overlay.active { display: block; }
-
-        /* Tabel jadwal per hari */
         .hari-section { margin-bottom: 1.5rem; }
-        .hari-header {
-            background: var(--primary-green);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 8px 8px 0 0;
-            font-weight: 600;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .hari-header .badge-count {
-            background: rgba(255,255,255,0.25);
-            color: white;
-            border-radius: 50px;
-            padding: 1px 10px;
-            font-size: 0.78rem;
-        }
+        .hari-header { background: var(--primary-green); color: white; padding: 8px 16px; border-radius: 8px 8px 0 0; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .hari-header .badge-count { background: rgba(255,255,255,0.25); color: white; border-radius: 50px; padding: 1px 10px; font-size: 0.78rem; }
         .table-jadwal { border-radius: 0 0 8px 8px; overflow: hidden; margin-bottom: 0; }
         .table-jadwal thead { background-color: #f0f9f4; }
         .table-jadwal thead th { font-size: 0.8rem; font-weight: 600; color: #555; border-top: none; white-space: nowrap; }
         .table-jadwal tbody tr:hover { background-color: #f8fff9; }
         .jam-badge { background: #e8f5e9; color: #2e7d32; border-radius: 6px; padding: 3px 10px; font-size: 0.82rem; font-weight: 600; white-space: nowrap; display: inline-block; }
         .empty-hari { background: #f8f9fa; padding: 12px 16px; border-radius: 0 0 8px 8px; color: #adb5bd; font-size: 0.85rem; text-align: center; border: 1px solid #dee2e6; border-top: none; }
-
-        /* Filter bar */
         .filter-bar { background: white; border-radius: 12px; padding: 16px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 1.5rem; }
-
-        /* Card jadwal mobile */
         .jadwal-card-mobile { display: none; }
-        .jadwal-card-item {
-            background: #fff; border-radius: 10px; padding: 12px 14px;
-            margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-            border-left: 3px solid #198754;
-        }
+        .jadwal-card-item { background: #fff; border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); border-left: 3px solid #198754; }
         .jadwal-card-item .jc-jam { font-weight: 700; color: #14532d; font-size: 0.92rem; }
         .jadwal-card-item .jc-mapel { font-weight: 600; font-size: 0.9rem; color: #1e293b; }
         .jadwal-card-item .jc-meta { font-size: 0.78rem; color: #6c757d; margin-top: 3px; }
         .jadwal-card-item .jc-actions { display: flex; gap: 6px; margin-top: 8px; }
         .jadwal-card-item .jc-actions .btn { flex: 1; font-size: 0.8rem; }
-
-        /* ── Responsive ── */
-        @media (max-width: 991px) {
-            #content { padding: 16px 18px; }
-            .filter-bar .row { row-gap: 8px; }
-        }
+        @media (max-width: 991px) { #content { padding: 16px 18px; } .filter-bar .row { row-gap: 8px; } }
         @media (max-width: 767px) {
             #content { padding: 12px 12px; }
-            .filter-bar { padding: 12px 14px; }
-            /* Sembunyikan tabel, tampilkan card mobile */
+            .filter-bar { padding: 10px 12px; }
+            .filter-bar form { row-gap: 6px !important; }
+            .filter-bar .row { --bs-gutter-y: 0; row-gap: 6px; }
+            .filter-bar .col-12 label { font-size: 0.72rem !important; margin-bottom: 2px !important; }
             .table-jadwal-desktop { display: none !important; }
             .jadwal-card-mobile { display: block; }
-            /* Header proporsional */
             .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
             .page-header .btn-tambah { width: 100%; }
-            /* Filter stack vertikal */
-            .filter-bar .col-auto { flex: 1 1 100%; }
-            .filter-bar .col-auto.ms-auto { flex: 0 0 auto; }
-            .filter-bar .btn { width: 100%; }
-            .filter-bar form { flex-direction: column; }
-            /* Hari header */
+            .filter-bar .col-auto { flex: 1 1 100%; } .filter-bar .col-auto.ms-auto { flex: 0 0 auto; }
+            .filter-bar .btn { width: 100%; } .filter-bar form { flex-direction: column; }
             .hari-header { font-size: 0.85rem; padding: 7px 12px; }
         }
     </style>
@@ -98,7 +59,6 @@
 <div id="overlay"></div>
 <div class="wrapper">
     @include('admin.sidebar')
-
     <div id="content">
         <div class="container-fluid">
 
@@ -138,20 +98,25 @@
                         <select name="filter_guru" class="form-select form-select-sm select2-filter">
                             <option value="">Semua Guru</option>
                             @foreach($guruList as $g)
-                                <option value="{{ $g->id }}" {{ request('filter_guru') == $g->id ? 'selected' : '' }}>
-                                    {{ $g->nama_guru }}
-                                </option>
+                                <option value="{{ $g->id }}" {{ request('filter_guru') == $g->id ? 'selected' : '' }}>{{ $g->nama_guru }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-sm-6 col-md-3">
+                    <div class="col-12 col-sm-6 col-md-2">
+                        <label class="form-label small fw-semibold mb-1">Filter Mapel</label>
+                        <select name="filter_mapel" class="form-select form-select-sm select2-filter">
+                            <option value="">Semua Mapel</option>
+                            @foreach($mapelList as $m)
+                                <option value="{{ $m->id }}" {{ request('filter_mapel') == $m->id ? 'selected' : '' }}>{{ $m->nama_mapel }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-2">
                         <label class="form-label small fw-semibold mb-1">Filter Kelas</label>
                         <select name="filter_kelas" class="form-select form-select-sm select2-filter">
                             <option value="">Semua Kelas</option>
                             @foreach($kelasList as $k)
-                                <option value="{{ $k->id }}" {{ request('filter_kelas') == $k->id ? 'selected' : '' }}>
-                                    {{ $k->nama_kelas }}
-                                </option>
+                                <option value="{{ $k->id }}" {{ request('filter_kelas') == $k->id ? 'selected' : '' }}>{{ $k->nama_kelas }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -179,6 +144,7 @@
                     </div>
                 </form>
             </div>
+
 
             {{-- Tabel Jadwal Per Hari --}}
             @php
@@ -221,30 +187,30 @@
                                             {{ \Carbon\Carbon::createFromFormat('H:i:s', $j->jam_selesai)->format('H:i') }}
                                         </span>
                                     </td>
+                                    <td><span class="fw-semibold">{{ $j->guru->nama_guru ?? '-' }}</span></td>
                                     <td>
-                                        <span class="fw-semibold">{{ $j->guru->nama_guru ?? '-' }}</span>
+                                        @if($j->mapel)
+                                            <span class="badge bg-secondary bg-opacity-10 text-secondary px-2 py-1">{{ $j->mapel->nama_mapel }}</span>
+                                        @else
+                                            <span class="text-muted small">-</span>
+                                        @endif
                                     </td>
                                     <td>
-                                        <span class="badge bg-secondary bg-opacity-10 text-secondary px-2 py-1">
-                                            {{ $j->mapel->nama_mapel ?? '-' }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-info bg-opacity-10 text-info px-2 py-1">
-                                            {{ $j->kelas->nama_kelas ?? '-' }}
-                                        </span>
+                                        @if($j->kelas)
+                                            <span class="badge bg-info bg-opacity-10 text-info px-2 py-1">{{ $j->kelas->nama_kelas }}</span>
+                                        @else
+                                            <span class="text-muted small">-</span>
+                                        @endif
                                     </td>
                                     <td class="text-muted small">{{ $j->ruangan ?? '-' }}</td>
                                     <td class="text-center">
                                         <div class="btn-group">
-                                            <button class="btn btn-sm btn-outline-success border-0"
-                                                title="Edit"
+                                            <button class="btn btn-sm btn-outline-success border-0" title="Edit"
                                                 onclick="openEditModal({{ $j->id }})">
                                                 <i class="bi bi-pencil-square"></i>
                                             </button>
-                                            <button class="btn btn-sm btn-outline-danger border-0"
-                                                title="Hapus"
-                                                onclick="hapusJadwal({{ $j->id }}, '{{ addslashes($j->guru->nama_guru ?? '') }}', '{{ $hari }}')">
+                                            <button class="btn btn-sm btn-outline-danger border-0" title="Hapus"
+                                                onclick="hapusJadwal({{ $j->id }}, '{{ addslashes($j->guru->nama_guru ?? '') }}', '{{ addslashes($j->mapel->nama_mapel ?? '-') }}', '{{ $hari }}')">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </div>
@@ -257,7 +223,7 @@
 
                     {{-- MOBILE CARD LIST --}}
                     <div class="jadwal-card-mobile px-1 pt-1 pb-1" style="background:#f8f9fa; border:1px solid #dee2e6; border-top:none; border-radius:0 0 8px 8px;">
-                        @foreach($rowsHari as $i => $j)
+                        @foreach($rowsHari as $j)
                         <div class="jadwal-card-item mt-2">
                             <div class="d-flex justify-content-between align-items-start">
                                 <span class="jam-badge jc-jam">
@@ -268,14 +234,23 @@
                                     <span class="badge bg-warning bg-opacity-20 text-dark" style="font-size:0.75rem;">{{ $j->ruangan }}</span>
                                 @endif
                             </div>
-                            <div class="jc-mapel mt-1">{{ $j->mapel->nama_mapel ?? '-' }}</div>
+                            <div class="jc-mapel mt-1">
+                                @if($j->mapel)
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary px-2 py-1">{{ $j->mapel->nama_mapel }}</span>
+                                @endif
+                            </div>
                             <div class="jc-meta"><i class="bi bi-person me-1"></i>{{ $j->guru->nama_guru ?? '-' }}</div>
-                            <div class="jc-meta"><i class="bi bi-mortarboard me-1"></i>{{ $j->kelas->nama_kelas ?? '-' }}</div>
+                            <div class="jc-meta"><i class="bi bi-mortarboard me-1"></i>
+                                @if($j->kelas)
+                                    <span class="badge bg-info bg-opacity-10 text-info px-1">{{ $j->kelas->nama_kelas }}</span>
+                                @else -
+                                @endif
+                            </div>
                             <div class="jc-actions">
                                 <button class="btn btn-outline-success btn-sm" onclick="openEditModal({{ $j->id }})">
                                     <i class="bi bi-pencil-square me-1"></i>Edit
                                 </button>
-                                <button class="btn btn-outline-danger btn-sm" onclick="hapusJadwal({{ $j->id }}, '{{ addslashes($j->guru->nama_guru ?? '') }}', '{{ $hari }}')">
+                                <button class="btn btn-outline-danger btn-sm" onclick="hapusJadwal({{ $j->id }}, '{{ addslashes($j->guru->nama_guru ?? '') }}', '{{ addslashes($j->mapel->nama_mapel ?? '-') }}', '{{ $hari }}')">
                                     <i class="bi bi-trash me-1"></i>Hapus
                                 </button>
                             </div>
@@ -287,7 +262,7 @@
                         <div class="empty-hari">
                             <i class="bi bi-calendar-x me-1"></i>
                             Tidak ada jadwal untuk hari {{ $hari }}
-                            @if(request()->hasAny(['filter_guru','filter_kelas','filter_hari']))
+                            @if(request()->hasAny(['filter_guru','filter_kelas','filter_mapel','filter_hari']))
                                 dengan filter yang dipilih
                             @endif
                         </div>
@@ -315,31 +290,33 @@
                 <div class="modal-body p-4">
                     <div class="row g-3">
                         {{-- Guru --}}
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <label class="form-label fw-semibold small">Guru <span class="text-danger">*</span></label>
-                            <select name="id_guru" id="tambah_guru" class="form-select select2-guru" required>
+                            <select name="id_guru" id="tambah_guru" class="form-select select2-modal-guru" required>
                                 <option value="">-- Pilih Guru --</option>
                                 @foreach($guruList as $g)
                                     <option value="{{ $g->id }}">{{ $g->nama_guru }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        {{-- Mata Pelajaran --}}
+                        {{-- Mata Pelajaran (cascade dari guru) --}}
                         <div class="col-md-6">
                             <label class="form-label fw-semibold small">Mata Pelajaran <span class="text-danger">*</span></label>
-                            <select name="id_mapel" id="tambah_mapel" class="form-select select2-mapel" required disabled>
-                                <option value="">-- Pilih Guru Dulu --</option>
+                            <select name="id_mapel" id="tambah_mapel" class="form-select select2-modal-mapel" required disabled>
+                                <option value="">-- Pilih guru terlebih dahulu --</option>
                             </select>
+                            <div class="form-text text-muted" id="tambah_mapel_hint">Pilih guru untuk memuat daftar mata pelajaran.</div>
                         </div>
-                        {{-- Kelas --}}
+                        {{-- Kelas (cascade dari guru + mapel) --}}
                         <div class="col-md-6">
                             <label class="form-label fw-semibold small">Kelas <span class="text-danger">*</span></label>
-                            <select name="id_kelas" id="tambah_kelas" class="form-select select2-kelas" required disabled>
-                                <option value="">-- Pilih Mapel Dulu --</option>
+                            <select name="id_kelas" id="tambah_kelas" class="form-select select2-modal-kelas" required disabled>
+                                <option value="">-- Pilih mata pelajaran terlebih dahulu --</option>
                             </select>
+                            <div class="form-text text-muted" id="tambah_kelas_hint">Pilih mata pelajaran untuk memuat daftar kelas.</div>
                         </div>
                         {{-- Hari --}}
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label fw-semibold small">Hari <span class="text-danger">*</span></label>
                             <select name="hari" class="form-select" required>
                                 <option value="">-- Pilih Hari --</option>
@@ -359,15 +336,15 @@
                             <input type="time" name="jam_selesai" class="form-control" value="{{ old('jam_selesai') }}" required>
                         </div>
                         {{-- Ruangan --}}
-                        <div class="col-md-4">
+                        <div class="col-md-12">
                             <label class="form-label fw-semibold small">Ruangan <span class="text-muted fw-normal">(opsional)</span></label>
                             <input type="text" name="ruangan" class="form-control" placeholder="Contoh: Kelas 7A, Lab IPA" value="{{ old('ruangan') }}" maxlength="100">
                         </div>
                     </div>
-                    {{-- Info --}}
                     <div class="alert alert-info py-2 mt-3 mb-0" style="font-size:0.82rem;">
                         <i class="bi bi-info-circle me-1"></i>
-                        Sistem akan otomatis mendeteksi jika terdapat <strong>benturan jadwal</strong> antar guru maupun kelas.
+                        Dropdown <strong>mata pelajaran</strong> dan <strong>kelas</strong> hanya menampilkan data yang sudah terdaftar pada guru bersangkutan.
+                        Sistem juga akan mendeteksi <strong>benturan jadwal</strong> otomatis.
                     </div>
                 </div>
                 <div class="modal-footer border-0 pt-0">
@@ -380,6 +357,7 @@
         </div>
     </div>
 </div>
+
 
 {{-- ══════════════════════════════════════════════
      MODAL: EDIT JADWAL
@@ -423,9 +401,88 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+// ── URL helper ────────────────────────────────────────────────────
+const URL_MAPEL_BY_GURU     = "{{ route('jadwal-mengajar.mapel-by-guru', ['id_guru' => '__GURU__']) }}";
+const URL_KELAS_BY_GURU_MAP = "{{ route('jadwal-mengajar.kelas-by-guru-mapel') }}";
+
+/**
+ * Muat dropdown mapel berdasarkan guru yang dipilih.
+ * @param {string} guruId
+ * @param {string} prefix        - 'tambah' | 'edit'
+ * @param {string|null} selectedMapel - id mapel yang harus dipilih (untuk edit)
+ * @param {string|null} selectedKelas - id kelas yang harus dipilih (untuk edit)
+ */
+function loadMapelByGuru(guruId, prefix, selectedMapel = null, selectedKelas = null) {
+    const $mapelSel = $(`#${prefix}_mapel`);
+    const $kelasSel = $(`#${prefix}_kelas`);
+
+    // Reset kelas
+    $kelasSel.empty().append('<option value="">-- Pilih mata pelajaran terlebih dahulu --</option>').prop('disabled', true);
+    if ($kelasSel.hasClass('select2-modal-kelas-init')) {
+        $kelasSel.trigger('change');
+    }
+
+    if (!guruId) {
+        $mapelSel.empty().append('<option value="">-- Pilih guru terlebih dahulu --</option>').prop('disabled', true);
+        return;
+    }
+
+    $mapelSel.empty().append('<option value="">Memuat...</option>').prop('disabled', true);
+
+    const url = URL_MAPEL_BY_GURU.replace('__GURU__', guruId);
+    $.get(url, function (data) {
+        $mapelSel.empty().append('<option value="">-- Pilih Mata Pelajaran --</option>');
+        if (data.length === 0) {
+            $mapelSel.append('<option value="" disabled>Tidak ada mata pelajaran terdaftar</option>');
+        } else {
+            data.forEach(m => {
+                const sel = selectedMapel && m.id == selectedMapel ? 'selected' : '';
+                $mapelSel.append(`<option value="${m.id}" ${sel}>${m.nama_mapel}</option>`);
+            });
+        }
+        $mapelSel.prop('disabled', false);
+
+        // Jika ada preselect mapel → muat kelas juga
+        if (selectedMapel) {
+            loadKelasByGuruMapel(guruId, selectedMapel, prefix, selectedKelas);
+        }
+    }).fail(function () {
+        $mapelSel.empty().append('<option value="">Gagal memuat data</option>');
+    });
+}
+
+/**
+ * Muat dropdown kelas berdasarkan guru + mapel yang dipilih.
+ */
+function loadKelasByGuruMapel(guruId, mapelId, prefix, selectedKelas = null) {
+    const $kelasSel = $(`#${prefix}_kelas`);
+
+    if (!guruId || !mapelId) {
+        $kelasSel.empty().append('<option value="">-- Pilih mata pelajaran terlebih dahulu --</option>').prop('disabled', true);
+        return;
+    }
+
+    $kelasSel.empty().append('<option value="">Memuat...</option>').prop('disabled', true);
+
+    $.get(URL_KELAS_BY_GURU_MAP, { id_guru: guruId, id_mapel: mapelId }, function (data) {
+        $kelasSel.empty().append('<option value="">-- Pilih Kelas --</option>');
+        if (data.length === 0) {
+            $kelasSel.append('<option value="" disabled>Tidak ada kelas terdaftar</option>');
+        } else {
+            data.forEach(k => {
+                const sel = selectedKelas && k.id == selectedKelas ? 'selected' : '';
+                $kelasSel.append(`<option value="${k.id}" ${sel}>${k.nama_kelas}</option>`);
+            });
+        }
+        $kelasSel.prop('disabled', false);
+    }).fail(function () {
+        $kelasSel.empty().append('<option value="">Gagal memuat data</option>');
+    });
+}
+
 $(document).ready(function () {
 
-    // ── Sidebar Toggle ──────────────────────────────────────────────
+    // ── Sidebar Toggle ─────────────────────────────────────────────
     function toggleSidebar() {
         if ($(window).width() <= 768) {
             $('#sidebar').toggleClass('show-mobile');
@@ -436,69 +493,32 @@ $(document).ready(function () {
     }
     $('#sidebarCollapse, #close-sidebar, #overlay').on('click', toggleSidebar);
 
-    // ── Select2 untuk filter --
+    // ── Select2 filter bar ─────────────────────────────────────────
     $('.select2-filter').select2({ theme: 'bootstrap-5', width: '100%', placeholder: 'Semua' });
 
-    // ── Select2 untuk modal tambah --
-    function initSelect2Modal(prefix) {
-        $(`#${prefix}_guru`).select2({ theme: 'bootstrap-5', width: '100%', dropdownParent: $(`#modalTambah`), placeholder: '-- Pilih Guru --' });
-        $(`#${prefix}_mapel`).select2({ theme: 'bootstrap-5', width: '100%', dropdownParent: $(`#modalTambah`), placeholder: '-- Pilih Guru Dulu --' });
-        $(`#${prefix}_kelas`).select2({ theme: 'bootstrap-5', width: '100%', dropdownParent: $(`#modalTambah`), placeholder: '-- Pilih Mapel Dulu --' });
-    }
-    initSelect2Modal('tambah');
+    // ── Select2 modal tambah ───────────────────────────────────────
+    $('#tambah_guru').select2({ theme: 'bootstrap-5', width: '100%', dropdownParent: $('#modalTambah'), placeholder: '-- Pilih Guru --' });
+    $('#tambah_mapel').select2({ theme: 'bootstrap-5', width: '100%', dropdownParent: $('#modalTambah'), placeholder: '-- Pilih Mata Pelajaran --' });
+    $('#tambah_kelas').select2({ theme: 'bootstrap-5', width: '100%', dropdownParent: $('#modalTambah'), placeholder: '-- Pilih Kelas --' });
 
-    // ── Dropdown dinamis: Guru → Mapel → Kelas (modal TAMBAH) ──────
+    // Event: guru tambah berubah → load mapel
     $('#tambah_guru').on('change', function () {
-        const guruId = $(this).val();
-        const $mapel = $('#tambah_mapel');
-        const $kelas = $('#tambah_kelas');
-
-        $mapel.empty().append('<option value="">-- Memuat... --</option>').prop('disabled', true);
-        $kelas.empty().append('<option value="">-- Pilih Mapel Dulu --</option>').prop('disabled', true);
-
-        if (!guruId) {
-            $mapel.empty().append('<option value="">-- Pilih Guru Dulu --</option>');
-            return;
-        }
-
-        $.get(`{{ url('jadwal-mengajar/guru') }}/${guruId}/mapel`, function (data) {
-            $mapel.empty().append('<option value="">-- Pilih Mapel --</option>');
-            data.forEach(m => $mapel.append(`<option value="${m.id}">${m.nama_mapel}</option>`));
-            $mapel.prop('disabled', false).trigger('change.select2');
-        }).fail(() => {
-            $mapel.empty().append('<option value="">Gagal memuat</option>');
-        });
+        loadMapelByGuru($(this).val(), 'tambah');
     });
 
+    // Event: mapel tambah berubah → load kelas
     $('#tambah_mapel').on('change', function () {
         const guruId  = $('#tambah_guru').val();
         const mapelId = $(this).val();
-        const $kelas  = $('#tambah_kelas');
-
-        $kelas.empty().append('<option value="">-- Memuat... --</option>').prop('disabled', true);
-
-        if (!guruId || !mapelId) {
-            $kelas.empty().append('<option value="">-- Pilih Mapel Dulu --</option>');
-            return;
-        }
-
-        $.get("{{ route('jadwal-mengajar.kelas-by-guru-mapel') }}", { id_guru: guruId, id_mapel: mapelId }, function (data) {
-            $kelas.empty().append('<option value="">-- Pilih Kelas --</option>');
-            data.forEach(k => $kelas.append(`<option value="${k.id}">${k.nama_kelas}</option>`));
-            $kelas.prop('disabled', data.length === 0).trigger('change.select2');
-            if (data.length === 0) {
-                $kelas.append('<option value="" disabled>Tidak ada kelas terkait</option>');
-            }
-        }).fail(() => {
-            $kelas.empty().append('<option value="">Gagal memuat</option>');
-        });
+        loadKelasByGuruMapel(guruId, mapelId, 'tambah');
     });
 
     // Reset modal tambah saat ditutup
     $('#modalTambah').on('hidden.bs.modal', function () {
         document.getElementById('formTambah').reset();
-        $('#tambah_mapel').empty().append('<option value="">-- Pilih Guru Dulu --</option>').prop('disabled', true).trigger('change.select2');
-        $('#tambah_kelas').empty().append('<option value="">-- Pilih Mapel Dulu --</option>').prop('disabled', true).trigger('change.select2');
+        $('#tambah_guru').val('').trigger('change');
+        $('#tambah_mapel').empty().append('<option value="">-- Pilih guru terlebih dahulu --</option>').prop('disabled', true);
+        $('#tambah_kelas').empty().append('<option value="">-- Pilih mata pelajaran terlebih dahulu --</option>').prop('disabled', true);
     });
 });
 
@@ -506,110 +526,90 @@ $(document).ready(function () {
 function openEditModal(id) {
     const $body  = $('#editModalBody');
     const $form  = $('#formEdit');
-    $form.attr('action', `/jadwal-mengajar/${id}`);
+    const updateUrl = `{{ route('jadwal-mengajar.update', ['id' => '__ID__']) }}`.replace('__ID__', id);
+    $form.attr('action', updateUrl);
 
-    $body.html(`
-        <div class="text-center py-5">
-            <div class="spinner-border text-success"></div>
-            <p class="mt-2 text-muted small">Memuat data jadwal...</p>
-        </div>`);
-
+    $body.html(`<div class="text-center py-5"><div class="spinner-border text-success"></div><p class="mt-2 text-muted small">Memuat data jadwal...</p></div>`);
     $('#modalEdit').modal('show');
 
-    $.get(`{{ url('jadwal-mengajar') }}/${id}`, function (data) {
-        const hariOptions = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu']
-            .map(h => `<option value="${h}" ${data.hari === h ? 'selected' : ''}>${h}</option>`)
-            .join('');
+    const showUrl = `{{ route('jadwal-mengajar.show', ['id' => '__ID__']) }}`.replace('__ID__', id);
+    $.get(showUrl, function (data) {
 
-        // Guru options
-        const guruOptions = {!! $guruList->map(fn($g) => '{"id":'.$g->id.',"nama":'.json_encode($g->nama_guru).'}')->values()->toJson() !!};
+        const hariOpts = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu']
+            .map(h => `<option value="${h}" ${data.hari === h ? 'selected' : ''}>${h}</option>`).join('');
+
+        const guruList = {!! $guruList->map(fn($g) => ['id' => $g->id, 'nama' => $g->nama_guru])->values()->toJson() !!};
         let guruOpts = '<option value="">-- Pilih Guru --</option>';
-        guruOptions.forEach(g => {
+        guruList.forEach(g => {
             guruOpts += `<option value="${g.id}" ${data.id_guru == g.id ? 'selected' : ''}>${g.nama}</option>`;
         });
 
         $body.html(`
             <div class="row g-3">
-                <div class="col-md-6">
+                <div class="col-md-12">
                     <label class="form-label fw-semibold small">Guru <span class="text-danger">*</span></label>
                     <select name="id_guru" id="edit_guru" class="form-select" required>${guruOpts}</select>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label fw-semibold small">Mata Pelajaran <span class="text-danger">*</span></label>
-                    <select name="id_mapel" id="edit_mapel" class="form-select" required>
-                        <option value="${data.id_mapel}">${data.mapel ? data.mapel.nama_mapel : 'Mapel #'+data.id_mapel}</option>
+                    <select name="id_mapel" id="edit_mapel" class="form-select" required disabled>
+                        <option value="">Memuat...</option>
                     </select>
+                    <div class="form-text text-muted">Hanya menampilkan mata pelajaran yang diajarkan guru ini.</div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label fw-semibold small">Kelas <span class="text-danger">*</span></label>
-                    <select name="id_kelas" id="edit_kelas" class="form-select" required>
-                        <option value="${data.id_kelas}">${data.kelas ? data.kelas.nama_kelas : 'Kelas #'+data.id_kelas}</option>
+                    <select name="id_kelas" id="edit_kelas" class="form-select" required disabled>
+                        <option value="">Memuat...</option>
                     </select>
+                    <div class="form-text text-muted">Hanya menampilkan kelas sesuai guru &amp; mata pelajaran.</div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label class="form-label fw-semibold small">Hari <span class="text-danger">*</span></label>
-                    <select name="hari" class="form-select" required>${hariOptions}</select>
+                    <select name="hari" class="form-select" required>${hariOpts}</select>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label fw-semibold small">Jam Mulai <span class="text-danger">*</span></label>
-                    <input type="time" name="jam_mulai" class="form-control"
-                           value="${data.jam_mulai ? data.jam_mulai.substring(0,5) : ''}" required>
+                    <input type="time" name="jam_mulai" class="form-control" value="${data.jam_mulai ? data.jam_mulai.substring(0,5) : ''}" required>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label fw-semibold small">Jam Selesai <span class="text-danger">*</span></label>
-                    <input type="time" name="jam_selesai" class="form-control"
-                           value="${data.jam_selesai ? data.jam_selesai.substring(0,5) : ''}" required>
+                    <input type="time" name="jam_selesai" class="form-control" value="${data.jam_selesai ? data.jam_selesai.substring(0,5) : ''}" required>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-12">
                     <label class="form-label fw-semibold small">Ruangan <span class="text-muted fw-normal">(opsional)</span></label>
-                    <input type="text" name="ruangan" class="form-control"
-                           value="${data.ruangan ?? ''}" maxlength="100" placeholder="Contoh: Lab IPA">
+                    <input type="text" name="ruangan" class="form-control" value="${data.ruangan ?? ''}" maxlength="100" placeholder="Contoh: Lab IPA">
                 </div>
             </div>`);
 
-        // Init select2 edit
-        $('#edit_guru, #edit_mapel, #edit_kelas').select2({
-            theme: 'bootstrap-5', width: '100%',
-            dropdownParent: $('#modalEdit')
-        });
+        // Init Select2 untuk modal edit
+        $('#edit_guru').select2({ theme: 'bootstrap-5', width: '100%', dropdownParent: $('#modalEdit') });
+        $('#edit_mapel').select2({ theme: 'bootstrap-5', width: '100%', dropdownParent: $('#modalEdit') });
+        $('#edit_kelas').select2({ theme: 'bootstrap-5', width: '100%', dropdownParent: $('#modalEdit') });
 
-        // Load mapel saat guru berubah
+        // Load mapel & kelas sesuai data jadwal yang ada
+        loadMapelByGuru(data.id_guru, 'edit', data.id_mapel, data.id_kelas);
+
+        // Event: guru edit berubah
         $('#edit_guru').on('change', function () {
-            const gid = $(this).val();
-            const $m  = $('#edit_mapel');
-            $m.empty().append('<option value="">-- Memuat... --</option>');
-            if (!gid) return;
-            $.get(`{{ url('jadwal-mengajar/guru') }}/${gid}/mapel`, function(mapels) {
-                $m.empty().append('<option value="">-- Pilih Mapel --</option>');
-                mapels.forEach(m => $m.append(`<option value="${m.id}">${m.nama_mapel}</option>`));
-                $m.trigger('change.select2');
-            });
+            loadMapelByGuru($(this).val(), 'edit');
         });
 
-        // Load kelas saat mapel berubah
+        // Event: mapel edit berubah
         $('#edit_mapel').on('change', function () {
-            const gid = $('#edit_guru').val();
-            const mid = $(this).val();
-            const $k  = $('#edit_kelas');
-            $k.empty().append('<option value="">-- Memuat... --</option>');
-            if (!gid || !mid) return;
-            $.get("{{ route('jadwal-mengajar.kelas-by-guru-mapel') }}", { id_guru: gid, id_mapel: mid }, function(kelas) {
-                $k.empty().append('<option value="">-- Pilih Kelas --</option>');
-                kelas.forEach(k => $k.append(`<option value="${k.id}">${k.nama_kelas}</option>`));
-                $k.trigger('change.select2');
-            });
+            loadKelasByGuruMapel($('#edit_guru').val(), $(this).val(), 'edit');
         });
 
     }).fail(function () {
-        $body.html('<div class="alert alert-danger">Gagal memuat data jadwal.</div>');
+        $body.html('<div class="alert alert-danger m-3">Gagal memuat data jadwal. Silakan coba lagi.</div>');
     });
 }
 
 // ── Hapus Jadwal ────────────────────────────────────────────────────
-function hapusJadwal(id, namaGuru, hari) {
+function hapusJadwal(id, namaGuru, namaMapel, hari) {
     Swal.fire({
         title: 'Hapus Jadwal?',
-        html: `Jadwal mengajar <strong>${namaGuru}</strong> hari <strong>${hari}</strong> akan dihapus permanen.`,
+        html: `Jadwal <strong>${namaMapel}</strong> oleh <strong>${namaGuru}</strong> hari <strong>${hari}</strong> akan dihapus permanen.`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#dc3545',
@@ -619,7 +619,8 @@ function hapusJadwal(id, namaGuru, hari) {
     }).then(result => {
         if (result.isConfirmed) {
             const form = document.getElementById('formHapus');
-            form.action = `/jadwal-mengajar/${id}`;
+            const destroyUrl = `{{ route('jadwal-mengajar.destroy', ['id' => '__ID__']) }}`.replace('__ID__', id);
+            form.action = destroyUrl;
             form.submit();
         }
     });

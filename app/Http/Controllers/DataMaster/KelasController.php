@@ -38,7 +38,7 @@ class KelasController extends Controller
             'waliKelas.pengajars.mapel', // wali kelas beserta mapel yang dia ajarkan
             'pengajars.guru',            // semua pengajar di kelas ini
             'pengajars.mapel',           // beserta mapel masing-masing
-        ])->findOrFail($id);
+        ])->where('uuid', $id)->firstOrFail();
 
         // Ambil murid yang belum punya kelas untuk pilihan "Tambah Murid"
         $muridTersedia = Murid::whereNotExists(function ($query) {
@@ -64,14 +64,20 @@ class KelasController extends Controller
     {
         $request->validate([
             'id_kelas' => 'required|exists:kelas,id',
-            'id_murid' => 'required|exists:murid,id'
+            'id_murid' => 'required|array',
+            'id_murid.*' => 'exists:murid,id'
         ]);
 
-        DB::table('murid_kelas')->insert([
-            'id_kelas' => $request->id_kelas,
-            'id_murid' => $request->id_murid,
-            'created_at' => now()
-        ]);
+        $insertData = [];
+        foreach ($request->id_murid as $id) {
+            $insertData[] = [
+                'id_kelas' => $request->id_kelas,
+                'id_murid' => $id,
+                'created_at' => now()
+            ];
+        }
+
+        DB::table('murid_kelas')->insert($insertData);
 
         return redirect()->back()->with('success', 'Murid berhasil dimasukkan ke kelas!');
     }
@@ -84,7 +90,7 @@ class KelasController extends Controller
 
     public function destroy($id)
     {
-        Kelas::findOrFail($id)->delete();
+        Kelas::where('uuid', $id)->firstOrFail()->delete();
         return redirect()->route('kelas.index')->with('success', 'Kelas dihapus.');
     }
 
@@ -94,7 +100,7 @@ class KelasController extends Controller
             'id_guru' => 'required|exists:guru,id',
         ]);
 
-        $kelas = Kelas::findOrFail($id);
+        $kelas = Kelas::where('uuid', $id)->firstOrFail();
         $kelas->update(['id_wali_kelas' => $request->id_guru]);
 
         return redirect()->back()->with('success', 'Wali kelas berhasil ditetapkan!');
@@ -102,22 +108,22 @@ class KelasController extends Controller
 
     public function removeWaliKelas($id)
     {
-        $kelas = Kelas::findOrFail($id);
+        $kelas = Kelas::where('uuid', $id)->firstOrFail();
         $kelas->update(['id_wali_kelas' => null]);
 
         return redirect()->back()->with('success', 'Wali kelas berhasil dihapus.');
     }
     public function update(Request $request, $id)
-{
-    $request->validate([
-        'nama_kelas' => 'required|string|max:255',
-    ]);
+    {
+        $request->validate([
+            'nama_kelas' => 'required|string|max:255',
+        ]);
 
-    $kelas = Kelas::findOrFail($id);
-    $kelas->update([
-        'nama_kelas' => $request->nama_kelas
-    ]);
+        $kelas = Kelas::where('uuid', $id)->firstOrFail();
+        $kelas->update([
+            'nama_kelas' => $request->nama_kelas
+        ]);
 
-    return redirect()->route('kelas.index')->with('success', 'Nama kelas berhasil diperbarui!');
-}
+        return redirect()->route('kelas.index')->with('success', 'Nama kelas berhasil diperbarui!');
+    }
 }

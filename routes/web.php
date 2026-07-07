@@ -130,8 +130,11 @@ Route::middleware('auth')->group(function () {
     // Middleware 'permission:modul' → admin selalu lolos, user dicek di DB
 
     // Profile Sekolah
-    Route::resource('profile-sekolah', ProfileSekolahController::class)->middleware('permission:profile_sekolah');
-    Route::delete('/profile-sekolah/delete-image/{id}', [ProfileSekolahController::class, 'deleteImage'])->name('profile-sekolah.delete-image')->middleware('permission:profile_sekolah,edit');
+    Route::get('/profile-sekolah', [ProfileSekolahController::class, 'index'])->name('profile-sekolah.index')->middleware('permission:profile_sekolah');
+    Route::post('/profile-sekolah', [ProfileSekolahController::class, 'store'])->name('profile-sekolah.store')->middleware('permission:profile_sekolah,create');
+    Route::put('/profile-sekolah/{profile_sekolah}', [ProfileSekolahController::class, 'update'])->name('profile-sekolah.update')->middleware('permission:profile_sekolah,edit');
+    Route::delete('/profile-sekolah/{profile_sekolah}', [ProfileSekolahController::class, 'destroy'])->name('profile-sekolah.destroy')->middleware('permission:profile_sekolah,delete');
+    Route::delete('/profile-sekolah/delete-image/{uuid}', [ProfileSekolahController::class, 'deleteImage'])->name('profile-sekolah.delete-image')->middleware('permission:profile_sekolah,edit');
 
     // Kelola Informasi
     Route::get('/informasi', [InformasiController::class, 'index'])->name('informasi.index')->middleware('permission:kelola_informasi');
@@ -228,7 +231,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/guru/search', [GuruController::class, 'search'])->name('guru.search')->middleware('permission:data_guru');
     Route::post('/guru/{id}/restore', [GuruController::class, 'restore'])->name('guru.restore')->middleware('permission:data_guru,edit');
     Route::get('/guru/{id}/download-surat', [GuruController::class, 'downloadSurat'])->name('guru.download-surat')->middleware('permission:data_guru');
-    Route::resource('guru', GuruController::class)->middleware('permission:data_guru');
+    Route::get('/guru', [GuruController::class, 'index'])->name('guru.index')->middleware('permission:data_guru');
+    Route::post('/guru', [GuruController::class, 'store'])->name('guru.store')->middleware('permission:data_guru,create');
+    Route::get('/guru/{guru}', [GuruController::class, 'show'])->name('guru.show')->middleware('permission:data_guru');
+    Route::get('/guru/{guru}/edit', [GuruController::class, 'edit'])->name('guru.edit')->middleware('permission:data_guru,edit');
+    Route::put('/guru/{guru}', [GuruController::class, 'update'])->name('guru.update')->middleware('permission:data_guru,edit');
+    Route::patch('/guru/{guru}', [GuruController::class, 'update'])->middleware('permission:data_guru,edit');
+    Route::delete('/guru/{guru}', [GuruController::class, 'destroy'])->name('guru.destroy')->middleware('permission:data_guru,delete');
 
     // Jadwal Mengajar — route statis harus di atas route wildcard {id}
     Route::get('/jadwal-mengajar', [JadwalMengajarController::class, 'index'])->name('jadwal-mengajar.index')->middleware('permission:jadwal_mengajar');
@@ -242,16 +251,34 @@ Route::middleware('auth')->group(function () {
 
     // Mata Pelajaran
     Route::get('/mapel/search', [MapelController::class, 'search'])->name('mapel.search')->middleware('permission:data_mapel');
-    Route::resource('mapel', MapelController::class)->middleware('permission:data_mapel');
+    Route::get('/mapel', [MapelController::class, 'index'])->name('mapel.index')->middleware('permission:data_mapel');
+    Route::post('/mapel', [MapelController::class, 'store'])->name('mapel.store')->middleware('permission:data_mapel,create');
+    Route::get('/mapel/{mapel}', [MapelController::class, 'show'])->name('mapel.show')->middleware('permission:data_mapel');
+    Route::get('/mapel/{mapel}/edit', [MapelController::class, 'edit'])->name('mapel.edit')->middleware('permission:data_mapel,edit');
+    Route::put('/mapel/{mapel}', [MapelController::class, 'update'])->name('mapel.update')->middleware('permission:data_mapel,edit');
+    Route::patch('/mapel/{mapel}', [MapelController::class, 'update'])->middleware('permission:data_mapel,edit');
+    Route::delete('/mapel/{mapel}', [MapelController::class, 'destroy'])->name('mapel.destroy')->middleware('permission:data_mapel,delete');
 
     // Data Staff
     Route::get('staff/search', [StaffController::class, 'search'])->name('staff.search')->middleware('permission:data_staff');
     Route::post('staff/{id}/restore', [StaffController::class, 'restore'])->name('staff.restore')->middleware('permission:data_staff,edit');
     Route::get('staff/{id}/download-surat', [StaffController::class, 'downloadSurat'])->name('staff.download-surat')->middleware('permission:data_staff');
-    Route::resource('staff', StaffController::class)->middleware('permission:data_staff');
+    Route::get('/staff', [StaffController::class, 'index'])->name('staff.index')->middleware('permission:data_staff');
+    Route::post('/staff', [StaffController::class, 'store'])->name('staff.store')->middleware('permission:data_staff,create');
+    Route::get('/staff/{staff}', [StaffController::class, 'show'])->name('staff.show')->middleware('permission:data_staff');
+    Route::get('/staff/{staff}/edit', [StaffController::class, 'edit'])->name('staff.edit')->middleware('permission:data_staff,edit');
+    Route::put('/staff/{staff}', [StaffController::class, 'update'])->name('staff.update')->middleware('permission:data_staff,edit');
+    Route::patch('/staff/{staff}', [StaffController::class, 'update'])->middleware('permission:data_staff,edit');
+    Route::delete('/staff/{staff}', [StaffController::class, 'destroy'])->name('staff.destroy')->middleware('permission:data_staff,delete');
 
     // Kelas
-    Route::resource('kelas', KelasController::class)->middleware('permission:data_kelas');
+    Route::get('/kelas', [KelasController::class, 'index'])->name('kelas.index')->middleware('permission:data_kelas');
+    Route::post('/kelas', [KelasController::class, 'store'])->name('kelas.store')->middleware('permission:data_kelas,create');
+    Route::get('/kelas/{kelas}', [KelasController::class, 'show'])->name('kelas.show')->middleware('permission:data_kelas');
+    Route::get('/kelas/{kelas}/edit', [KelasController::class, 'edit'])->name('kelas.edit')->middleware('permission:data_kelas,edit');
+    Route::put('/kelas/{kelas}', [KelasController::class, 'update'])->name('kelas.update')->middleware('permission:data_kelas,edit');
+    Route::patch('/kelas/{kelas}', [KelasController::class, 'update'])->middleware('permission:data_kelas,edit');
+    Route::delete('/kelas/{kelas}', [KelasController::class, 'destroy'])->name('kelas.destroy')->middleware('permission:data_kelas,delete');
     Route::post('/kelas/tambah-murid', [KelasController::class, 'addStudent'])->name('kelas.addStudent')->middleware('permission:data_kelas,edit');
     Route::delete('/kelas/hapus-murid/{id_murid}', [KelasController::class, 'removeStudent'])->name('kelas.removeStudent')->middleware('permission:data_kelas,edit');
     Route::post('/kelas/{id}/wali-kelas', [KelasController::class, 'setWaliKelas'])->name('kelas.setWaliKelas')->middleware('permission:data_kelas,edit');
@@ -259,9 +286,9 @@ Route::middleware('auth')->group(function () {
 
     // Ortu & Wali Murid
     Route::get('/ortu-murid/search', [OrtuMuridController::class, 'search'])->name('ortu-murid.search')->middleware('permission:data_ortu');
-    Route::resource('ortu-murid', OrtuMuridController::class)->middleware('permission:data_ortu');
+    Route::get('/ortu-murid', [OrtuMuridController::class, 'index'])->name('ortu-murid.index')->middleware('permission:data_ortu');
     Route::get('/wali-murid/search', [WaliMuridController::class, 'search'])->name('wali-murid.search')->middleware('permission:data_wali');
-    Route::resource('wali-murid', WaliMuridController::class)->middleware('permission:data_wali');
+    Route::get('/wali-murid', [WaliMuridController::class, 'index'])->name('wali-murid.index')->middleware('permission:data_wali');
 
     // Kelulusan
     Route::get('/data-kelulusan', [KelulusanController::class, 'index'])->name('kelulusan.index')->middleware('permission:data_kelulusan');

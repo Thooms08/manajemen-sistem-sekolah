@@ -20,7 +20,7 @@ class JadwalMengajar extends Model
     ];
 
     protected $casts = [
-        'jam_mulai'  => 'string',
+        'jam_mulai'   => 'string',
         'jam_selesai' => 'string',
     ];
 

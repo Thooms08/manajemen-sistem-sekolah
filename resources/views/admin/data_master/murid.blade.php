@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Data Murid</title>
-    @if(isset($sekolah->logo))
-    <link rel="icon" type="image/png" href="{{ \App\Helpers\ImageHelper::url($sekolah->logo) }}">
-    @else
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/default-favicon.png') }}">
-    @endif
+        @include('favicon')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
@@ -64,9 +60,13 @@
             /* Header stack vertikal */
             .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
             .page-header .btn-tambah { width: 100%; }
-            /* Search bar full width */
-            .search-bar-flex { flex-direction: column; align-items: stretch !important; }
-            .search-input-wrapper { max-width: 100%; }
+            /* Searchbar proportional mobile */
+            .search-bar-wrapper { flex-direction: column; align-items: stretch !important; gap: 0 !important; }
+            .search-box-wrapper { max-width: 100% !important; width: 100%; flex: none !important;}
+            .search-input-wrapper .form-control { padding: 0.35rem 0.55rem !important; font-size: 0.83rem !important; }
+            .search-input-wrapper .input-group-text { padding: 0.35rem 0.55rem !important; font-size: 0.83rem !important; }
+            .search-bar-flex span { display: none !important; }
+            .card.p-3 { padding: 0.6rem 0.75rem !important; }
             /* Sembunyikan tabel, tampilkan card */
             .table-murid-desktop { display: none !important; }
             .murid-card-mobile   { display: block; }

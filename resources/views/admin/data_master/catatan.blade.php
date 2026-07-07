@@ -1,15 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Catatan</title>
-    @if(isset($sekolah->logo))
-    <link rel="icon" type="image/png" href="{{ \App\Helpers\ImageHelper::url($sekolah->logo) }}">
-    @else
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/default-favicon.png') }}">
-    @endif
+        @include('favicon')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -49,6 +45,7 @@
             text-decoration: none;
             color: var(--text-main);
             display: block;
+            overflow: visible;
         }
         .user-card:hover {
             transform: translateY(-4px);
@@ -67,6 +64,8 @@
             background: var(--green-primary); color: #fff;
             font-size: .72rem; font-weight: 700;
             padding: 3px 10px; border-radius: 50px;
+            display: inline-flex; align-items: center; gap: 4px;
+            white-space: nowrap;
         }
         .preview-label {
             font-size: .73rem; font-weight: 700; letter-spacing: .5px;
@@ -150,16 +149,16 @@
         <div class="container-fluid px-0">
 
             {{-- ── TOP BAR ── --}}
-            <div class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center justify-content-between mb-4 mt-1 gap-3">
-                <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center justify-content-between mb-4 mt-1 gap-2 flex-wrap">
+                <div class="d-flex align-items-center gap-3 flex-shrink-0" style="min-width:0;">
                     <button type="button" id="sidebarCollapse" class="btn flex-shrink-0">
                         <i class="bi bi-list fs-4"></i>
                     </button>
-                    <div>
-                        <h5 class="mb-0 fw-bold">
+                    <div style="min-width:0;">
+                        <h5 class="mb-0 fw-bold text-truncate">
                             <i class="bi bi-journal-text text-success me-2"></i>Catatan
                         </h5>
-                        <small class="text-muted">
+                        <small class="text-muted d-none d-sm-block">
                             @auth
                                 @if(auth()->user()->role === 'admin')
                                     Ringkasan catatan semua pengguna
@@ -172,9 +171,10 @@
                 </div>
 
                 @auth
-                    {{-- Admin juga bisa tambah catatan sendiri --}}
-                    <button class="btn btn-success px-4 fw-bold shadow-sm w-100 w-sm-auto flex-shrink-0 align-self-start align-self-sm-center" data-bs-toggle="modal" data-bs-target="#modalTambahCatatan">
-                        <i class="bi bi-plus-circle me-2"></i>Tambah Catatan Saya
+                    <button class="btn btn-success px-4 fw-bold shadow-sm flex-shrink-0" data-bs-toggle="modal" data-bs-target="#modalTambahCatatan">
+                        <i class="bi bi-plus-circle me-2"></i>
+                        <span class="d-none d-sm-inline">Tambah Catatan Saya</span>
+                        <span class="d-sm-none">Tambah</span>
                     </button>
                 @endauth
             </div>
@@ -295,15 +295,15 @@
                                 <div class="user-avatar flex-shrink-0">
                                     {{ strtoupper(substr($u->username, 0, 1)) }}
                                 </div>
-                                <div class="flex-grow-1 overflow-hidden">
-                                    <div class="fw-bold text-truncate" title="{{ $u->username }}">{{ $u->username }}</div>
+                                <div class="flex-grow-1" style="min-width:0;">
+                                    <div class="fw-bold text-truncate" style="font-size:.95rem;" title="{{ $u->username }}">{{ $u->username }}</div>
                                     <div class="mt-1">
-                                        <span class="catatan-count-badge text-nowrap">
+                                        <span class="catatan-count-badge">
                                             <i class="bi bi-journal-text me-1"></i>{{ $u->catatans_count }} catatan
                                         </span>
                                     </div>
                                 </div>
-                                <i class="bi bi-chevron-right text-muted flex-shrink-0"></i>
+                                <i class="bi bi-chevron-right text-muted flex-shrink-0 ms-auto"></i>
                             </div>
 
                             {{-- Preview catatan terbaru --}}

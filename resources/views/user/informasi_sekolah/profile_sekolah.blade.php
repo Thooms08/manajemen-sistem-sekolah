@@ -1,14 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile Sekolah</title>
-    @if(isset($sekolah->logo))
-    <link rel="icon" type="image/png" href="{{ \App\Helpers\ImageHelper::url($sekolah->logo) }}">
-    @else
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/default-favicon.png') }}">
-    @endif
+        @include('favicon')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -350,22 +346,7 @@
                     @endif
                 </div>
 
-                {{-- ── Alerts ── --}}
-                @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 mb-4" role="alert">
-                    <i class="bi bi-check-circle-fill"></i>
-                    <span>{{ session('success') }}</span>
-                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
-                </div>
-                @endif
-                @if ($errors->any())
-                <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
-                    <ul class="mb-0 ps-3">
-                        @foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach
-                    </ul>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-                @endif
+                {{-- Alert ditangani via SweetAlert di script --}}
 
                 {{-- ── Profile cards or empty state ── --}}
                 @if($profiles->count() == 0)
@@ -429,12 +410,12 @@
 
                             {{-- Footer --}}
                             <div class="profile-footer">
-                                <button class="btn-icon btn-icon-edit" data-bs-toggle="modal" data-bs-target="#modalEdit{{ $p->id }}" title="Edit">
+                                <button class="btn-icon btn-icon-edit" data-bs-toggle="modal" data-bs-target="#modalEdit{{ $p->uuid }}" title="Edit">
                                     <i class="bi bi-pencil-fill"></i>
                                 </button>
-                                <form action="{{ route('profile-sekolah.destroy', $p->id) }}" method="POST" class="d-inline">
+                                <form action="{{ route('profile-sekolah.destroy', $p->uuid) }}" method="POST" class="d-inline" id="formHapus{{ $p->uuid }}">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="btn-icon btn-icon-delete" onclick="return confirm('Hapus data ini?')" title="Hapus">
+                                    <button type="button" class="btn-icon btn-icon-delete" onclick="hapusProfile('formHapus{{ $p->uuid }}', '{{ addslashes($p->nama_sekolah) }}')" title="Hapus">
                                         <i class="bi bi-trash-fill"></i>
                                     </button>
                                 </form>
@@ -444,9 +425,9 @@
 
                     {{-- ── Modal Edit ── --}}
                     {{-- DIKEMBALIKAN KE BOOTSTRAP MODAL-DIALOG-SCROLLABLE & GRID SYSTEM --}}
-                    <div class="modal fade" id="modalEdit{{ $p->id }}" tabindex="-1">
+                    <div class="modal fade" id="modalEdit{{ $p->uuid }}" tabindex="-1">
                        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                            <form action="{{ route('profile-sekolah.update', $p->id) }}" method="POST" enctype="multipart/form-data" class="w-100">
+                            <form action="{{ route('profile-sekolah.update', $p->uuid) }}" method="POST" enctype="multipart/form-data" class="w-100">
                                 @csrf @method('PUT')
                                 <div class="modal-content">
 
@@ -465,10 +446,10 @@
                                                     
                                                     <div class="mb-4">
                                                         <label class="form-label d-block text-muted small">Logo Sekolah</label>
-                                                        <div id="preview-container-logo-{{ $p->id }}" class="img-preview-box mb-2">
+                                                        <div id="preview-container-logo-{{ $p->uuid }}" class="img-preview-box mb-2">
                                                             @if($p->logo)
                                                                 <img src="{{ \App\Helpers\ImageHelper::url($p->logo) }}" alt="Logo">
-                                                                <button type="button" class="btn btn-sm btn-danger d-block w-100 mt-1" onclick="ajaxDeleteImage('{{ $p->id }}', 'logo')">
+                                                                <button type="button" class="btn btn-sm btn-danger d-block w-100 mt-1" onclick="ajaxDeleteImage('{{ $p->uuid }}', 'logo')">
                                                                     <i class="bi bi-x-circle me-1"></i>Hapus Logo
                                                                 </button>
                                                             @else
@@ -480,10 +461,10 @@
 
                                                     <div>
                                                         <label class="form-label d-block text-muted small">Foto Sekolah</label>
-                                                        <div id="preview-container-foto-{{ $p->id }}" class="img-preview-box mb-2">
+                                                        <div id="preview-container-foto-{{ $p->uuid }}" class="img-preview-box mb-2">
                                                             @if($p->foto_sekolah)
                                                                 <img class="img-cover" src="{{ \App\Helpers\ImageHelper::url($p->foto_sekolah) }}" alt="Foto">
-                                                                <button type="button" class="btn btn-sm btn-danger d-block w-100 mt-1" onclick="ajaxDeleteImage('{{ $p->id }}', 'foto_sekolah')">
+                                                                <button type="button" class="btn btn-sm btn-danger d-block w-100 mt-1" onclick="ajaxDeleteImage('{{ $p->uuid }}', 'foto_sekolah')">
                                                                     <i class="bi bi-x-circle me-1"></i>Hapus Foto
                                                                 </button>
                                                             @else
@@ -586,6 +567,7 @@
                                             <span class="no-img"><i class="bi bi-image" style="font-size:1.6rem;opacity:.35"></i><br>Unggah logo</span>
                                         </div>
                                         <input type="file" name="logo" id="tambah-input-logo" class="form-control form-control-sm" accept="image/jpeg,image/png,image/jpg" required>
+                                        <div id="feedback-tambah-logo" class="text-danger small mt-1"></div>
                                     </div>
                                     <div>
                                         <label class="form-label d-block text-muted small">Foto Sekolah</label>
@@ -593,6 +575,7 @@
                                             <span class="no-img"><i class="bi bi-image" style="font-size:1.6rem;opacity:.35"></i><br>Unggah foto</span>
                                         </div>
                                         <input type="file" name="foto_sekolah" id="tambah-input-foto" class="form-control form-control-sm" accept="image/jpeg,image/png,image/jpg" required>
+                                        <div id="feedback-tambah-foto" class="text-danger small mt-1"></div>
                                     </div>
                                 </div>
                             </div>
@@ -655,13 +638,36 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // ── HELPER: Preview gambar dari input file ke dalam container ────────────
-        function bindImagePreview(inputEl, containerEl, isCover = false) {
+        const MAX_SIZE = 2 * 1024 * 1024; // 2 MB
+
+        function validateFileSize(inputEl, feedbackId) {
+            const file = inputEl.files[0];
+            let feedbackEl = document.getElementById(feedbackId);
+            if (!feedbackEl) {
+                feedbackEl = document.createElement('div');
+                feedbackEl.id = feedbackId;
+                feedbackEl.className = 'text-danger small mt-1';
+                inputEl.insertAdjacentElement('afterend', feedbackEl);
+            }
+            if (file && file.size > MAX_SIZE) {
+                feedbackEl.textContent = `Ukuran file terlalu besar (${(file.size / 1024 / 1024).toFixed(2)} MB). Maksimal 2 MB.`;
+                inputEl.value = '';
+                return false;
+            }
+            feedbackEl.textContent = '';
+            return true;
+        }
+
+        function bindImagePreview(inputEl, containerEl, isCover = false, feedbackId = null) {
             inputEl.addEventListener('change', function () {
                 const file = this.files[0];
                 if (!file) return;
-
+                if (feedbackId && !validateFileSize(inputEl, feedbackId)) {
+                    containerEl.innerHTML = `<span class="no-img"><i class="bi bi-exclamation-triangle text-danger" style="font-size:1.6rem;"></i><br><span class="text-danger small">File terlalu besar</span></span>`;
+                    return;
+                }
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     containerEl.innerHTML = `<img src="${e.target.result}" 
@@ -669,123 +675,125 @@
                                border-radius:6px; margin-bottom:8px; display:block;" 
                         alt="Preview">
                         <small class="text-muted d-block text-center" style="font-size:.75rem;">${file.name}</small>`;
+                    const fb = feedbackId ? document.getElementById(feedbackId) : null;
+                    if (fb) fb.textContent = '';
                 };
                 reader.readAsDataURL(file);
             });
         }
 
-        // ── Modal TAMBAH: pasang preview ─────────────────────────────────────────
         document.addEventListener('DOMContentLoaded', function () {
             const tambahModalEl = document.getElementById('modalTambah');
             if (tambahModalEl) {
                 tambahModalEl.addEventListener('shown.bs.modal', function () {
-                    bindImagePreview(
-                        document.getElementById('tambah-input-logo'),
-                        document.getElementById('tambah-preview-logo'),
-                        false
-                    );
-                    bindImagePreview(
-                        document.getElementById('tambah-input-foto'),
-                        document.getElementById('tambah-preview-foto'),
-                        true
-                    );
+                    bindImagePreview(document.getElementById('tambah-input-logo'), document.getElementById('tambah-preview-logo'), false, 'feedback-tambah-logo');
+                    bindImagePreview(document.getElementById('tambah-input-foto'), document.getElementById('tambah-preview-foto'), true, 'feedback-tambah-foto');
                 });
-                // Reset preview saat modal ditutup
+
+                tambahModalEl.querySelector('form').addEventListener('submit', function (e) {
+                    const logoInput = document.getElementById('tambah-input-logo');
+                    const fotoInput = document.getElementById('tambah-input-foto');
+                    let valid = true;
+                    if (logoInput.files[0] && logoInput.files[0].size > MAX_SIZE) { validateFileSize(logoInput, 'feedback-tambah-logo'); valid = false; }
+                    if (fotoInput.files[0] && fotoInput.files[0].size > MAX_SIZE) { validateFileSize(fotoInput, 'feedback-tambah-foto'); valid = false; }
+                    if (!valid) { e.preventDefault(); Swal.fire({ icon: 'error', title: 'Ukuran file terlalu besar', text: 'Logo dan foto sekolah maksimal 2 MB.', confirmButtonColor: '#198754' }); }
+                });
+
                 tambahModalEl.addEventListener('hidden.bs.modal', function () {
-                    document.getElementById('tambah-preview-logo').innerHTML =
-                        `<span class="no-img"><i class="bi bi-image" style="font-size:1.6rem;opacity:.35"></i><br>Unggah logo</span>`;
-                    document.getElementById('tambah-preview-foto').innerHTML =
-                        `<span class="no-img"><i class="bi bi-image" style="font-size:1.6rem;opacity:.35"></i><br>Unggah foto</span>`;
+                    document.getElementById('tambah-preview-logo').innerHTML = `<span class="no-img"><i class="bi bi-image" style="font-size:1.6rem;opacity:.35"></i><br>Unggah logo</span>`;
+                    document.getElementById('tambah-preview-foto').innerHTML = `<span class="no-img"><i class="bi bi-image" style="font-size:1.6rem;opacity:.35"></i><br>Unggah foto</span>`;
+                    ['feedback-tambah-logo','feedback-tambah-foto'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = ''; });
                 });
             }
 
-            // ── Modal EDIT: pasang preview untuk setiap modal edit ───────────────
             document.querySelectorAll('[id^="modalEdit"]').forEach(function (modalEl) {
                 const id = modalEl.id.replace('modalEdit', '');
-
                 modalEl.addEventListener('shown.bs.modal', function () {
                     const inputLogo = modalEl.querySelector('input[name="logo"]');
                     const inputFoto = modalEl.querySelector('input[name="foto_sekolah"]');
                     const containerLogo = document.getElementById('preview-container-logo-' + id);
                     const containerFoto = document.getElementById('preview-container-foto-' + id);
-
-                    if (inputLogo && containerLogo) {
-                        inputLogo.addEventListener('change', function () {
-                            const file = this.files[0];
-                            if (!file) return;
-                            const reader = new FileReader();
-                            reader.onload = function (e) {
-                                // Pertahankan tombol hapus jika sudah ada, atau ganti semua dengan preview baru
-                                containerLogo.innerHTML = `<img src="${e.target.result}" 
-                                    style="width:100%; height:120px; object-fit:contain; border-radius:6px; margin-bottom:8px; display:block;" 
-                                    alt="Preview Logo">
-                                    <small class="text-muted d-block text-center" style="font-size:.75rem;">${file.name}</small>`;
-                            };
-                            reader.readAsDataURL(file);
-                        });
-                    }
-
-                    if (inputFoto && containerFoto) {
-                        inputFoto.addEventListener('change', function () {
-                            const file = this.files[0];
-                            if (!file) return;
-                            const reader = new FileReader();
-                            reader.onload = function (e) {
-                                containerFoto.innerHTML = `<img class="img-cover" src="${e.target.result}" 
-                                    style="width:100%; height:120px; object-fit:cover; border-radius:6px; margin-bottom:8px; display:block;" 
-                                    alt="Preview Foto">
-                                    <small class="text-muted d-block text-center" style="font-size:.75rem;">${file.name}</small>`;
-                            };
-                            reader.readAsDataURL(file);
-                        });
-                    }
+                    if (inputLogo && containerLogo) bindImagePreview(inputLogo, containerLogo, false, `feedback-edit-logo-${id}`);
+                    if (inputFoto && containerFoto) bindImagePreview(inputFoto, containerFoto, true, `feedback-edit-foto-${id}`);
                 });
+
+                const editForm = modalEl.querySelector('form');
+                if (editForm) {
+                    editForm.addEventListener('submit', function (e) {
+                        const inputLogo = modalEl.querySelector('input[name="logo"]');
+                        const inputFoto = modalEl.querySelector('input[name="foto_sekolah"]');
+                        let valid = true;
+                        if (inputLogo && inputLogo.files[0] && inputLogo.files[0].size > MAX_SIZE) { validateFileSize(inputLogo, `feedback-edit-logo-${id}`); valid = false; }
+                        if (inputFoto && inputFoto.files[0] && inputFoto.files[0].size > MAX_SIZE) { validateFileSize(inputFoto, `feedback-edit-foto-${id}`); valid = false; }
+                        if (!valid) { e.preventDefault(); Swal.fire({ icon: 'error', title: 'Ukuran file terlalu besar', text: 'Logo dan foto sekolah maksimal 2 MB.', confirmButtonColor: '#198754' }); }
+                    });
+                }
             });
+
+            @if(session('success'))
+                Swal.fire({ icon: 'success', title: 'Berhasil', text: @json(session('success')), confirmButtonColor: '#198754', timer: 3000, timerProgressBar: true });
+            @endif
+            @if(session('error'))
+                Swal.fire({ icon: 'error', title: 'Gagal', text: @json(session('error')), confirmButtonColor: '#198754' });
+            @endif
+            @if($errors->any())
+                Swal.fire({ icon: 'error', title: 'Validasi Gagal', html: `<ul class="text-start small mb-0 ps-3">{!! implode('', array_map(fn($e) => '<li>'.$e.'</li>', $errors->all())) !!}</ul>`, confirmButtonColor: '#198754' });
+            @endif
         });
 
-        // ── AJAX hapus gambar ─────────────────────────────────────────────────────
         function ajaxDeleteImage(id, type) {
-            if (confirm('Apakah Anda yakin ingin menghapus ' + type.replace('_', ' ') + ' ini?')) {
-                const containerId = type === 'logo'
-                    ? `preview-container-logo-${id}`
-                    : `preview-container-foto-${id}`;
+            const label = type === 'logo' ? 'Logo Sekolah' : 'Foto Sekolah';
+            Swal.fire({
+                title: `Hapus ${label}?`,
+                text: 'Gambar akan dihapus permanen.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+            }).then(result => {
+                if (!result.isConfirmed) return;
+                const containerId = type === 'logo' ? `preview-container-logo-${id}` : `preview-container-foto-${id}`;
                 const container = document.getElementById(containerId);
-
                 fetch(`/profile-sekolah/delete-image/${id}?type=${type}`, {
                     method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json'
-                    }
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' }
                 })
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
                         container.innerHTML = `<span class="no-img"><i class="bi bi-image" style="font-size:1.6rem;opacity:.35"></i><br>Gambar dihapus.<br>Unggah baru jika diperlukan.</span>`;
+                        Swal.fire({ icon: 'success', title: 'Berhasil', text: `${label} berhasil dihapus.`, confirmButtonColor: '#198754', timer: 2000, timerProgressBar: true });
                     } else {
-                        alert('Gagal menghapus: ' + data.message);
+                        Swal.fire({ icon: 'error', title: 'Gagal', text: data.message, confirmButtonColor: '#198754' });
                     }
                 })
-                .catch(err => {
-                    console.error(err);
-                    alert('Terjadi kesalahan saat menghapus gambar.');
-                });
-            }
+                .catch(() => { Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan saat menghapus gambar.', confirmButtonColor: '#198754' }); });
+            });
         }
 
-        // ── Sidebar toggle ────────────────────────────────────────────────────────
+        function hapusProfile(formId, namaSekolah) {
+            Swal.fire({
+                title: 'Hapus Profile?',
+                html: `Data profile <strong>${namaSekolah}</strong> beserta semua gambar akan dihapus permanen.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal',
+            }).then(result => { if (result.isConfirmed) document.getElementById(formId).submit(); });
+        }
+
         const sidebar     = document.getElementById('sidebar');
         const collapseBtn = document.getElementById('sidebarCollapse');
         const closeBtn    = document.getElementById('close-sidebar');
         const overlay     = document.getElementById('overlay');
 
         function toggle() {
-            if (window.innerWidth <= 768) {
-                sidebar.classList.toggle('show-mobile');
-                overlay.classList.toggle('active');
-            } else {
-                sidebar.classList.toggle('inactive');
-            }
+            if (window.innerWidth <= 768) { sidebar.classList.toggle('show-mobile'); overlay.classList.toggle('active'); }
+            else { sidebar.classList.toggle('inactive'); }
         }
         collapseBtn.onclick = toggle;
         closeBtn.onclick    = toggle;

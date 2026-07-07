@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\DataMaster;
 
 use App\Http\Traits\RendersUserView;
-
-
 use App\Models\DataMaster\Murid;
 use App\Models\Dokumen\Kelulusan;
 use Illuminate\Http\Request;
@@ -229,7 +227,7 @@ class KelulusanController extends Controller
         // Jika status kelulusan = 'lulus' → update status murid menjadi 'lulus'
         // Jika status kelulusan = 'tidak lulus' → kembalikan status murid ke 'konfirmasi'
         $muridStatus = ($kelulusan->status === 'lulus') ? 'lulus' : 'konfirmasi';
-        \App\Models\Murid::where('id', $kelulusan->id_murid)
+        Murid::where('id', $kelulusan->id_murid)
             ->update(['status' => $muridStatus]);
 
         return response()->json([

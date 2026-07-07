@@ -24,5 +24,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // Tampilkan halaman error custom untuk HTTP 403 (Akses Ditolak)
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, $request) {
+            if ($e->getStatusCode() === 403 && !$request->expectsJson()) {
+                return response()->view('errors.403', ['exception' => $e], 403);
+            }
+        });
     })->create();

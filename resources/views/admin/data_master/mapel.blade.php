@@ -4,11 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Mata Pelajaran</title>
-    @if(isset($sekolah->logo))
-    <link rel="icon" type="image/png" href="{{ \App\Helpers\ImageHelper::url($sekolah->logo) }}">
-    @else
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/default-favicon.png') }}">
-    @endif
+        @include('favicon')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -48,9 +44,13 @@
             /* Header stack vertikal */
             .page-header { flex-direction: column; align-items: flex-start !important; gap: 10px; }
             .page-header .btn-tambah { width: 100%; }
-            /* Search bar full width */
-            .search-bar-wrapper { flex-direction: column; align-items: stretch !important; }
-            .search-box-wrapper { max-width: 100%; }
+            /* Searchbar proportional mobile */
+            .search-bar-wrapper { flex-direction: column; align-items: stretch !important; gap: 0 !important; }
+             .search-box-wrapper { max-width: 100% !important; width: 100%; flex: none !important;}
+            .search-box-wrapper .form-control { padding: 0.35rem 0.55rem !important; font-size: 0.83rem !important; }
+            .search-box-wrapper .input-group-text { padding: 0.35rem 0.55rem !important; font-size: 0.83rem !important; }
+            .search-bar-wrapper p { display: none !important; }
+            .card.p-3 { padding: 0.6rem 0.75rem !important; }
             /* Sembunyikan tabel, tampilkan card */
             .table-mapel-desktop { display: none !important; }
             .mapel-card-mobile   { display: block; }
@@ -95,7 +95,7 @@
 
             {{-- Search Bar --}}
             <div class="card p-3 mb-4 shadow-sm">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 search-bar-wrapper">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 search-bar-wrapper">
                     <p class="text-muted small mb-0">Kelola data mata pelajaran (Mapel) sekolah dengan mudah.</p>
                     <div class="input-group search-box-wrapper">
                         <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>

@@ -8,7 +8,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Kelas extends Model
 {
     protected $table = 'kelas';
-    protected $fillable = ['nama_kelas', 'id_wali_kelas'];
+    protected $fillable = ['nama_kelas', 'id_wali_kelas', 'uuid'];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            if (empty($model->uuid)) {
+                $model->uuid = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 
     public function murid(): BelongsToMany
     {

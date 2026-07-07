@@ -33,7 +33,7 @@ class AuthController extends Controller
         // Cek apakah jawaban captcha dari user sesuai dengan di session
         if ((int) $request->captcha !== session('captcha_answer')) {
             return back()->withErrors([
-                'captcha' => 'Jawaban hitungan matematika salah. Silakan coba lagi.',
+                'captcha' => 'chapta salah.',
             ])->onlyInput('username');
         }
 
@@ -43,6 +43,38 @@ class AuthController extends Controller
         // Ambil data untuk autentikasi
         $credentials = $request->only('username', 'password');
         $remember = $request->boolean('remember');
+
+        // Cari user berdasarkan username
+        $user = \App\Models\User::where('username', $request->username)->first();
+
+        if ($user) {
+            // Jika user ditemukan, cek password
+            if (!\Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+                return back()->withErrors([
+                    'username' => 'password salah.',
+                ])->onlyInput('username');
+            }
+        } else {
+            // Jika user tidak ditemukan, cek apakah password yang dimasukkan cocok dengan user lain
+            $allUsers = \App\Models\User::all();
+            $passwordCorrectForSomeUser = false;
+            foreach ($allUsers as $u) {
+                if (\Illuminate\Support\Facades\Hash::check($request->password, $u->password)) {
+                    $passwordCorrectForSomeUser = true;
+                    break;
+                }
+            }
+
+            if ($passwordCorrectForSomeUser) {
+                return back()->withErrors([
+                    'username' => 'username salah.',
+                ])->onlyInput('username');
+            } else {
+                return back()->withErrors([
+                    'username' => 'username dan password salah.',
+                ])->onlyInput('username');
+            }
+        }
 
         // Proses autentikasi
         if (Auth::attempt($credentials, $remember)) {
@@ -59,9 +91,9 @@ class AuthController extends Controller
             };
         }
 
-        // Jika login gagal (username/password salah)
+        // Jika login gagal secara umum
         return back()->withErrors([
-            'username' => 'Username atau password salah.',
+            'username' => 'username dan password salah.',
         ])->onlyInput('username');
     }
 

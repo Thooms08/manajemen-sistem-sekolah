@@ -65,7 +65,7 @@ class CheckPermission
 
     /**
      * Tolak akses: jika AJAX/JSON → return JSON 403,
-     * jika request biasa → redirect back dengan flash error.
+     * jika request biasa → abort(403) untuk tampilkan halaman error custom.
      */
     private function denyAccess(Request $request, string $message): Response
     {
@@ -73,13 +73,7 @@ class CheckPermission
             return response()->json(['message' => $message], 403);
         }
 
-        // Redirect ke dashboard user dengan flash error
-        $back = url()->previous();
-        $dashboard = route('user.dashboard');
-
-        // Jika previous URL sama dengan current (loop), arahkan ke dashboard
-        $target = ($back && $back !== $request->fullUrl()) ? redirect()->back() : redirect()->route('user.dashboard');
-
-        return $target->with('permission_error', $message);
+        // abort() melempar HttpException, view errors/403.blade.php akan ditampilkan
+        abort(403, $message);
     }
 }
